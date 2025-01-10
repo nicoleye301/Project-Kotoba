@@ -1,30 +1,39 @@
 <script setup lang="ts">
-import HelloWorld from './components/HelloWorld.vue'
+import {RouterView} from 'vue-router'
 </script>
 
 <template>
-  <div>
-    <a href="https://vite.dev" target="_blank">
-      <img src="/vite.svg" class="logo" alt="Vite logo" />
-    </a>
-    <a href="https://vuejs.org/" target="_blank">
-      <img src="./assets/vue.svg" class="logo vue" alt="Vue logo" />
-    </a>
-  </div>
-  <HelloWorld msg="Vite + Vue" />
+    <body class="app-container">
+      <div class="content-container">
+        <RouterView />
+      </div>
+    </body>
 </template>
 
 <style scoped>
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
+
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  margin: 0px;
 }
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
+
+.sidebar {
+  width: 80px;
+  flex-shrink: 0;
 }
-.logo.vue:hover {
-  filter: drop-shadow(0 0 2em #42b883aa);
+
+.content-container {
+  flex-grow: 1;
+  overflow-y: auto;
+  padding: 20px;
+  background-color: #36393f;
+  color: #ffffff;
 }
+
+.logged-in {
+  margin-left: 80px; /* Adjust for sidebar width */
+}
+
 </style>
