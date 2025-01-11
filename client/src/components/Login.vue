@@ -44,7 +44,7 @@ const username = 'user1'
   padding: 20px;
   box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   border-radius: 8px;
-  background-color: #2c2f33;
+  background-color: #0c0c0c;
   color: #ffffff;
 }
 
@@ -57,16 +57,16 @@ const username = 'user1'
   margin: 10px 0;
   padding: 10px;
   font-size: 16px;
-  border: 1px solid #42454a;
+  border: 1px solid #232627;
   border-radius: 4px;
-  background-color: #40444b;
+  background-color: #232627;
   color: #ffffff;
 }
 
 .button {
   padding: 10px;
   font-size: 16px;
-  background-color: #7289da;
+  background-color: #27b961;
   color: white;
   border: none;
   border-radius: 4px;
@@ -74,7 +74,7 @@ const username = 'user1'
 }
 
 .link {
-  color: #7289da;
+  color: #27b961;
   cursor: pointer;
 }
 

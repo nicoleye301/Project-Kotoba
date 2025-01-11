@@ -28,7 +28,7 @@ import {RouterView} from 'vue-router'
   flex-grow: 1;
   overflow-y: auto;
   padding: 20px;
-  background-color: #36393f;
+  background-color: #0c0c0c;
   color: #ffffff;
 }
 
