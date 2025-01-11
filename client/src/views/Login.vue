@@ -1,4 +1,8 @@
 <script setup lang="ts">
+import {ref} from "vue";
+
+const username = ref('')
+const password = ref('')
 </script>
 
 <template>
@@ -6,9 +10,9 @@
     <h1>Login</h1>
     <form @Submit={} class="form">
       <input
-          type="text"
+          v-model="username"
+          type=text
           placeholder="Enter your username"
-          value=''
           @Change={}
           required
           class="input"
@@ -16,7 +20,7 @@
       <input
           type="password"
           placeholder="Enter your password"
-          value=''
+          v-model="password"
           @Change={}
           required
           class="input"
