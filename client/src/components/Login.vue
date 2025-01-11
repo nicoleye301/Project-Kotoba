@@ -1,5 +1,4 @@
 <script setup lang="ts">
-const username = 'user1'
 </script>
 
 <template>
@@ -9,7 +8,7 @@ const username = 'user1'
       <input
           type="text"
           placeholder="Enter your username"
-          :value='username'
+          value=''
           @Change={}
           required
           class="input"
@@ -23,7 +22,7 @@ const username = 'user1'
           class="input"
       />
       <button type="submit" class="button">
-        Login
+        Confirm
       </button>
     </form>
     <p>
@@ -54,22 +53,23 @@ const username = 'user1'
 }
 
 .input {
-  margin: 10px 0;
+  margin: 5px 0;
   padding: 10px;
   font-size: 16px;
   border: 1px solid #232627;
-  border-radius: 4px;
+  border-radius: 05px;
   background-color: #232627;
   color: #ffffff;
 }
 
 .button {
-  padding: 10px;
+  margin: 15px 15px 10px auto;
+  padding: 10px 15px;
   font-size: 16px;
   background-color: #27b961;
-  color: white;
+  color: #000000;
   border: none;
-  border-radius: 4px;
+  border-radius: 50px;
   cursor: pointer;
 }
 
