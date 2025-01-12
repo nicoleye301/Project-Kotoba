@@ -1,8 +1,14 @@
 <script setup lang="ts">
 import {ref} from "vue";
+import axiosInstance from "../utils/request.ts";
 
 const username = ref('')
 const password = ref('')
+
+const get = () => {
+  axiosInstance.get('/weather')
+}
+
 </script>
 
 <template>
