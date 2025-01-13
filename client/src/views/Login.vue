@@ -4,9 +4,13 @@ import axiosInstance from "../utils/request.ts";
 
 const username = ref('')
 const password = ref('')
+const weather = ref('')
 
 const get = () => {
-  axiosInstance.get('/weather')
+  axiosInstance.get('/weather').then((res) => {
+        weather.value = res.data
+      }
+  )
 }
 
 </script>
@@ -14,7 +18,7 @@ const get = () => {
 <template>
   <div class="container">
     <h1>Login</h1>
-    <form @Submit={} class="form">
+    <form @Submit={get} class="form">
       <input
           v-model="username"
           type=text

@@ -1,7 +1,7 @@
-package com.example.springboot.Service;
+package com.example.server.Service;
 
-import com.example.springboot.Entity.Employee;
-import com.example.springboot.mapper.EmployeeMapper;
+import com.example.server.Entity.Employee;
+import com.example.server.mapper.EmployeeMapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 

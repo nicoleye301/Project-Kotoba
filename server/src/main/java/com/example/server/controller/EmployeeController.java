@@ -1,7 +1,7 @@
-package com.example.springboot.controller;
+package com.example.server.controller;
 
-import com.example.springboot.Entity.Employee;
-import com.example.springboot.Service.EmployeeService;
+import com.example.server.Entity.Employee;
+import com.example.server.Service.EmployeeService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

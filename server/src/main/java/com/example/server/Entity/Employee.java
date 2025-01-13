@@ -1,4 +1,4 @@
-package com.example.springboot.Entity;
+package com.example.server.Entity;
 
 public class Employee {
     private Integer id;

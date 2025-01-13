@@ -1,6 +1,6 @@
-package com.example.springboot.mapper;
+package com.example.server.mapper;
 
-import com.example.springboot.Entity.Employee;
+import com.example.server.Entity.Employee;
 
 import java.util.List;
 

@@ -1,4 +1,4 @@
-package com.example.springboot.exception;
+package com.example.server.exception;
 
 public class CustomException extends RuntimeException {
     private final int code;

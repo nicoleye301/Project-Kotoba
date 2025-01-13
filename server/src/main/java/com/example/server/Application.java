@@ -1,11 +1,11 @@
-package com.example.springboot;
+package com.example.server;
 
 import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
-@MapperScan("com.example.springboot.mapper")
+@MapperScan("com.example.server.mapper")
 public class Application {
 
     public static void main(String[] args) {

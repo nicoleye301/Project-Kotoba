@@ -1,6 +1,6 @@
-package com.example.springboot.controller;
+package com.example.server.controller;
 
-import com.example.springboot.exception.CustomException;
+import com.example.server.exception.CustomException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
