@@ -3,7 +3,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.server.mapper.EmployeeMapper">
-    <select id="selectAll" resultType="com.example.server.Entity.Employee">
-        select * from employee
+    <select id="selectAll" resultType="com.example.server.entity.Employee">
+        select * from table_name
     </select>
 </mapper>

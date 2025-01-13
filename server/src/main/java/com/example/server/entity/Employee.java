@@ -1,4 +1,4 @@
-package com.example.server.Entity;
+package com.example.server.entity;
 
 public class Employee {
     private Integer id;

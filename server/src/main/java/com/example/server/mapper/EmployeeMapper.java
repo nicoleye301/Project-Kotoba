@@ -1,6 +1,6 @@
 package com.example.server.mapper;
 
-import com.example.server.Entity.Employee;
+import com.example.server.entity.Employee;
 
 import java.util.List;
 
