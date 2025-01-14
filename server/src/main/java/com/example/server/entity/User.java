@@ -1,6 +1,6 @@
 package com.example.server.entity;
 
-public class Employee {
+public class User {
     private Integer id;
     private String name;
     private String sex;
