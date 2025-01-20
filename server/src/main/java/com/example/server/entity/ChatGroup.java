@@ -1,8 +1,8 @@
 package com.example.server.entity;
 
 public class ChatGroup {
-    private int id;
-    private int ownerId;
-    private boolean isGroup;
+    private Integer id;
+    private Integer ownerId;
+    private Boolean isGroup;
     private String groupName;
 }

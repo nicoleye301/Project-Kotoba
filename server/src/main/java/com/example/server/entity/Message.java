@@ -1,8 +1,8 @@
 package com.example.server.entity;
 
 public class Message {
-    private int id;
+    private Integer id;
     private String content;
-    private int senderId;
-    private int groupId;
+    private Integer senderId;
+    private Integer groupId;
 }
