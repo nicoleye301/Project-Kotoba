@@ -1,7 +1,9 @@
 package com.example.server.mapper;
 
+import com.example.server.entity.User;
+
 import java.util.List;
 
 public interface UserMapper {
-    List<com.example.server.entity.User> selectAll();
+    User selectByUsername(String username);
 }

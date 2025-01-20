@@ -3,7 +3,8 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.server.mapper.UserMapper">
-    <select id="selectAll" resultType="com.example.server.entity.User">
-        select * from table_name
+    <select id="selectByUsername" resultType="com.example.server.entity.User" parameterType="string">
+        select * from users where username = #{username}
     </select>
+
 </mapper>
