@@ -4,13 +4,12 @@ import {Link, router} from "expo-router";
 import {useState} from "react";
 
 
-export default function Login() {
+export default function Register() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
 
-    const handleLogin = async () => {
-        await AsyncStorage.setItem('loggedIn', 'true')
-        router.replace("/(tabs)/home");
+    const handleRegister = async () => {
+
     };
 
     return (
@@ -31,9 +30,8 @@ export default function Login() {
                 secureTextEntry={true}
             />
 
-            <Button title='Login' onPress={handleLogin}/>
-            <Link href="/register" replace>Register</Link>
-
+            <Button title='Register' onPress={handleRegister}/>
+            <Link href="/login" replace>Login</Link>
         </View>
     );
 }
