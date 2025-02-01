@@ -3,6 +3,9 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.example.server.mapper.UserMapper">
+    <insert id="add" parameterType="com.example.server.entity.User">
+        insert into users (username, password) VALUES (#{username}, #{password})
+    </insert>
     <select id="selectByUsername" resultType="com.example.server.entity.User" parameterType="string">
         select * from users where username = #{username}
     </select>

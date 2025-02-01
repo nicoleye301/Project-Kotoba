@@ -8,7 +8,7 @@ export default function Home() {
 
     const checkLoggedIn =async () => {
         const user = await AsyncStorage.getItem('loggedIn')
-        if (user==='true'){
+        if (!!user){
             console.log("login success")
         }
         else{
@@ -21,14 +21,9 @@ export default function Home() {
         checkLoggedIn()
     }, []);
 
-    const handleLogout = async () => {
-        await AsyncStorage.removeItem('loggedIn')
-        router.replace("/login")
-    };
-
     return (
         <View>
-            <Button title='logout' onPress={handleLogout}/>
+
         </View>
     );
 }

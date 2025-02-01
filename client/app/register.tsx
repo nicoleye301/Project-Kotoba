@@ -2,6 +2,7 @@ import {Button, View, StyleSheet, TextInput, Text} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Link, router} from "expo-router";
 import {useState} from "react";
+import request from "@/utils/request";
 
 
 export default function Register() {
@@ -9,7 +10,14 @@ export default function Register() {
     const [password, setPassword] = useState("");
 
     const handleRegister = async () => {
-
+        try{
+            await request.post('/user/register', {username, password})
+            alert('Success')
+        }
+        catch(error){
+            console.error(error)
+            alert('Failed')
+        }
     };
 
     return (

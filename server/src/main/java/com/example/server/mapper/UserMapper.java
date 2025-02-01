@@ -6,4 +6,6 @@ import java.util.List;
 
 public interface UserMapper {
     User selectByUsername(String username);
+
+    void add(User user);
 }

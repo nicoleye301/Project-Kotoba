@@ -3,12 +3,10 @@ package com.example.server.controller;
 import com.example.server.entity.User;
 import com.example.server.service.UserService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/user")
@@ -20,8 +18,15 @@ public class UserController {
         this.userService = userService;
     }
 
-    @GetMapping("/login/{username}/{password}")
-    public User login(@PathVariable String username, @PathVariable String password) {
+    @PostMapping("/login")
+    public User login(@RequestBody Map<String, Object> body) {
+        String username = (String) body.get("username");
+        String password = (String) body.get("password");
         return userService.login(username, password);
+    }
+
+    @PostMapping("/register")
+    public void register(@RequestBody User user) {
+        userService.register(user);
     }
 }

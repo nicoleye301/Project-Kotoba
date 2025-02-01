@@ -25,4 +25,8 @@ public class UserService {
         }
         return user;
     }
+
+    public void register(User user) {
+        userMapper.add(user);
+    }
 }
