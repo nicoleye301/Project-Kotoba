@@ -1,8 +1,7 @@
 import {Button, View, StyleSheet, TextInput, Text} from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Link, router} from "expo-router";
 import {useState} from "react";
-import request from "@/utils/request";
+import RegisterApi from "@/api/register";
 
 
 export default function Register() {
@@ -11,7 +10,7 @@ export default function Register() {
 
     const handleRegister = async () => {
         try{
-            await request.post('/user/register', {username, password})
+            await RegisterApi.register({username, password})
             alert('Success')
         }
         catch(error){

@@ -2,7 +2,7 @@ import {Button, View, StyleSheet, TextInput, Text} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Link, router} from "expo-router";
 import {useState} from "react";
-import request from "@/utils/request";
+import LoginApi from "@/api/login"
 
 
 export default function Login() {
@@ -11,8 +11,8 @@ export default function Login() {
 
     const handleLogin = async () => {
         try{
-            const response = await request.post('/user/login', {username, password})
-            await AsyncStorage.setItem('loggedIn', response.data.username)
+            const data = await LoginApi.login({username, password})
+            await AsyncStorage.setItem('loggedIn', data.username)
             router.replace("/(tabs)/home")
         }
         catch(error){
