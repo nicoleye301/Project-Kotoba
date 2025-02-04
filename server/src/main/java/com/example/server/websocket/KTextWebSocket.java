@@ -4,11 +4,17 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.*;
 import org.springframework.web.socket.handler.TextWebSocketHandler;
 
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
+
 @Component
 public class KTextWebSocket extends TextWebSocketHandler {
+    private static HashSet<WebSocketSession> sessions = new HashSet<>();
 
     @Override
     public void afterConnectionEstablished(WebSocketSession session) throws Exception {
+        sessions.add(session);
         System.out.println("连接建立：" + session.getId());
     }
 
@@ -21,5 +27,13 @@ public class KTextWebSocket extends TextWebSocketHandler {
     @Override
     public void afterConnectionClosed(WebSocketSession session, CloseStatus status) throws Exception {
         System.out.println("连接关闭：" + session.getId());
+        sessions.remove(session);
     }
+
+    public void broadcast(String message) throws Exception {
+        for (WebSocketSession i:sessions){
+            i.sendMessage(new TextMessage(message));
+        }
+    }
+
 }

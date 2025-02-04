@@ -2,6 +2,9 @@ import {Button, Text, View} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {router} from "expo-router";
 import {useEffect} from "react";
+import eventEmitter from "@/utils/eventEmitter";
+import ChatApi from "@/api/message"
+import {connect} from "@/utils/websocket";
 
 
 export default function Home() {
@@ -17,13 +20,24 @@ export default function Home() {
         }
     }
 
+    const ping=()=>{
+        ChatApi.sendMessage('ping')
+    }
+
     useEffect(() => {
         checkLoggedIn()
     }, []);
 
+    useEffect(() => {
+        connect()
+        eventEmitter.addListener("message", (data) => {
+            console.log("Received message:", data);
+        });
+    }, []);
+
     return (
         <View>
-
+            <Button title={'dd'} onPress={ping}></Button>
         </View>
     );
 }
