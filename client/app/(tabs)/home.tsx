@@ -37,7 +37,7 @@ export default function Home() {
 
     return (
         <View>
-            <Button title={'dd'} onPress={ping}></Button>
+            <Button title={'ping'} onPress={ping}></Button>
         </View>
     );
 }
