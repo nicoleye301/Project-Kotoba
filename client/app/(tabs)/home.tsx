@@ -30,9 +30,10 @@ export default function Home() {
 
     useEffect(() => {
         connect()
-        eventEmitter.addListener("message", (data) => {
+        const listener = eventEmitter.addListener("message", (data) => {
             console.log("Received message:", data);
         });
+        return () => listener.remove();
     }, []);
 
     return (
