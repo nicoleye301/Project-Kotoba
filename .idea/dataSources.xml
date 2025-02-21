@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="postgres@localhost" uuid="d8d50344-0d71-42e9-b411-7a55861c15d7">
+    <data-source source="LOCAL" name="needs@ep-square-sea-a5q5w4mx-pooler.us-east-2.aws.neon.tech" uuid="e572a940-c1dc-4f3f-82e2-3f1380538951">
       <driver-ref>postgresql</driver-ref>
       <synchronize>true</synchronize>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://localhost:5432/postgres</jdbc-url>
+      <jdbc-url>jdbc:postgresql://ep-square-sea-a5q5w4mx-pooler.us-east-2.aws.neon.tech/needs?sslmode=require</jdbc-url>
       <jdbc-additional-properties>
         <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />

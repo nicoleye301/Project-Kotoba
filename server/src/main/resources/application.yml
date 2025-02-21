@@ -3,10 +3,8 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/postgres
+    url: jdbc:postgresql://ep-square-sea-a5q5w4mx-pooler.us-east-2.aws.neon.tech/needs?user=needs_owner&password=QSrKY7U4jMWc&sslmode=require
     driver-class-name: org.postgresql.Driver
-    username: postgres
-    password: 12345678
 
 mybatis:
   mapper-locations: classpath:mapper/*.xml
