@@ -4,14 +4,14 @@ import {router} from "expo-router";
 import {useEffect} from "react";
 import eventEmitter from "@/utils/eventEmitter";
 import ChatApi from "@/api/message"
-import {connect} from "@/utils/websocket";
+import {connectWebSocket} from "@/utils/websocket";
 
 
 export default function Home() {
 
     const checkLoggedIn =async () => {
         const user = await AsyncStorage.getItem('loggedIn')
-        if (!!user){
+        if (user){
             console.log("login success")
         }
         else{
@@ -24,16 +24,17 @@ export default function Home() {
         ChatApi.sendMessage('ping')
     }
 
-    useEffect(() => {
-        checkLoggedIn()
-    }, []);
 
     useEffect(() => {
-        connect()
+        checkLoggedIn()
+        connectWebSocket()
         const listener = eventEmitter.addListener("message", (data) => {
             console.log("Received message:", data);
         });
-        return () => listener.remove();
+
+        return () => {
+            listener.remove();
+        }
     }, []);
 
     return (

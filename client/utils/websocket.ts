@@ -3,7 +3,10 @@ import eventEmitter from "@/utils/eventEmitter";
 const wsUrl = "ws://10.0.2.2:8080/ws";  //backend url
 let socket: WebSocket
 
-export function connect(){
+export function connectWebSocket(){
+    if(socket){
+        socket.close()
+    }
     socket = new WebSocket(wsUrl)
     socket.onopen = () => console.log("websocket connected");
     socket.onmessage = (event) => {
