@@ -11,7 +11,7 @@ export default function Home() {
 
     const checkLoggedIn =async () => {
         const user = await AsyncStorage.getItem('loggedIn')
-        if (user){
+        if (!!user){
             console.log("login success")
         }
         else{
