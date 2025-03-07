@@ -6,10 +6,8 @@ export interface LoginParams {
 }
 
 export interface LoginResponse {
-    userId: number;
+    id: number;
     username: string;
-    token: string;
-    portrait: string;
 }
 
 async function login(params: LoginParams): Promise<LoginResponse> {
