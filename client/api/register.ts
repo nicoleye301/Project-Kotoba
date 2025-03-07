@@ -1,7 +1,18 @@
 import Http from "../utils/http";
 
-function register(param:{}) {
-    return Http.post("/user/register", param);
+export interface RegisterParams {
+    username: string;
+    account: string;
+    password: string;
+    email?: string;
+    code?: string;
 }
 
-export default {register}
+
+async function register(params: RegisterParams) {
+    return Http.post("/user/register", params);
+}
+
+export default {
+    register,
+};
