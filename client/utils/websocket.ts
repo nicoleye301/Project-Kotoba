@@ -1,23 +1,45 @@
+
 import eventEmitter from "@/utils/eventEmitter";
 
-const wsUrl = "ws://10.0.2.2:8080/ws";  //backend url
-let socket: WebSocket
+const wsUrl = "ws://10.0.2.2:8080/ws";
+let socket;
 
-export function connectWebSocket(){
-    if(socket){
-        socket.close()
-    }
-    socket = new WebSocket(wsUrl)
-    socket.onopen = () => console.log("websocket connected");
-    socket.onmessage = (event) => {
-        eventEmitter.emit('message',event.data)
+export function connect() {
+    // create the WebSocket connection - connection establish immediately
+    socket = new WebSocket(wsUrl);
+
+    // called when connection is opened
+    socket.onopen = function (event) {
+        console.log("WebSocket is open now.");
     };
-    socket.onclose = () => console.log("websocket closed");
-    socket.onerror = (error) => console.error(error);
+
+    // called when a message is received
+    socket.onmessage = function (event) {
+        console.log("Received:", event.data);
+        // emit the message to event emitter so other parts of app can listen
+        eventEmitter.emit("message", event.data);
+    };
+
+    // called when there is an error
+    socket.onerror = function (event) {
+        console.error("WebSocket error observed:", event);
+    };
+
+    // called when connection is closed
+    socket.onclose = function (event) {
+        console.log("WebSocket is closed now.");
+    };
 }
 
-function sendMessage(message: string) {
-    socket.send(message);
+export function sendMessage(message) {
+    if (socket && socket.readyState === WebSocket.OPEN) {
+        socket.send(message);
+    } else {
+        console.error("WebSocket is not open. Ready state: ", socket.readyState);
+    }
 }
 
-export default {sendMessage}
+export default {
+    connect,
+    sendMessage,
+};

@@ -4,11 +4,12 @@ create table users(
     username varchar(100) unique not null,
     password varchar(100) not null
 );
-create table friendships(
-    user_id int not null,
-    friend_id int not null,
-    primary key (user_id, friend_id)
+CREATE TABLE friendships (
+    user_id VARCHAR(50) NOT NULL,
+    friend_id VARCHAR(50) NOT NULL,
+    PRIMARY KEY (user_id, friend_id)
 );
+
 create table chat_groups(
     id serial primary key,
     owner_id int not null,

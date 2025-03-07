@@ -1,7 +1,21 @@
 import Http from "../utils/http";
 
-function login(param:{}) {
-    return Http.post("/user/login", param);
+export interface LoginParams {
+    username: string;
+    password: string;
 }
 
-export default {login}
+export interface LoginResponse {
+    userId: number;
+    username: string;
+    token: string;
+    portrait: string;
+}
+
+async function login(params: LoginParams): Promise<LoginResponse> {
+    return Http.post("/user/login", params);
+}
+
+export default {
+    login,
+};
