@@ -1,7 +1,6 @@
 //placeholder impl
 
 import Http from "../utils/http";
-import axios from 'axios';
 
 export interface SendMessageParams {
     message: string;
@@ -38,7 +37,7 @@ export async function fetchHistory({ conversationId, isGroup }: { conversationId
 //placeholder
 export async function sendMessage(payload: any) {
     // testing
-    const response = await axios.post('/message/send', payload);
+    const response = await Http.post('/message/send', payload);
     return response.data;
 }
 
