@@ -1,5 +1,12 @@
-drop table if exists "user", friendship, chat_group, group_member,
-    message, post, post_like, post_comment;
+drop table if exists
+    "user",
+    friendship,
+    chat_group,
+    group_member,
+    message,
+    post,
+    post_like,
+    post_comment;
 
 create table "user"(
     id serial primary key,
