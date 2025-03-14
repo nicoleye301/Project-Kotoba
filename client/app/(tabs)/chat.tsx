@@ -1,96 +1,177 @@
-import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, FlatList, StyleSheet } from "react-native";
-import { useRouter } from "expo-router";
+import React, { useState, useEffect, useRef } from "react";
+import {
+    View,
+    FlatList,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    ActivityIndicator,
+} from "react-native";
+import { TextInput, Button } from "react-native-paper";
+import ChatBubble from "@/components/ChatBubble";
+import ChatApi from "@/api/message";
+import eventEmitter from "@/utils/eventEmitter";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import { useSearchParams } from "expo-router/build/hooks";
 
-type Conversation = {
+type Message = {
     id: number;
-    title: string;
-    lastMessage: string;
-    timestamp: string;
-    unreadCount: number;
-    isGroup: boolean;
+    senderId: number;
+    chatId: number;
+    content: string;
+    sentTime: string;
+    status?: string;
 };
 
-export default function ChatListScreen() {
-    const [selectedTab, setSelectedTab] = useState<"personal" | "group">("personal");
-    const [conversations, setConversations] = useState<Conversation[]>([]);
-    const router = useRouter();
+export default function ConversationScreen() {
+    const params = useSearchParams();
+    const chatIdParam = params.get("chatId");
+    const chatId = chatIdParam ? Number(chatIdParam) : null;
 
+    const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+    const [messages, setMessages] = useState<Message[]>([]);
+    const [inputText, setInputText] = useState("");
+    const [loading, setLoading] = useState(true);
+    const flatListRef = useRef<FlatList<Message>>(null);
+
+    // get current user ID from AsyncStorage
     useEffect(() => {
-        // placeholder for UI testing
-        if (selectedTab === "personal") {
-            setConversations([
-                { id: 1, title: "Alice", lastMessage: "Hey, how are you?", timestamp: new Date().toISOString(), unreadCount: 2, isGroup: false },
-                { id: 2, title: "Bob", lastMessage: "Let's meet tomorrow.", timestamp: new Date().toISOString(), unreadCount: 0, isGroup: false },
-            ]);
-        } else {
-            setConversations([
-                { id: 101, title: "Family Group", lastMessage: "Dinner at 7?", timestamp: new Date().toISOString(), unreadCount: 3, isGroup: true },
-                { id: 102, title: "Work Chat", lastMessage: "Deadline extended!", timestamp: new Date().toISOString(), unreadCount: 0, isGroup: true },
-            ]);
-        }
-    }, [selectedTab]);
+        AsyncStorage.getItem("loggedInUserId")
+            .then((storedId) => {
+                if (storedId) {
+                    setCurrentUserId(Number(storedId));
+                }
+            })
+            .catch((err) => console.error("Error retrieving user ID:", err));
+    }, []);
 
-    const renderConversation = ({ item }: { item: Conversation }) => (
-        <TouchableOpacity
-            style={styles.conversationCard}
-            onPress={() =>
-                // pass parameters (conversation id, type, and title) to the Conversation screen
-                router.push(`/conversation?id=${item.id}&isGroup=${item.isGroup}&title=${encodeURIComponent(item.title)}`)
+    // fetch conversation history when chatId is available
+    useEffect(() => {
+        if (!chatId) return;
+        setLoading(true);
+        ChatApi.fetchHistory(chatId)
+            .then((history: Message[]) => {
+                setMessages(history);
+                // scroll to bottom after a short delay
+                setTimeout(() => {
+                    flatListRef.current?.scrollToEnd({ animated: true });
+                }, 100);
+            })
+            .catch((err) => console.error("Error fetching history:", err))
+            .finally(() => setLoading(false));
+    }, [chatId]);
+
+    // listen for incoming messages via WebSocket
+    useEffect(() => {
+        const listener = eventEmitter.addListener("message", (data: string) => {
+            try {
+                const newMessage: Message = JSON.parse(data);
+                if (newMessage.chatId === chatId) {
+                    setMessages((prev) => [...prev, newMessage]);
+                    flatListRef.current?.scrollToEnd({ animated: true });
+                }
+            } catch (err) {
+                console.error("Error parsing incoming message:", err);
             }
-        >
-            <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>{item.title}</Text>
-                <Text style={styles.cardMessage}>{item.lastMessage}</Text>
-            </View>
-            {item.unreadCount > 0 && (
-                <View style={styles.unreadBadge}>
-                    <Text style={styles.unreadText}>{item.unreadCount}</Text>
-                </View>
-            )}
-        </TouchableOpacity>
+        });
+        return () => listener.remove();
+    }, [chatId]);
+
+    const sendMessage = async () => {
+        if (!inputText.trim() || !currentUserId || !chatId) return;
+
+        try {
+            const newMessage: Message = await ChatApi.sendMessage({
+                senderId: currentUserId,
+                groupId: chatId,
+                content: inputText,
+            });
+            setMessages((prev) => [...prev, newMessage]);
+            setInputText("");
+            flatListRef.current?.scrollToEnd({ animated: true });
+        } catch (err) {
+            console.error("Error sending message:", err);
+        }
+    };
+
+    const renderMessage = ({ item }: { item: Message }) => (
+        <ChatBubble
+            message={item}
+            isOwn={currentUserId !== null && item.senderId === currentUserId}
+        />
     );
 
-    return (
-        <View style={styles.container}>
-            {/* Tab Toggle */}
-            <View style={styles.tabContainer}>
-                <TouchableOpacity
-                    onPress={() => setSelectedTab("personal")}
-                    style={[styles.tabButton, selectedTab === "personal" && styles.activeTab]}
-                >
-                    <Text style={[styles.tabText, selectedTab === "personal" && styles.activeTabText]}>Personal</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                    onPress={() => setSelectedTab("group")}
-                    style={[styles.tabButton, selectedTab === "group" && styles.activeTab]}
-                >
-                    <Text style={[styles.tabText, selectedTab === "group" && styles.activeTabText]}>Group</Text>
-                </TouchableOpacity>
+    if (!chatId) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#333" />
             </View>
-            {/* Conversation List */}
-            <FlatList
-                data={conversations}
-                keyExtractor={(item) => item.id.toString()}
-                renderItem={renderConversation}
-                contentContainerStyle={styles.listContainer}
-            />
-        </View>
+        );
+    }
+
+    return (
+        <KeyboardAvoidingView
+            style={styles.container}
+            behavior={Platform.OS === "ios" ? "padding" : undefined}
+        >
+            {loading ? (
+                <ActivityIndicator size="large" color="#333" style={styles.loadingIndicator} />
+            ) : (
+                <FlatList
+                    ref={flatListRef}
+                    data={messages}
+                    keyExtractor={(item) => item.id ? item.id.toString() : Math.random().toString()}
+                    renderItem={renderMessage}
+                    contentContainerStyle={styles.messagesContainer}
+                    onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
+                />
+            )}
+            <View style={styles.inputContainer}>
+                <TextInput
+                    mode="outlined"
+                    placeholder="Type your message..."
+                    value={inputText}
+                    onChangeText={setInputText}
+                    style={styles.input}
+                />
+                <Button mode="contained" onPress={sendMessage} style={styles.sendButton}>
+                    Send
+                </Button>
+            </View>
+        </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, padding: 10, backgroundColor: "#F9FBFF" },
-    tabContainer: { flexDirection: "row", justifyContent: "center", marginBottom: 10 },
-    tabButton: { paddingVertical: 8, paddingHorizontal: 16, borderRadius: 20, backgroundColor: "#E1E0E0", marginHorizontal: 5 },
-    activeTab: { backgroundColor: "#4C9BFF" },
-    tabText: { fontSize: 16, color: "#333" },
-    activeTabText: { color: "#fff" },
-    listContainer: { paddingBottom: 20 },
-    conversationCard: { flexDirection: "row", alignItems: "center", padding: 10, borderBottomWidth: 1, borderColor: "#ccc" },
-    cardContent: { flex: 1 },
-    cardTitle: { fontSize: 16, fontWeight: "bold" },
-    cardMessage: { fontSize: 14, color: "#666", marginTop: 4 },
-    unreadBadge: { backgroundColor: "#4C9BFF", borderRadius: 12, paddingHorizontal: 6, paddingVertical: 2 },
-    unreadText: { color: "#fff", fontSize: 12 },
+    container: {
+        flex: 1,
+        backgroundColor: "#ffffff",
+    },
+    messagesContainer: {
+        padding: 12,
+        paddingBottom: 20,
+    },
+    inputContainer: {
+        flexDirection: "row",
+        padding: 10,
+        borderTopWidth: 1,
+        borderColor: "#ddd",
+        alignItems: "center",
+    },
+    input: {
+        flex: 1,
+        marginRight: 10,
+    },
+    sendButton: {
+        paddingVertical: 6,
+        paddingHorizontal: 12,
+    },
+    loadingContainer: {
+        flex: 1,
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    loadingIndicator: {
+        marginTop: 20,
+    },
 });

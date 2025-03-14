@@ -1,7 +1,11 @@
 package com.example.server.controller;
 
+import com.example.server.entity.Message;
+import com.example.server.exception.CustomException;
 import com.example.server.service.MessageService;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -14,13 +18,28 @@ public class MessageController {
         this.messageService = messageService;
     }
 
-    @PostMapping("/send")
-    public void send(@RequestBody Map<String, Object> data) throws Exception {
-        Integer groupId = (Integer) data.get("groupId");
-        String messageContent = (String) data.get("message");
-        if (groupId == null || messageContent == null) {
-            throw new IllegalArgumentException("groupId and message must be provided");
+    // fetch chat history
+    @GetMapping("/history")
+    public List<Message> getChatHistory(@RequestParam("chatId") Integer chatId) {
+        if (chatId == null) {
+            throw new CustomException(400, "chatId is required");
         }
-        messageService.broadcast(groupId, messageContent);
+        return messageService.getMessagesByGroupId(chatId);
+    }
+
+    // send a message
+    @PostMapping("/send")
+    public Message sendMessage(@RequestBody Map<String, Object> data) {
+        Integer senderId = (data.get("senderId") instanceof Number)
+                ? ((Number) data.get("senderId")).intValue() : null;
+        Integer chatId = (data.get("groupId") instanceof Number)
+                ? ((Number) data.get("groupId")).intValue() : null;
+        String content = (String) data.get("content");
+
+        if (senderId == null || chatId == null || content == null) {
+            throw new CustomException(400, "senderId, groupId (chatId), and content are required");
+        }
+
+        return messageService.sendMessage(senderId, chatId, content);
     }
 }
