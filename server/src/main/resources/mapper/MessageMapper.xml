@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.server.mapper.MessageMapper">
+
+    <resultMap id="MessageResultMap" type="com.example.server.entity.Message">
+        <id property="id" column="id"/>
+        <result property="content" column="content"/>
+        <result property="senderId" column="sender_id"/>
+        <result property="groupId" column="group_id"/>
+        <result property="type" column="type"/>
+        <result property="sentTime" column="sent_time"/>
+        <result property="status" column="status"/>
+    </resultMap>
+
+    <!-- Insert a new message -->
+    <insert id="insertMessage" parameterType="com.example.server.entity.Message">
+        INSERT INTO message (content, sender_id, group_id, type, sent_time, status)
+        VALUES (#{content}, #{senderId}, #{groupId}, #{type}, #{sentTime}, #{status})
+    </insert>
+
+    <!-- Select messages by group_id -->
+    <select id="selectMessagesByGroupId" resultMap="MessageResultMap">
+        SELECT id, content, sender_id, group_id, type, sent_time, status
+        FROM message
+        WHERE group_id = #{groupId}
+        ORDER BY sent_time ASC
+    </select>
+
+</mapper>

@@ -14,7 +14,7 @@ export interface GroupChat {
 }
 
 // create a new chat group via POST
-async function createGroup(params: CreateGroupParams): Promise<GroupChat> {
+export async function createGroup(params: CreateGroupParams): Promise<GroupChat> {
     return Http.post("/chat-group/create", params);
 }
 
@@ -23,7 +23,7 @@ export interface GetGroupDetailsParams {
 }
 
 // fetch group details via POST
-async function getGroupDetails(params: GetGroupDetailsParams): Promise<GroupChat> {
+export async function getGroupDetails(params: GetGroupDetailsParams): Promise<GroupChat> {
     return Http.post("/chat-group/details", params);
 }
 

@@ -2,7 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
 type ChatBubbleProps = {
-    message: { content: string; timestamp: string };
+    message: { content: string; sentTime: string };
     isOwn: boolean;
 };
 
@@ -10,7 +10,9 @@ export default function ChatBubble({ message, isOwn }: ChatBubbleProps) {
     return (
         <View style={[styles.bubble, isOwn ? styles.ownBubble : styles.otherBubble]}>
             <Text style={styles.messageText}>{message.content}</Text>
-            <Text style={styles.timestamp}>{new Date(message.timestamp).toLocaleTimeString()}</Text>
+            <Text style={styles.timestamp}>
+                {new Date(message.sentTime).toLocaleTimeString()}
+            </Text>
         </View>
     );
 }
