@@ -1,19 +1,12 @@
 package com.example.server.service.impl;
 
 import com.example.server.entity.Friendship;
-import com.example.server.entity.User;
 import com.example.server.exception.CustomException;
 import com.example.server.mapper.FriendshipMapper;
-import com.example.server.mapper.UserMapper;
 import com.example.server.service.FriendshipService;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
-
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -21,8 +14,6 @@ public class FriendshipServiceImpl implements FriendshipService {
 
     @Resource
     private FriendshipMapper friendshipMapper;
-    @Autowired
-    private UserMapper userMapper;
 
     @Override
     public void sendFriendRequest(Integer senderId, Integer receiverId) {
@@ -96,19 +87,19 @@ public class FriendshipServiceImpl implements FriendshipService {
     }
 
     @Override
-    public List<Map<String, Object>> getAcceptedFriends(Integer userId) {
+    public List<Friendship> getAcceptedFriends(Integer userId) {
         // get all friend records where the user is either the sender or receiver and status is accepted
-        List<Friendship> friendships = friendshipMapper.selectFriendshipsByUser(userId);
-        List<Map<String, Object>> result = new LinkedList<>();
-        for(Friendship friendship:friendships){
-            User friend = userMapper.selectById(friendship.getFriendId());
-            Map<String, Object> map = new HashMap<>();
-            map.put("id", friend.getId());
-            map.put("displayedName", friend.getUsername());
-            map.put("avatarUrl", friend.getAvatar());
-            result.add(map);
-        }
-        return result;
+        List<Friendship> list = friendshipMapper.selectFriendshipsByUser(userId);
+        // remove duplicates if any
+        return list.stream()
+                .filter(f -> "accepted".equals(f.getStatus()))
+                .collect(Collectors.toMap(
+                        f -> Math.min(f.getUserId(), f.getFriendId()),
+                        f -> f,
+                        (f1, f2) -> f1))
+                .values()
+                .stream()
+                .collect(Collectors.toList());
     }
 
     @Override

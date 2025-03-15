@@ -77,7 +77,7 @@ public class FriendController {
 
     // get list of accepted friends for the specified user
     @GetMapping("/list")
-    public List<Map<String, Object>> listFriends(@RequestParam Integer userId) {
+    public List<Friendship> listFriends(@RequestParam Integer userId) {
         return friendshipService.getAcceptedFriends(userId);
     }
 
