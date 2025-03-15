@@ -1,19 +1,11 @@
 import React, { useEffect, useState } from "react";
-import { View, FlatList, StyleSheet, Alert, Text } from "react-native";
-import {
-    Appbar,
-    TextInput,
-    Button,
-    Card,
-    Title,
-    Paragraph,
-    Modal,
-    Portal,
-    Provider,
-} from "react-native-paper";
+import { View, FlatList, StyleSheet, Alert, TouchableOpacity, Text } from "react-native";
+import {Appbar, TextInput, Button, Card, Title, Paragraph, Provider, Portal, Modal, List, PaperProvider, Searchbar, IconButton} from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FriendApi from "@/api/friend";
+import UserApi from "@/api/user";
 import SendFriendRequest from "@/components/SendFriendRequest";
+import { LightTheme } from '@/theme/theme';
 
 // define the Friendship type
 interface Friendship {
@@ -22,14 +14,14 @@ interface Friendship {
     friendId: number;     // the receiver (the other user)
     nickname?: string;
     directChatGroupId?: number;
-    status: string;       // "pending", "accepted", "declined", etc.
+    status: string;      // "pending", "accepted", "declined", etc.
 }
 
 // define ChatItem type for displaying confirmed friends in the UI
 interface ChatItem {
     type: "friend" | "group";
-    id: number;       // for friends, this is the "other" user's id
-    title: string;    // friend name
+    id: number;
+    title: string;
     subtitle?: string;
     avatarUrl?: string;
     updatedAt?: string;
@@ -50,9 +42,7 @@ export default function ContactsScreen() {
                     setCurrentUserId(Number(storedId));
                 }
             })
-            .catch((error) =>
-                console.error("Error retrieving user ID:", error)
-            );
+            .catch((error) => console.error("Error retrieving user ID:", error));
     }, []);
 
     // fetch pending friend requests (where the current user is the receiver)
@@ -73,20 +63,39 @@ export default function ContactsScreen() {
     useEffect(() => {
         if (currentUserId !== null) {
             FriendApi.getFriendList(currentUserId)
-                .then((friendships: Friendship[]) => {
-                    const friendItems: ChatItem[] = friendships.map((f: Friendship): ChatItem => {
-                        // Determine the "other" user:
-                        const friendId = f.userId === currentUserId ? f.friendId : f.userId;
-                        return {
-                            type: "friend",
-                            id: friendId,
-                            title: `Friend #${friendId}`,
-                            subtitle: "Tap to chat",
-                            updatedAt: "Just now", // replace with a real timestamp
-                            avatarUrl: "",
-                        };
-                    });
-                    setConfirmedFriends(friendItems);
+                .then(async (friendships: Friendship[]) => {
+                    // use a dictionary to remove duplicates
+                    const friendItemsMap: { [key: number]: ChatItem } = {};
+                    await Promise.all(
+                        friendships.map(async (f: Friendship) => {
+                            // determine the other
+                            const friendId = f.userId === currentUserId ? f.friendId : f.userId;
+                            if (!friendItemsMap[friendId]) {
+                                try {
+                                    const friendUser = await UserApi.getUserById(friendId);
+                                    friendItemsMap[friendId] = {
+                                        type: "friend",
+                                        id: friendId,
+                                        title: friendUser.username,
+                                        subtitle: "Tap to chat",
+                                        updatedAt: "Just now", // update with a proper timestamp later
+                                        avatarUrl: friendUser.avatar || "",
+                                    };
+                                } catch (error) {
+                                    console.error(`Error fetching details for friend ID ${friendId}:`, error);
+                                    friendItemsMap[friendId] = {
+                                        type: "friend",
+                                        id: friendId,
+                                        title: `Friend #${friendId}`,
+                                        subtitle: "Tap to chat",
+                                        updatedAt: "Just now",
+                                        avatarUrl: "",
+                                    };
+                                }
+                            }
+                        })
+                    );
+                    setConfirmedFriends(Object.values(friendItemsMap));
                 })
                 .catch((error) => {
                     console.error("Error fetching friend list:", error);
@@ -95,12 +104,54 @@ export default function ContactsScreen() {
         }
     }, [currentUserId]);
 
+    // refresh both pending and accepted friend lists
+    const refreshRequestsAndFriends = async () => {
+        if (currentUserId !== null) {
+            try {
+                const pendingData: Friendship[] = await FriendApi.getPendingRequests(currentUserId);
+                setPendingRequests(pendingData);
+                const friendData: Friendship[] = await FriendApi.getFriendList(currentUserId);
+                const friendItemsMap: { [key: number]: ChatItem } = {};
+                await Promise.all(
+                    friendData.map(async (f: Friendship) => {
+                        const friendId = f.userId === currentUserId ? f.friendId : f.userId;
+                        if (!friendItemsMap[friendId]) {
+                            try {
+                                const friendUser = await UserApi.getUserById(friendId);
+                                friendItemsMap[friendId] = {
+                                    type: "friend",
+                                    id: friendId,
+                                    title: friendUser.username,
+                                    subtitle: "Tap to chat",
+                                    updatedAt: "Just now",
+                                    avatarUrl: friendUser.avatar || "",
+                                };
+                            } catch (error) {
+                                console.error(`Error fetching details for friend ID ${friendId}:`, error);
+                                friendItemsMap[friendId] = {
+                                    type: "friend",
+                                    id: friendId,
+                                    title: `Friend #${friendId}`,
+                                    subtitle: "Tap to chat",
+                                    updatedAt: "Just now",
+                                    avatarUrl: "",
+                                };
+                            }
+                        }
+                    })
+                );
+                setConfirmedFriends(Object.values(friendItemsMap));
+            } catch (error) {
+                console.error("Error refreshing friend lists:", error);
+            }
+        }
+    };
+
+    // when accepting or declining a friend request, pass the friendship record's id
     const handleAccept = async (friendship: Friendship) => {
         if (!currentUserId) return;
         try {
-            await FriendApi.acceptFriendRequest({
-                id:friendship.id
-            });
+            await FriendApi.acceptFriendRequest({ id: friendship.id });
             refreshRequestsAndFriends();
         } catch (error: any) {
             console.error("Error accepting friend request:", error);
@@ -110,134 +161,171 @@ export default function ContactsScreen() {
     const handleDecline = async (friendship: Friendship) => {
         if (!currentUserId) return;
         try {
-            await FriendApi.declineFriendRequest({
-                id:friendship.id
-            });
+            await FriendApi.declineFriendRequest({ id: friendship.id });
             refreshRequestsAndFriends();
         } catch (error: any) {
             console.error("Error declining friend request:", error);
         }
     };
 
-    const refreshRequestsAndFriends = async () => {
-        if (currentUserId !== null) {
-            try {
-                const pendingData: Friendship[] = await FriendApi.getPendingRequests(currentUserId);
-                setPendingRequests(pendingData);
-                const friendData: Friendship[] = await FriendApi.getFriendList(currentUserId);
-                const friendItems: ChatItem[] = friendData.map((f: Friendship): ChatItem => {
-                    const friendId = f.userId === currentUserId ? f.friendId : f.userId;
-                    return {
-                        type: "friend",
-                        id: friendId,
-                        title: `Friend #${friendId}`,
-                        subtitle: "Tap to chat",
-                        updatedAt: "Just now",
-                        avatarUrl: "",
-                    };
-                });
-                setConfirmedFriends(friendItems);
-            } catch (error) {
-                console.error("Error refreshing friend lists:", error);
-            }
-        }
-    };
-
     const renderPendingItem = ({ item }: { item: Friendship }) => (
-        <Card style={styles.card}>
-            <Card.Content>
-                <Title>Friend Request from User ID: {item.userId}</Title>
-                <Paragraph>Status: {item.status}</Paragraph>
-            </Card.Content>
-            <Card.Actions>
-                <Button onPress={() => handleAccept(item)}>Accept</Button>
-                <Button onPress={() => handleDecline(item)}>Decline</Button>
-            </Card.Actions>
-        </Card>
+        <List.Item
+            title={`Request from user #${item.userId}`}
+            description={`Status: ${item.status}`}
+            left={() => <List.Icon icon="account-clock" />}
+            right={() => (
+                <View style={styles.requestActions}>
+                    <Button mode="contained" style={styles.actionBtn} onPress={() => handleAccept(item)}>
+                        Accept
+                    </Button>
+                    <Button mode="outlined" style={[styles.actionBtn, { marginLeft: 8 }]} onPress={() => handleDecline(item)}>
+                        Decline
+                    </Button>
+                </View>
+            )}
+            style={styles.pendingListItem}
+        />
     );
 
     const renderFriendItem = ({ item }: { item: ChatItem }) => (
-        <Card style={styles.card}>
-            <Card.Content>
-                <Title>Friend ID: {item.id}</Title>
-                <Paragraph>{item.subtitle}</Paragraph>
-            </Card.Content>
-        </Card>
+        <List.Item
+            title={item.title}
+            description={item.subtitle}
+            left={() => <List.Icon icon="account" />}
+            right={() => <List.Icon icon="chevron-right" />}
+            style={styles.friendListItem}
+        />
     );
 
+    // ----- UI -----
     return (
-        <Provider>
+        <PaperProvider theme={LightTheme}>
+            <Appbar.Header>
+                <Appbar.Content title="Contacts" />
+                <Appbar.Action icon="plus" onPress={() => setModalVisible(true)} />
+            </Appbar.Header>
+
             <View style={styles.container}>
-                <Appbar.Header>
-                    <Appbar.Content title="Contacts" />
-                    <Appbar.Action icon="plus" onPress={() => setModalVisible(true)} />
-                </Appbar.Header>
-                <TextInput
-                    label="Search"
+                <Searchbar
+                    placeholder="Search friends..."
                     value={searchQuery}
                     onChangeText={setSearchQuery}
-                    style={styles.searchBar}
+                    style={styles.searchbar}
                 />
+                {/* Pending requests */}
                 {pendingRequests.length > 0 && (
-                    <View>
-                        <Title style={styles.sectionTitle}>Pending Requests</Title>
+                    <>
+                        <Text style={styles.sectionTitle}>Pending Requests</Text>
                         <FlatList
                             data={pendingRequests}
                             keyExtractor={(item) => item.id.toString()}
                             renderItem={renderPendingItem}
+                            style={styles.flatListSpacing}
                         />
-                    </View>
+                    </>
                 )}
-                <Title style={styles.sectionTitle}>Friends</Title>
+                {/* Friends */}
+                <Text style={styles.sectionTitle}>Friends</Text>
                 <FlatList
                     data={confirmedFriends}
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={renderFriendItem}
+                    style={styles.flatListSpacing}
                 />
+                {/* Modal for adding friend */}
                 <Portal>
                     <Modal
                         visible={modalVisible}
                         onDismiss={() => setModalVisible(false)}
-                        contentContainerStyle={styles.modal}
+                        contentContainerStyle={styles.modalContainer}
                     >
-                        <SendFriendRequest />
+                        {/* Close icon in top-right */}
+                        <View style={styles.modalHeader}>
+                            <Text style={styles.modalTitle}>Add Friend</Text>
+                            <IconButton
+                                icon="close"
+                                onPress={() => setModalVisible(false)}
+                                style={styles.closeIcon}
+                            />
+                        </View>
+                        <SendFriendRequest onClose={() => setModalVisible(false)} />
                         <Button
                             mode="contained"
                             onPress={() => setModalVisible(false)}
-                            style={styles.modalButton}
+                            style={styles.modalCloseBtn}
                         >
                             Close
                         </Button>
                     </Modal>
                 </Portal>
             </View>
-        </Provider>
+        </PaperProvider>
     );
 }
 
+// ----- STYLES -----
 const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#F9FBFF",
     },
-    searchBar: {
-        margin: 10,
+    searchbar: {
+        margin: 16,
+        borderRadius: 12,
     },
     sectionTitle: {
-        marginLeft: 10,
-        marginTop: 10,
+        marginLeft: 16,
+        marginBottom: 4,
+        fontSize: 16,
+        fontWeight: "600",
+        color: "#333",
     },
-    card: {
-        marginHorizontal: 10,
-        marginVertical: 5,
+    flatListSpacing: {
+        marginHorizontal: 8,
+        marginBottom: 16,
     },
-    modal: {
+    // pending requests
+    pendingListItem: {
+        backgroundColor: "#fff",
+        borderRadius: 8,
+        marginVertical: 4,
+        elevation: 1,
+    },
+    requestActions: {
+        flexDirection: "row",
+        alignItems: "center",
+        marginRight: 8,
+    },
+    actionBtn: {
+        minWidth: 72,
+    },
+    // friend list
+    friendListItem: {
+        backgroundColor: "#fff",
+        borderRadius: 8,
+        marginVertical: 4,
+        elevation: 1,
+    },
+    // modal
+    modalContainer: {
         backgroundColor: "white",
         padding: 20,
-        margin: 20,
-        borderRadius: 8,
+        marginHorizontal: 16,
+        borderRadius: 12,
     },
-    modalButton: {
-        marginTop: 10,
+    modalHeader: {
+        flexDirection: "row",
+        justifyContent: "space-between",
+        alignItems: "center",
+    },
+    modalTitle: {
+        fontSize: 18,
+        fontWeight: "600",
+    },
+    closeIcon: {
+        margin: 0,
+    },
+    modalCloseBtn: {
+        marginTop: 16,
     },
 });

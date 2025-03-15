@@ -3,7 +3,9 @@ server:
 
 spring:
   datasource:
-    url: jdbc:postgresql://ep-square-sea-a5q5w4mx-pooler.us-east-2.aws.neon.tech/needs?user=needs_owner&password=QSrKY7U4jMWc&sslmode=require
+    url: jdbc:postgresql://34.30.169.12:5432/postgres
+    username: postgres
+    password: "12345678"
     driver-class-name: org.postgresql.Driver
 
 mybatis:
@@ -11,3 +13,9 @@ mybatis:
   configuration:
     log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
     map-underscore-to-camel-case: true
+
+cloud:
+  gcp:
+    sql:
+      instance-connection-name: able-nature-453223-m0:us-central1:kotoba
+      database-name: postgres

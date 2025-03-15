@@ -4,7 +4,12 @@ import { TextInput, Button } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FriendApi from "@/api/friend";
 
-const SendFriendRequest: React.FC = () => {
+// define the props interface
+type SendFriendRequestProps = {
+    onClose: () => void;
+};
+
+const SendFriendRequest: React.FC<SendFriendRequestProps> = ({ onClose }) => {
     const [friendUsername, setFriendUsername] = useState<string>("");
 
     const handleSend = async () => {
@@ -18,6 +23,7 @@ const SendFriendRequest: React.FC = () => {
             await FriendApi.sendFriendRequest({ userId: currentUserId, friendUsername });
             Alert.alert("Success", "Friend request sent!");
             setFriendUsername("");
+            onClose(); // Close after sending
         } catch (error: any) {
             console.error("Error sending friend request:", error);
             Alert.alert("Error", error.message || "Failed to send friend request");
@@ -26,6 +32,15 @@ const SendFriendRequest: React.FC = () => {
 
     return (
         <View style={styles.container}>
+            <Button
+                mode="text"
+                onPress={onClose}
+                style={styles.closeButton}
+                labelStyle={styles.closeButtonLabel}
+            >
+                X
+            </Button>
+
             <TextInput
                 label="Friend's Username"
                 mode="outlined"
@@ -33,7 +48,7 @@ const SendFriendRequest: React.FC = () => {
                 onChangeText={setFriendUsername}
                 style={styles.input}
             />
-            <Button mode="contained" onPress={handleSend} style={styles.button}>
+            <Button mode="contained" onPress={handleSend} style={styles.sendButton}>
                 Send Friend Request
             </Button>
         </View>
@@ -43,12 +58,23 @@ const SendFriendRequest: React.FC = () => {
 const styles = StyleSheet.create({
     container: {
         padding: 16,
+        backgroundColor: "#fff",
+        borderRadius: 10,
+    },
+    closeButton: {
+        alignSelf: "flex-end",
+        marginBottom: 8,
+    },
+    closeButtonLabel: {
+        fontSize: 16,
     },
     input: {
-        marginBottom: 12,
+        marginBottom: 16,
     },
-    button: {
+    sendButton: {
         alignSelf: "center",
+        width: "60%",
+        borderRadius: 8,
     },
 });
 

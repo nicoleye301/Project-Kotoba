@@ -33,6 +33,15 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public User getUserById(Integer id) {
+        User user = userMapper.selectById(id);
+        if (user == null) {
+            throw new CustomException(404, "User not found");
+        }
+        return user;
+    }
+
+    @Override
     public List<User> searchUsers(String username) {
         return userMapper.searchByUsername(username);
     }

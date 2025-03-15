@@ -1,40 +1,27 @@
-import React, { useState, useEffect, useRef } from "react";
-import {
-    View,
-    FlatList,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    ActivityIndicator,
-} from "react-native";
-import { TextInput, Button } from "react-native-paper";
-import ChatBubble from "@/components/ChatBubble";
-import ChatApi from "@/api/message";
-import eventEmitter from "@/utils/eventEmitter";
+import React, { useState, useEffect } from "react";
+import {View, FlatList, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Alert, Text, Dimensions,} from "react-native";
+import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useSearchParams } from "expo-router/build/hooks";
+import FriendApi from "@/api/friend";
+import UserApi from "@/api/user"
 
-type Message = {
+export interface ChatItem {
+    type: "friend" | "group";
     id: number;
-    senderId: number;
-    chatId: number;
-    content: string;
-    sentTime: string;
-    status?: string;
-};
+    title: string;
+    subtitle?: string;
+    avatarUrl?: string;
+    updatedAt?: string;
+}
 
-export default function ConversationScreen() {
-    const params = useSearchParams();
-    const chatIdParam = params.get("chatId");
-    const chatId = chatIdParam ? Number(chatIdParam) : null;
-
+export default function ChatScreen() {
+    const router = useRouter();
     const [currentUserId, setCurrentUserId] = useState<number | null>(null);
-    const [messages, setMessages] = useState<Message[]>([]);
-    const [inputText, setInputText] = useState("");
+    const [friendChats, setFriendChats] = useState<ChatItem[]>([]);
+    const [groupChats, setGroupChats] = useState<ChatItem[]>([]);
+    const [combinedChats, setCombinedChats] = useState<ChatItem[]>([]);
     const [loading, setLoading] = useState(true);
-    const flatListRef = useRef<FlatList<Message>>(null);
 
-    // get current user ID from AsyncStorage
     useEffect(() => {
         AsyncStorage.getItem("loggedInUserId")
             .then((storedId) => {
@@ -45,63 +32,115 @@ export default function ConversationScreen() {
             .catch((err) => console.error("Error retrieving user ID:", err));
     }, []);
 
-    // fetch conversation history when chatId is available
+    // fetch friend chats (accepted friendships)
     useEffect(() => {
-        if (!chatId) return;
+        if (!currentUserId) return;
         setLoading(true);
-        ChatApi.fetchHistory(chatId)
-            .then((history: Message[]) => {
-                setMessages(history);
-                // scroll to bottom after a short delay
-                setTimeout(() => {
-                    flatListRef.current?.scrollToEnd({ animated: true });
-                }, 100);
+        FriendApi.getFriendList(currentUserId)
+            .then(async (friendships: any[]) => {
+                // map each friendship to a ChatItem by fetching friend details
+                const friendItems: ChatItem[] = await Promise.all(
+                    friendships.map(async (f) => {
+                        // determine the other friend’s ID
+                        const friendId = f.userId === currentUserId ? f.friendId : f.userId;
+                        try {
+                            const friendUser = await UserApi.getUserById(friendId);
+                            return {
+                                type: "friend",
+                                id: f.directChatGroupId || friendId,
+                                title: friendUser.username,
+                                subtitle: "Tap to chat",
+                                updatedAt: f.updatedAt || "Just now",
+                                avatarUrl: friendUser.avatar || "",
+                            };
+                        } catch (error) {
+                            console.error(`Error fetching details for friend ID ${friendId}:`, error);
+                            return {
+                                type: "friend",
+                                id: f.directChatGroupId || friendId,
+                                title: `Friend #${friendId}`,
+                                subtitle: "Tap to chat",
+                                updatedAt: f.updatedAt || "Just now",
+                                avatarUrl: "",
+                            };
+                        }
+                    })
+                );
+                setFriendChats(friendItems);
             })
-            .catch((err) => console.error("Error fetching history:", err))
+            .catch((err) => {
+                console.error("Error fetching friend chats:", err);
+                Alert.alert("Error", "Failed to fetch friend chats.");
+            })
             .finally(() => setLoading(false));
-    }, [chatId]);
 
-    // listen for incoming messages via WebSocket
+        // placeholder for group chats – replace with GroupApi
+        const mockGroupItems: ChatItem[] = [
+            {
+                type: "group",
+                id: 101,
+                title: "Family Group",
+                subtitle: "Mock",
+                updatedAt: "Yesterday",
+                avatarUrl: "",
+            },
+            {
+                type: "group",
+                id: 102,
+                title: "Work Chat",
+                subtitle: "Project discussion: Mock",
+                updatedAt: "2 days ago",
+                avatarUrl: "",
+            },
+        ];
+        setGroupChats(mockGroupItems);
+    }, [currentUserId]);
+
     useEffect(() => {
-        const listener = eventEmitter.addListener("message", (data: string) => {
-            try {
-                const newMessage: Message = JSON.parse(data);
-                if (newMessage.chatId === chatId) {
-                    setMessages((prev) => [...prev, newMessage]);
-                    flatListRef.current?.scrollToEnd({ animated: true });
+        setCombinedChats([...friendChats, ...groupChats]);
+    }, [friendChats, groupChats]);
+
+    const renderChatItem = ({ item }: { item: ChatItem }) => (
+        <TouchableOpacity
+            style={styles.chatCard}
+            onPress={() => {
+                if (item.type === "friend") {
+                    router.push(
+                        `/conversation?chatId=${item.id}&isGroup=false&title=${encodeURIComponent(item.title)}`
+                    );
+                } else {
+                    router.push(
+                        `/conversation?chatId=${item.id}&isGroup=true&title=${encodeURIComponent(item.title)}`
+                    );
                 }
-            } catch (err) {
-                console.error("Error parsing incoming message:", err);
-            }
-        });
-        return () => listener.remove();
-    }, [chatId]);
-
-    const sendMessage = async () => {
-        if (!inputText.trim() || !currentUserId || !chatId) return;
-
-        try {
-            const newMessage: Message = await ChatApi.sendMessage({
-                senderId: currentUserId,
-                groupId: chatId,
-                content: inputText,
-            });
-            setMessages((prev) => [...prev, newMessage]);
-            setInputText("");
-            flatListRef.current?.scrollToEnd({ animated: true });
-        } catch (err) {
-            console.error("Error sending message:", err);
-        }
-    };
-
-    const renderMessage = ({ item }: { item: Message }) => (
-        <ChatBubble
-            message={item}
-            isOwn={currentUserId !== null && item.senderId === currentUserId}
-        />
+            }}
+        >
+            <View style={styles.avatarContainer}>
+                {item.avatarUrl ? (
+                    <Image source={{ uri: item.avatarUrl }} style={styles.avatar} />
+                ) : (
+                    <View style={[styles.avatar, styles.avatarPlaceholder]}>
+                        <Text style={styles.avatarInitial}>
+                            {item.title ? item.title[0] : "?"}
+                        </Text>
+                    </View>
+                )}
+            </View>
+            <View style={styles.textContainer}>
+                <Text style={styles.chatTitle} numberOfLines={1}>
+                    {item.title}
+                </Text>
+                <Text style={styles.chatSubtitle} numberOfLines={1}>
+                    {item.subtitle}
+                </Text>
+            </View>
+            <View style={styles.timeContainer}>
+                <Text style={styles.chatTime}>{item.updatedAt}</Text>
+            </View>
+        </TouchableOpacity>
     );
 
-    if (!chatId) {
+    if (loading) {
         return (
             <View style={styles.loadingContainer}>
                 <ActivityIndicator size="large" color="#333" />
@@ -110,68 +149,92 @@ export default function ConversationScreen() {
     }
 
     return (
-        <KeyboardAvoidingView
-            style={styles.container}
-            behavior={Platform.OS === "ios" ? "padding" : undefined}
-        >
-            {loading ? (
-                <ActivityIndicator size="large" color="#333" style={styles.loadingIndicator} />
-            ) : (
-                <FlatList
-                    ref={flatListRef}
-                    data={messages}
-                    keyExtractor={(item) => item.id ? item.id.toString() : Math.random().toString()}
-                    renderItem={renderMessage}
-                    contentContainerStyle={styles.messagesContainer}
-                    onContentSizeChange={() => flatListRef.current?.scrollToEnd({ animated: true })}
-                />
-            )}
-            <View style={styles.inputContainer}>
-                <TextInput
-                    mode="outlined"
-                    placeholder="Type your message..."
-                    value={inputText}
-                    onChangeText={setInputText}
-                    style={styles.input}
-                />
-                <Button mode="contained" onPress={sendMessage} style={styles.sendButton}>
-                    Send
-                </Button>
+        <View style={styles.container}>
+            <View style={styles.headerContainer}>
+                <Text style={styles.headerTitle}>Chats</Text>
             </View>
-        </KeyboardAvoidingView>
+            <FlatList
+                data={combinedChats}
+                keyExtractor={(item) => `${item.type}-${item.id}`}
+                renderItem={renderChatItem}
+                contentContainerStyle={styles.listContainer}
+            />
+        </View>
     );
 }
 
+const { width } = Dimensions.get("window");
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        backgroundColor: "#ffffff",
+        backgroundColor: "#fff",
+        paddingTop: 40,
     },
-    messagesContainer: {
-        padding: 12,
+    headerContainer: {
+        paddingHorizontal: 20,
+        marginBottom: 10,
+    },
+    headerTitle: {
+        fontSize: 28,
+        fontWeight: "600",
+        color: "#000",
+    },
+    listContainer: {
+        paddingHorizontal: 10,
         paddingBottom: 20,
     },
-    inputContainer: {
+    chatCard: {
         flexDirection: "row",
-        padding: 10,
-        borderTopWidth: 1,
-        borderColor: "#ddd",
+        alignItems: "center",
+        backgroundColor: "#f2f2f2",
+        marginVertical: 5,
+        borderRadius: 12,
+        padding: 12,
+    },
+    avatarContainer: {
+        marginRight: 12,
+    },
+    avatar: {
+        width: 48,
+        height: 48,
+        borderRadius: 24,
+        resizeMode: "cover",
+    },
+    avatarPlaceholder: {
+        backgroundColor: "#bbb",
+        justifyContent: "center",
         alignItems: "center",
     },
-    input: {
-        flex: 1,
-        marginRight: 10,
+    avatarInitial: {
+        color: "#fff",
+        fontSize: 20,
+        fontWeight: "bold",
     },
-    sendButton: {
-        paddingVertical: 6,
-        paddingHorizontal: 12,
+    textContainer: {
+        flex: 1,
+        justifyContent: "center",
+    },
+    chatTitle: {
+        color: "#000",
+        fontSize: 16,
+        fontWeight: "500",
+        marginBottom: 4,
+    },
+    chatSubtitle: {
+        color: "#555",
+        fontSize: 14,
+    },
+    timeContainer: {
+        marginLeft: 8,
+        justifyContent: "center",
+    },
+    chatTime: {
+        color: "#999",
+        fontSize: 12,
     },
     loadingContainer: {
         flex: 1,
         justifyContent: "center",
         alignItems: "center",
-    },
-    loadingIndicator: {
-        marginTop: 20,
     },
 });

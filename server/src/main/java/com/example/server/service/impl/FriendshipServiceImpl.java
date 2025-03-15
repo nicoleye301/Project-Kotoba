@@ -94,7 +94,7 @@ public class FriendshipServiceImpl implements FriendshipService {
         return list.stream()
                 .filter(f -> "accepted".equals(f.getStatus()))
                 .collect(Collectors.toMap(
-                        f -> Math.min(f.getUserId(), f.getFriendId()),
+                        f -> Math.min(f.getUserId(), f.getFriendId()) + "-" + Math.max(f.getUserId(), f.getFriendId()), // generate a key that uniquely identifies each pair
                         f -> f,
                         (f1, f2) -> f1))
                 .values()
