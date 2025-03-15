@@ -14,7 +14,7 @@ export default function profile(){
     };
 
     return (
-        <View style={{ flex: 1, backgroundColor: 'white' }}>
+        <View>
             <SettingList/>
             <Button title='logout' onPress={handleLogout}/>
         </View>

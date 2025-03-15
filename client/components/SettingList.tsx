@@ -1,13 +1,9 @@
-import {useState} from "react";
-import {View, Text, Pressable, StyleSheet, ScrollView} from "react-native";
-import {List, Switch, TextInput, Divider, PaperProvider, MD3LightTheme} from 'react-native-paper';
+import {View, Text, Pressable, StyleSheet} from "react-native";
 
-
-interface SettingItem {
+interface SettingItem{
     name: string,
     onclick: {}
 }
-
 
 export default function settingList() {
     const settings = [
@@ -22,52 +18,37 @@ export default function settingList() {
         }
     ]
 
-    const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-    const [username, setUsername] = useState('');
-
     return (
-        <PaperProvider>
-            <ScrollView style={{flex: 1, backgroundColor: 'white'}}>
-                <List.Section title="Account">
-                    <List.Item
-                        title="Password"
-                        left={() => <List.Icon icon="account" style={{ marginLeft: 16 }}/>}
-                        right={() => (
-                            <TextInput
-                                mode="outlined"
-                                value={username}
-                                onChangeText={setUsername}
-                                style={{width: 150, height: 40}}
-                            />
-                        )}
-                    />
-                    <Divider/>
-                    <List.Item
-                        title="Notification"
-                        left={() => <List.Icon icon="bell-outline" style={{ marginLeft: 16 }}/>}
-                        right={() => (
-                            <Switch
-                                value={notificationsEnabled}
-                                onValueChange={setNotificationsEnabled}
-                            />
-                        )}
-                    />
-                </List.Section>
+        <View>
+            {settings.map((item, index) => (
+                <Pressable key={item.name}>
+                    <View style={styles.item}>
+                        <Text>{item.name}</Text>
+                    </View>
 
-                <List.Section title="Others">
-                    <List.Item
-                        title="Setting1"
-                        left={() => <List.Icon icon="fingerprint" style={{ marginLeft: 16 }}/>}
-                        right={() => <Switch value={false}/>}
-                    />
-                    <Divider/>
-                    <List.Item
-                        title="Setting2"
-                        left={() => <List.Icon icon="eye-outline" style={{ marginLeft: 16 }}/>}
-                        right={() => <Switch value={true}/>}
-                    />
-                </List.Section>
-            </ScrollView>
-        </PaperProvider>
-    );
+                </Pressable>
+            ))}
+        </View>
+    )
 }
+
+const styles = StyleSheet.create({
+    container: {
+        flex: 1,
+        padding: 16,
+        backgroundColor: "white",
+        borderRadius: 16,
+        overflow: "hidden",
+        elevation: 3,
+    },
+    item: {
+        backgroundColor: "#ececec",
+        padding: 16,
+        borderBottomWidth: 1,
+        borderBottomColor: "#c8c8c8",
+    },
+    text: {
+        color: "white",
+        fontSize: 16,
+    },
+});
