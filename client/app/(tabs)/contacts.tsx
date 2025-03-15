@@ -99,8 +99,7 @@ export default function ContactsScreen() {
         if (!currentUserId) return;
         try {
             await FriendApi.acceptFriendRequest({
-                userId: currentUserId,
-                friendId: friendship.friendId,
+                id:friendship.id
             });
             refreshRequestsAndFriends();
         } catch (error: any) {
@@ -112,8 +111,7 @@ export default function ContactsScreen() {
         if (!currentUserId) return;
         try {
             await FriendApi.declineFriendRequest({
-                userId: currentUserId,
-                friendId: friendship.friendId,
+                id:friendship.id
             });
             refreshRequestsAndFriends();
         } catch (error: any) {

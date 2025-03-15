@@ -20,7 +20,7 @@ public class FriendshipServiceImpl implements FriendshipService {
         if (senderId.equals(receiverId)) {
             throw new CustomException(400, "You cannot friend yourself.");
         }
-        // check if a friendship record already exists in either direction
+        // check if a friendship record already exists
         Friendship existing = friendshipMapper.selectByUserIdAndFriendId(senderId, receiverId);
         if (existing != null) {
             throw new CustomException(400, "Friend request already sent or already friends.");
@@ -33,9 +33,9 @@ public class FriendshipServiceImpl implements FriendshipService {
     }
 
     @Override
-    public void acceptFriendRequest(Integer receiverId, Integer senderId) {
+    public void acceptFriendRequest(Integer id) {
         // find the pending request
-        Friendship friendship = friendshipMapper.selectByUserIdAndFriendId(senderId, receiverId);
+        Friendship friendship = friendshipMapper.selectByFriendshipId(id);
         if (friendship == null || !"pending".equals(friendship.getStatus())) {
             throw new CustomException(400, "No pending friend request found");
         }
@@ -52,11 +52,14 @@ public class FriendshipServiceImpl implements FriendshipService {
         friendshipMapper.update(friendship);
 
         // create reciprocal record
-        Friendship reciprocal = friendshipMapper.selectByUserIdAndFriendId(receiverId, senderId);
+        int userId = friendship.getFriendId();
+        int friendId = friendship.getUserId();
+
+        Friendship reciprocal = friendshipMapper.selectByUserIdAndFriendId(userId, friendId);
         if (reciprocal == null) {
             reciprocal = new Friendship();
-            reciprocal.setUserId(receiverId);
-            reciprocal.setFriendId(senderId);
+            reciprocal.setUserId(userId);
+            reciprocal.setFriendId(friendId);
             reciprocal.setStatus("accepted");
             reciprocal.setDirectChatGroupId(friendship.getDirectChatGroupId());
             friendshipMapper.insert(reciprocal);
@@ -74,8 +77,8 @@ public class FriendshipServiceImpl implements FriendshipService {
     }
 
     @Override
-    public void declineFriendRequest(Integer receiverId, Integer senderId) {
-        Friendship friendship = friendshipMapper.selectByUserIdAndFriendId(senderId, receiverId);
+    public void declineFriendRequest(Integer id) {
+        Friendship friendship = friendshipMapper.selectByFriendshipId(id);
         if (friendship == null || !"pending".equals(friendship.getStatus())) {
             throw new CustomException(400, "No pending friend request found");
         }

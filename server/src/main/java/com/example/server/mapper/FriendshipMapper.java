@@ -14,6 +14,8 @@ public interface FriendshipMapper {
     // select a friendship record by userId and friendId
     Friendship selectByUserIdAndFriendId(@Param("userId") Integer userId, @Param("friendId") Integer friendId);
 
+    Friendship selectByFriendshipId(@Param("id") Integer id);
+
     // select all friendship records for a user (as sender only)
     List<Friendship> selectByUserId(Integer userId);
 

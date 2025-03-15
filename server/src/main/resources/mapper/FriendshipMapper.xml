@@ -49,6 +49,10 @@
           AND status = 'pending'
     </select>
 
+    <select id="selectByFriendshipId" resultType="com.example.server.entity.Friendship">
+        SELECT * FROM friendship WHERE id = #{id}
+    </select>
+
     <!-- Delete a friendship record -->
     <delete id="delete" parameterType="com.example.server.entity.Friendship">
         DELETE FROM friendship

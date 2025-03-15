@@ -12,12 +12,12 @@ export function sendFriendRequest(params: FriendRequestParams) {
 }
 
 // accept a friend request
-export function acceptFriendRequest(params: FriendRequestParams) {
+export function acceptFriendRequest(params: {}) {
     return Http.post("/friend/accept", params);
 }
 
 // decline a friend request
-export function declineFriendRequest(params: FriendRequestParams) {
+export function declineFriendRequest(params: {}) {
     return Http.post("/friend/decline", params);
 }
 

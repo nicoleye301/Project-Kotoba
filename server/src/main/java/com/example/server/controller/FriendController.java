@@ -58,32 +58,20 @@ public class FriendController {
     // accept a friend request
     @PostMapping("/accept")
     public String acceptFriendRequest(@RequestBody Map<String, Object> data) {
-        Integer receiverId = (data.get("userId") instanceof Number)
-                ? ((Number) data.get("userId")).intValue() : null;
-        Integer senderId = (data.get("friendId") instanceof Number)
-                ? ((Number) data.get("friendId")).intValue() : null;
+        Integer id = (data.get("id") instanceof Number)
+                ? ((Number) data.get("id")).intValue() : null;
 
-        if (receiverId == null || senderId == null) {
-            throw new CustomException(400, "Both userId and friendId must be provided");
-        }
-
-        friendshipService.acceptFriendRequest(receiverId, senderId);
+        friendshipService.acceptFriendRequest(id);
         return "Friend request accepted";
     }
 
     // decline a friend request
     @PostMapping("/decline")
     public String declineFriendRequest(@RequestBody Map<String, Object> data) {
-        Integer receiverId = (data.get("userId") instanceof Number)
-                ? ((Number) data.get("userId")).intValue() : null;
-        Integer senderId = (data.get("friendId") instanceof Number)
-                ? ((Number) data.get("friendId")).intValue() : null;
+        Integer id = (data.get("id") instanceof Number)
+                ? ((Number) data.get("id")).intValue() : null;
 
-        if (receiverId == null || senderId == null) {
-            throw new CustomException(400, "Both userId and friendId must be provided");
-        }
-
-        friendshipService.declineFriendRequest(receiverId, senderId);
+        friendshipService.declineFriendRequest(id);
         return "Friend request declined";
     }
 
