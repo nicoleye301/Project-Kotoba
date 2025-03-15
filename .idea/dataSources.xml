@@ -1,17 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="DataSourceManagerImpl" format="xml" multifile-model="true">
-    <data-source source="LOCAL" name="needs@ep-square-sea-a5q5w4mx-pooler.us-east-2.aws.neon.tech" uuid="e572a940-c1dc-4f3f-82e2-3f1380538951">
-      <driver-ref>postgresql</driver-ref>
+    <data-source source="LOCAL" name="p851213501899-iksxk7@gcp-sa-cloud-sql.iam.gserviceaccount.com" uuid="e572a940-c1dc-4f3f-82e2-3f1380538951">
+      <driver-ref>postgresql.cloud_sql</driver-ref>
       <synchronize>true</synchronize>
       <imported>true</imported>
       <remarks>$PROJECT_DIR$/server/src/main/resources/application.yml</remarks>
       <jdbc-driver>org.postgresql.Driver</jdbc-driver>
-      <jdbc-url>jdbc:postgresql://ep-square-sea-a5q5w4mx-pooler.us-east-2.aws.neon.tech/needs?sslmode=require</jdbc-url>
+      <jdbc-url>jdbc:postgresql:///p851213501899-iksxk7@gcp-sa-cloud-sql.iam.gserviceaccount.com?cloudSqlInstance=able-nature-453223-m0:us-central1:kotoba</jdbc-url>
       <jdbc-additional-properties>
-        <property name="com.intellij.clouds.kubernetes.db.host.port" />
         <property name="com.intellij.clouds.kubernetes.db.enabled" value="false" />
-        <property name="com.intellij.clouds.kubernetes.db.container.port" />
       </jdbc-additional-properties>
       <working-dir>$ProjectFileDir$</working-dir>
     </data-source>

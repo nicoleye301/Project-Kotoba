@@ -2,40 +2,51 @@ import React, { useState, useEffect, useRef } from "react";
 import {
     View,
     FlatList,
-    TextInput,
-    Button,
-    StyleSheet,
     KeyboardAvoidingView,
     Platform,
+    StyleSheet,
+    ActivityIndicator,
 } from "react-native";
+import { TextInput, Button } from "react-native-paper";
 import ChatBubble from "@/components/ChatBubble";
-import ChatApi, { Message } from "@/api/message";
+import ChatApi from "@/api/message";
 import eventEmitter from "@/utils/eventEmitter";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSearchParams } from "expo-router/build/hooks";
 
+type Message = {
+    id: number;
+    senderId: number;
+    chatId: number;
+    content: string;
+    sentTime: string;
+    status?: string;
+};
+
 export default function ConversationScreen() {
     const params = useSearchParams();
     const chatIdParam = params.get("chatId");
-    const chatId = chatIdParam ? Number(chatIdParam) : 0;
+    const chatId = chatIdParam ? Number(chatIdParam) : null;
 
     const [currentUserId, setCurrentUserId] = useState<number | null>(null);
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputText, setInputText] = useState("");
+    const [loading, setLoading] = useState(true);
     const flatListRef = useRef<FlatList<Message>>(null);
 
     useEffect(() => {
-        // get current user ID from AsyncStorage
-        AsyncStorage.getItem("loggedInUserId").then((storedId) => {
-            if (storedId) {
-                setCurrentUserId(Number(storedId));
-            }
-        });
+        AsyncStorage.getItem("loggedInUserId")
+            .then((storedId) => {
+                if (storedId) {
+                    setCurrentUserId(Number(storedId));
+                }
+            })
+            .catch((err) => console.error("Error retrieving user ID:", err));
     }, []);
 
     useEffect(() => {
-        // only fetch if chatId is valid (non-zero)
         if (!chatId) return;
+        setLoading(true);
         ChatApi.fetchHistory(chatId)
             .then((history: Message[]) => {
                 setMessages(history);
@@ -43,11 +54,11 @@ export default function ConversationScreen() {
                     flatListRef.current?.scrollToEnd({ animated: true });
                 }, 100);
             })
-            .catch((err) => console.error("Error fetching history:", err));
+            .catch((err) => console.error("Error fetching history:", err))
+            .finally(() => setLoading(false));
     }, [chatId]);
 
     useEffect(() => {
-        // listen for incoming messages via WebSocket
         const listener = eventEmitter.addListener("message", (data: string) => {
             try {
                 const newMessage: Message = JSON.parse(data);
@@ -56,14 +67,14 @@ export default function ConversationScreen() {
                     flatListRef.current?.scrollToEnd({ animated: true });
                 }
             } catch (err) {
-                console.error("Error parsing message:", err);
+                console.error("Error parsing incoming message:", err);
             }
         });
         return () => listener.remove();
     }, [chatId]);
 
     const sendMessage = async () => {
-        if (!inputText.trim() || !currentUserId) return;
+        if (!inputText.trim() || !currentUserId || !chatId) return;
         try {
             const newMessage: Message = await ChatApi.sendMessage({
                 senderId: currentUserId,
@@ -85,53 +96,63 @@ export default function ConversationScreen() {
         />
     );
 
+    if (!chatId) {
+        return (
+            <View style={styles.loadingContainer}>
+                <ActivityIndicator size="large" color="#333" />
+            </View>
+        );
+    }
+
     return (
         <KeyboardAvoidingView
             style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
-            <FlatList
-                ref={flatListRef}
-                data={messages}
-                keyExtractor={(item, index) =>
-                    item.id ? item.id.toString() : index.toString()
-                }
-                renderItem={renderMessage}
-                contentContainerStyle={styles.messagesContainer}
-                onContentSizeChange={() =>
-                    flatListRef.current?.scrollToEnd({ animated: true })
-                }
-            />
-
+            {loading ? (
+                <ActivityIndicator size="large" color="#333" style={styles.loadingIndicator} />
+            ) : (
+                <FlatList
+                    ref={flatListRef}
+                    data={messages}
+                    keyExtractor={(item) =>
+                        item.id ? item.id.toString() : Math.random().toString()
+                    }
+                    renderItem={renderMessage}
+                    contentContainerStyle={styles.messagesContainer}
+                    onContentSizeChange={() =>
+                        flatListRef.current?.scrollToEnd({ animated: true })
+                    }
+                />
+            )}
             <View style={styles.inputContainer}>
                 <TextInput
-                    style={styles.input}
+                    mode="outlined"
+                    placeholder="Type your message..."
                     value={inputText}
                     onChangeText={setInputText}
-                    placeholder="Type your message..."
+                    style={styles.input}
                 />
-                <Button title="Send" onPress={sendMessage} />
+                <Button mode="contained" onPress={sendMessage} style={styles.sendButton}>
+                    Send
+                </Button>
             </View>
         </KeyboardAvoidingView>
     );
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#F9FBFF" },
-    messagesContainer: { padding: 10 },
+    container: { flex: 1, backgroundColor: "#ffffff" },
+    messagesContainer: { padding: 12, paddingBottom: 20 },
     inputContainer: {
         flexDirection: "row",
         padding: 10,
         borderTopWidth: 1,
-        borderColor: "#ccc",
+        borderColor: "#ddd",
         alignItems: "center",
     },
-    input: {
-        flex: 1,
-        borderColor: "#ccc",
-        borderWidth: 1,
-        borderRadius: 8,
-        paddingHorizontal: 10,
-        marginRight: 10,
-    },
+    input: { flex: 1, marginRight: 10 },
+    sendButton: { paddingVertical: 6, paddingHorizontal: 12 },
+    loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
+    loadingIndicator: { marginTop: 20 },
 });

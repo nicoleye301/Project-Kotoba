@@ -29,4 +29,9 @@ public class UserController {
     public void register(@RequestBody User user) {
         userService.register(user);
     }
+
+    @GetMapping("/details")
+    public User getUserDetails(@RequestParam Integer userId) {
+        return userService.getUserById(userId);
+    }
 }
