@@ -89,17 +89,8 @@ public class FriendshipServiceImpl implements FriendshipService {
     @Override
     public List<Friendship> getAcceptedFriends(Integer userId) {
         // get all friend records where the user is either the sender or receiver and status is accepted
-        List<Friendship> list = friendshipMapper.selectFriendshipsByUser(userId);
         // remove duplicates if any
-        return list.stream()
-                .filter(f -> "accepted".equals(f.getStatus()))
-                .collect(Collectors.toMap(
-                        f -> Math.min(f.getUserId(), f.getFriendId()) + "-" + Math.max(f.getUserId(), f.getFriendId()), // generate a key that uniquely identifies each pair
-                        f -> f,
-                        (f1, f2) -> f1))
-                .values()
-                .stream()
-                .collect(Collectors.toList());
+        return friendshipMapper.selectFriendshipsByUser(userId);
     }
 
     @Override
