@@ -26,19 +26,16 @@ interface Friendship {
 }
 
 // define ChatItem type for displaying confirmed friends in the UI
-interface ChatItem {
-    type: "friend" | "group";
-    id: number;       // for friends, this is the "other" user's id
-    title: string;    // friend name
-    subtitle?: string;
+interface Friend {
+    id: number // friend id
+    displayedName: string
     avatarUrl?: string;
-    updatedAt?: string;
 }
 
 export default function ContactsScreen() {
     const [currentUserId, setCurrentUserId] = useState<number | null>(null);
     const [pendingRequests, setPendingRequests] = useState<Friendship[]>([]);
-    const [confirmedFriends, setConfirmedFriends] = useState<ChatItem[]>([]);
+    const [confirmedFriends, setConfirmedFriends] = useState<Friend[]>([]);
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [modalVisible, setModalVisible] = useState<boolean>(false);
 
@@ -73,20 +70,8 @@ export default function ContactsScreen() {
     useEffect(() => {
         if (currentUserId !== null) {
             FriendApi.getFriendList(currentUserId)
-                .then((friendships: Friendship[]) => {
-                    const friendItems: ChatItem[] = friendships.map((f: Friendship): ChatItem => {
-                        // Determine the "other" user:
-                        const friendId = f.userId === currentUserId ? f.friendId : f.userId;
-                        return {
-                            type: "friend",
-                            id: friendId,
-                            title: `Friend #${friendId}`,
-                            subtitle: "Tap to chat",
-                            updatedAt: "Just now", // replace with a real timestamp
-                            avatarUrl: "",
-                        };
-                    });
-                    setConfirmedFriends(friendItems);
+                .then((friends: Friend[]) => {
+                    setConfirmedFriends(friends);
                 })
                 .catch((error) => {
                     console.error("Error fetching friend list:", error);
@@ -124,19 +109,8 @@ export default function ContactsScreen() {
             try {
                 const pendingData: Friendship[] = await FriendApi.getPendingRequests(currentUserId);
                 setPendingRequests(pendingData);
-                const friendData: Friendship[] = await FriendApi.getFriendList(currentUserId);
-                const friendItems: ChatItem[] = friendData.map((f: Friendship): ChatItem => {
-                    const friendId = f.userId === currentUserId ? f.friendId : f.userId;
-                    return {
-                        type: "friend",
-                        id: friendId,
-                        title: `Friend #${friendId}`,
-                        subtitle: "Tap to chat",
-                        updatedAt: "Just now",
-                        avatarUrl: "",
-                    };
-                });
-                setConfirmedFriends(friendItems);
+                const friendData: Friend[] = await FriendApi.getFriendList(currentUserId);
+                setConfirmedFriends(friendData);
             } catch (error) {
                 console.error("Error refreshing friend lists:", error);
             }
@@ -156,11 +130,10 @@ export default function ContactsScreen() {
         </Card>
     );
 
-    const renderFriendItem = ({ item }: { item: ChatItem }) => (
+    const renderFriendItem = ({ item }: { item: Friend }) => (
         <Card style={styles.card}>
             <Card.Content>
-                <Title>Friend ID: {item.id}</Title>
-                <Paragraph>{item.subtitle}</Paragraph>
+                <Title>Friend Name: {item.displayedName}</Title>
             </Card.Content>
         </Card>
     );

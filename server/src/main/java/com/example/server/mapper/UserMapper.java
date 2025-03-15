@@ -10,4 +10,6 @@ public interface UserMapper {
 
     // search users by username
     List<User> searchByUsername(String username);
+
+    User selectById(Integer id);
 }

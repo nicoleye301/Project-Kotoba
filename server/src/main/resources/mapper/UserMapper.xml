@@ -16,5 +16,9 @@
         SELECT * FROM "user" WHERE username LIKE CONCAT('%', #{username}, '%')
     </select>
 
+    <select id="selectById" resultType="com.example.server.entity.User">
+        select * from "user" where id = #{id}
+    </select>
+
 </mapper>
 
