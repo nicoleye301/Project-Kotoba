@@ -2,10 +2,8 @@ package com.example.server.controller;
 
 import com.example.server.entity.User;
 import com.example.server.service.UserService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController

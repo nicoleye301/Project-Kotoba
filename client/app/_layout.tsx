@@ -9,7 +9,7 @@ export default function RootLayout() {
 
     return (
         <PaperProvider theme={scheme === "dark" ? DarkTheme : LightTheme}>
-            <Stack>
+            <Stack screenOptions={{headerShown: false}}>
                 {/* Hide header on auth screens */}
                 <Stack.Screen name="login" options={{ headerShown: false }} />
                 <Stack.Screen name="register" options={{ headerShown: false }} />
@@ -17,6 +17,7 @@ export default function RootLayout() {
                 <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
                 {/* Conversation screen (for both personal and group chats) */}
                 <Stack.Screen name="conversation" options={{ title: "Conversation" }} />
+                <Stack.Screen name="settings" options={{ title: "Settings" }} />
             </Stack>
         </PaperProvider>
     );
