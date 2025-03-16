@@ -4,6 +4,7 @@ import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FriendApi from "@/api/friend";
 import UserApi from "@/api/user"
+import {Appbar, PaperProvider} from "react-native-paper";
 
 export interface ChatItem {
     type: "friend" | "group";
@@ -149,16 +150,19 @@ export default function ChatScreen() {
     }
 
     return (
-        <View style={styles.container}>
-            <View style={styles.headerContainer}>
-                <Text style={styles.headerTitle}>Chats</Text>
-            </View>
-            <FlatList
-                data={combinedChats}
-                keyExtractor={(item) => `${item.type}-${item.id}`}
-                renderItem={renderChatItem}
-                contentContainerStyle={styles.listContainer}
-            />
+        <View style={{flex:1}}>
+            <Appbar.Header>
+                <Appbar.Content title="Chats" />
+            </Appbar.Header>
+            <PaperProvider>
+                <FlatList
+                    data={combinedChats}
+                    keyExtractor={(item) => `${item.type}-${item.id}`}
+                    renderItem={renderChatItem}
+                    contentContainerStyle={styles.listContainer}
+                    style={{backgroundColor: 'white'}}
+                />
+            </PaperProvider>
         </View>
     );
 }
@@ -170,15 +174,6 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         paddingTop: 40,
     },
-    headerContainer: {
-        paddingHorizontal: 20,
-        marginBottom: 10,
-    },
-    headerTitle: {
-        fontSize: 28,
-        fontWeight: "600",
-        color: "#000",
-    },
     listContainer: {
         paddingHorizontal: 10,
         paddingBottom: 20,
@@ -186,7 +181,7 @@ const styles = StyleSheet.create({
     chatCard: {
         flexDirection: "row",
         alignItems: "center",
-        backgroundColor: "#f2f2f2",
+        backgroundColor: "#fff",
         marginVertical: 5,
         borderRadius: 12,
         padding: 12,

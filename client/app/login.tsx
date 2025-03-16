@@ -14,7 +14,7 @@ export default function Login() {
             const data = await LoginApi.login({ username, password });
             await AsyncStorage.setItem("loggedInUserId", data.id.toString());
             connect();
-            router.replace("/(tabs)/home");
+            router.replace("/(tabs)/dashboard");
         } catch (error) {
             console.error(error);
             alert("Failed");
