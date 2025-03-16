@@ -1,23 +1,23 @@
-import {Button, View, StyleSheet, TextInput, Text} from "react-native";
+import { Button, View, TextInput, Text, StyleSheet } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import {Link, router} from "expo-router";
-import {useState} from "react";
-import LoginApi from "@/api/login"
-
+import { Link, router } from "expo-router";
+import { useState } from "react";
+import LoginApi from "@/api/login";
+import { connect } from "@/utils/websocket";
 
 export default function Login() {
-    const [username, setUsername] = useState("")
-    const [password, setPassword] = useState("")
+    const [username, setUsername] = useState("");
+    const [password, setPassword] = useState("");
 
     const handleLogin = async () => {
-        try{
-            const data = await LoginApi.login({username, password})
-            await AsyncStorage.setItem('loggedIn', data.username)
-            router.replace("/(tabs)/home")
-        }
-        catch(error){
-            console.error(error)
-            alert('Failed')
+        try {
+            const data = await LoginApi.login({ username, password });
+            await AsyncStorage.setItem("loggedInUserId", data.id.toString());
+            connect();
+            router.replace("/(tabs)/dashboard");
+        } catch (error) {
+            console.error(error);
+            alert("Failed");
         }
     };
 
@@ -39,9 +39,10 @@ export default function Login() {
                 secureTextEntry={true}
             />
 
-            <Button title='Login' onPress={handleLogin}/>
-            <Link href="/register" replace>Register</Link>
-
+            <Button title="Login" onPress={handleLogin} />
+            <Link href="/register" replace>
+                Register
+            </Link>
         </View>
     );
 }
@@ -51,10 +52,9 @@ const styles = StyleSheet.create({
         maxWidth: 400,
         margin: 50,
         textAlign: "center",
-        fontFamily: 'Arial',
+        fontFamily: "Arial",
         padding: 20,
         borderRadius: 8,
     },
-    input: {}
-
+    input: {},
 });

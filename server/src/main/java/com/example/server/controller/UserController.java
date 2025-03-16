@@ -2,10 +2,8 @@ package com.example.server.controller;
 
 import com.example.server.entity.User;
 import com.example.server.service.UserService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -28,5 +26,10 @@ public class UserController {
     @PostMapping("/register")
     public void register(@RequestBody User user) {
         userService.register(user);
+    }
+
+    @GetMapping("/details")
+    public User getUserDetails(@RequestParam Integer userId) {
+        return userService.getUserById(userId);
     }
 }

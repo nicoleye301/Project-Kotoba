@@ -1,13 +1,22 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-
 <mapper namespace="com.example.server.mapper.UserMapper">
+
     <insert id="add" parameterType="com.example.server.entity.User">
-        insert into users (username, password) VALUES (#{username}, #{password})
+        INSERT INTO "user" (username, password) VALUES (#{username}, #{password})
     </insert>
+
     <select id="selectByUsername" resultType="com.example.server.entity.User" parameterType="string">
-        select * from users where username = #{username}
+        SELECT * FROM "user" WHERE username = #{username}
     </select>
 
+    <select id="selectById" resultType="com.example.server.entity.User" parameterType="Integer">
+        SELECT * FROM "user" WHERE id = #{id}
+    </select>
+
+    <select id="searchByUsername" resultType="com.example.server.entity.User" parameterType="string">
+        SELECT * FROM "user" WHERE username LIKE CONCAT('%', #{username}, '%')
+    </select>
 </mapper>
