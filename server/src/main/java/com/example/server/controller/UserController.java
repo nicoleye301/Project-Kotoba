@@ -2,8 +2,13 @@ package com.example.server.controller;
 
 import com.example.server.entity.User;
 import com.example.server.service.UserService;
+import org.springframework.core.io.Resource;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.Map;
 
 @RestController
@@ -11,6 +16,9 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+
+    @Value("${upload-directory}")
+    private String uploadBaseDir;   //configured in applications.yml
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -31,5 +39,30 @@ public class UserController {
     @GetMapping("/details")
     public User getUserDetails(@RequestParam Integer userId) {
         return userService.getUserById(userId);
+    }
+
+    @PostMapping("/uploadSettings")
+    public void updateSettings(@RequestBody Map<String, Object> body) {
+        String userId = (String) body.get("userId");
+        String settings = (String) body.get("settings");
+        userService.updateSettings(userId, settings);
+    }
+
+    @PostMapping("/setPassword")
+    public void setPassword(@RequestBody Map<String, Object> body) {
+        String userId = (String) body.get("userId");
+        String password = (String) body.get("password");
+        userService.setPassword(userId, password);
+    }
+
+    @PostMapping("/uploadAvatar")
+    public void uploadAvatar(@RequestParam("userId") String userId, @RequestParam("avatar") MultipartFile avatar) {
+        Path path = Paths.get(uploadBaseDir, "avatar", "user_id" + userId + ".jpg");
+        userService.uploadFile(userId, avatar, path);
+    }
+
+    @GetMapping("/getAvatar")
+    public Resource getAvatar(@RequestParam String userId) {
+        return userService.getAvatar(userId);
     }
 }

@@ -13,7 +13,7 @@ export default function TabLayout() {
             <Tabs.Screen
                 name="contacts"
                 options={{ title: "Contacts", tabBarIcon: ({ color, size }) => (
-                        <Icon source="account-multiple" size={size} color={color} />
+                        <Icon source="account" size={size} color={color} />
                     ) }}
             />
             <Tabs.Screen
