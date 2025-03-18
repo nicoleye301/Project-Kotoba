@@ -19,3 +19,5 @@ cloud:
     sql:
       instance-connection-name: able-nature-453223-m0:us-central1:kotoba
       database-name: postgres
+
+upload-directory: "server/uploads/"

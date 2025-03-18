@@ -14,4 +14,10 @@ public interface UserMapper {
 
     // search users by username
     List<User> searchByUsername(String username);
+
+    void updateSettings(@Param("id") Integer id, @Param("settings") String settings);
+
+    void updateAvatar(@Param("id") Integer id, @Param("avatar") String settings);
+
+    void setPassword(@Param("id") Integer id, @Param("password") String password);
 }
