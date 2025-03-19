@@ -14,6 +14,7 @@ export interface Message {
     sentTime: string; // mapped from server's sent_time
     status?: string;
     type?: string;
+    attachments?: {};
 }
 
 // fetch conversation history and map server response to our Message type
@@ -27,6 +28,7 @@ export async function fetchHistory(chatId: number): Promise<Message[]> {
         sentTime: msg.sent_time,
         status: msg.status,
         type: msg.type,
+        attachments: msg.attachments,
     }));
 }
 
@@ -41,6 +43,7 @@ export async function sendMessage(params: SendMessageParams): Promise<Message> {
         sentTime: msg.sent_time,
         status: msg.status,
         type: msg.type,
+        attachments: msg.attachments,
     };
 }
 
