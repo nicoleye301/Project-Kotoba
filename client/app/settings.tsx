@@ -7,6 +7,10 @@ import {Appbar, Divider, List, PaperProvider, Switch, TextInput, Button, Text} f
 import React, {Dispatch, SetStateAction, useEffect, useState} from "react";
 import settingsApi from "@/api/settings"
 import userApi from "@/api/user"
+import Constants from "expo-constants";
+
+// @ts-ignore
+const BASE_URL = Constants.expoConfig.extra.API_BASE_URL;
 
 
 interface SettingItem<T> {
@@ -74,7 +78,7 @@ export default function Settings() {
             const user = await userApi.getUserById(parseInt(userId))
             setUserName(user.username)
             if (user.avatar){
-                setAvatar("files//"+user.avatar)
+                setAvatar(user.avatar)
             }
         }
     }
@@ -159,10 +163,7 @@ export default function Settings() {
                 <FlatList ListHeaderComponent={
                     <List.Item
                         title={userName}
-                        left={() => (
-                            avatar ? (<Image source={{uri: avatar}} style={styles.avatar}/>):
-                            (<Image source={require("../assets/images/default_avatar.jpg")} style={styles.avatar}/>)
-                        )}
+                        left={() => <Image source={{uri: (BASE_URL+"/uploads/avatar/")+(avatar?avatar:"default.jpg")}} style={styles.avatar}/>}
                         onPress={pickImage}
                     />
                 }
