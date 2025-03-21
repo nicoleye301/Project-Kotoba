@@ -3,8 +3,10 @@ import {View, FlatList, TouchableOpacity, Image, StyleSheet, ActivityIndicator, 
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FriendApi from "@/api/friend";
-import UserApi from "@/api/user"
-import {Appbar, PaperProvider} from "react-native-paper";
+import UserApi from "@/api/user";
+import { Appbar, Modal, PaperProvider, Portal } from "react-native-paper";
+import CreateGroupChat from "@/components/CreateGroupChat";
+import {createGroup, ChatGroup, getGroupDetails, getGroupChats} from "@/api/ChatGroup";
 
 export interface ChatItem {
     type: "friend" | "group";
@@ -22,6 +24,7 @@ export default function ChatScreen() {
     const [groupChats, setGroupChats] = useState<ChatItem[]>([]);
     const [combinedChats, setCombinedChats] = useState<ChatItem[]>([]);
     const [loading, setLoading] = useState(true);
+    const [groupModalVisible, setGroupModalVisible] = useState(false);
 
     useEffect(() => {
         AsyncStorage.getItem("loggedInUserId")
@@ -39,7 +42,6 @@ export default function ChatScreen() {
         setLoading(true);
         FriendApi.getFriendList(currentUserId)
             .then(async (friendships: any[]) => {
-                // map each friendship to a ChatItem by fetching friend details
                 const friendItems: ChatItem[] = await Promise.all(
                     friendships.map(async (f) => {
                         // determine the other friend’s ID
@@ -74,27 +76,26 @@ export default function ChatScreen() {
                 Alert.alert("Error", "Failed to fetch friend chats.");
             })
             .finally(() => setLoading(false));
-
-        // placeholder for group chats – replace with GroupApi
-        const mockGroupItems: ChatItem[] = [
-            {
-                type: "group",
-                id: 101,
-                title: "Family Group",
-                subtitle: "Mock",
-                updatedAt: "Yesterday",
-                avatarUrl: "",
-            },
-            {
-                type: "group",
-                id: 102,
-                title: "Work Chat",
-                subtitle: "Project discussion: Mock",
-                updatedAt: "2 days ago",
-                avatarUrl: "",
-            },
-        ];
-        setGroupChats(mockGroupItems);
+    }, [currentUserId]);
+    useEffect(() => {
+        if (!currentUserId) return;
+        getGroupChats(currentUserId)
+            .then((groups: ChatGroup[]) => {
+                const groupItems: ChatItem[] = groups.map((group: ChatGroup) => ({
+                    type: "group",
+                    id: group.id,
+                    title: group.groupName,
+                    subtitle: "Tap to chat",
+                    updatedAt: group.hasOwnProperty("lastUpdateTime")
+                        ? new Date((group as any).lastUpdateTime).toLocaleString()
+                        : "Just now",
+                    avatarUrl: "",
+                }));
+                setGroupChats(groupItems);
+            })
+            .catch((err: any) => {
+                console.error("Error fetching group chats:", err);
+            });
     }, [currentUserId]);
 
     useEffect(() => {
@@ -105,15 +106,9 @@ export default function ChatScreen() {
         <TouchableOpacity
             style={styles.chatCard}
             onPress={() => {
-                if (item.type === "friend") {
-                    router.push(
-                        `/conversation?chatId=${item.id}&isGroup=false&title=${encodeURIComponent(item.title)}`
-                    );
-                } else {
-                    router.push(
-                        `/conversation?chatId=${item.id}&isGroup=true&title=${encodeURIComponent(item.title)}`
-                    );
-                }
+                router.push(
+                    `/conversation?chatId=${item.id}&isGroup=${item.type === "group"}&title=${encodeURIComponent(item.title)}`
+                );
             }}
         >
             <View style={styles.avatarContainer}>
@@ -150,17 +145,46 @@ export default function ChatScreen() {
     }
 
     return (
-        <View style={{flex:1}}>
+        <View style={{ flex: 1 }}>
             <Appbar.Header>
                 <Appbar.Content title="Chats" />
+                <Appbar.Action icon="plus" onPress={() => setGroupModalVisible(true)} />
             </Appbar.Header>
             <PaperProvider>
+                <Portal>
+                    <Modal
+                        visible={groupModalVisible}
+                        onDismiss={() => setGroupModalVisible(false)}
+                        contentContainerStyle={{
+                            justifyContent: "center",
+                        }}
+                    >
+                        <CreateGroupChat
+                            onClose={(newGroup?: ChatGroup) => {
+                                setGroupModalVisible(false);
+                                if (newGroup) {
+                                    setGroupChats((prev) => [
+                                        ...prev,
+                                        {
+                                            type: "group",
+                                            id: newGroup.id,
+                                            title: newGroup.groupName,
+                                            subtitle: "Tap to chat",
+                                            updatedAt: "Just now",
+                                            avatarUrl: "",
+                                        },
+                                    ]);
+                                }
+                            }}
+                        />
+                    </Modal>
+                </Portal>
                 <FlatList
                     data={combinedChats}
                     keyExtractor={(item) => `${item.type}-${item.id}`}
                     renderItem={renderChatItem}
                     contentContainerStyle={styles.listContainer}
-                    style={{backgroundColor: 'white'}}
+                    style={{ backgroundColor: "white" }}
                 />
             </PaperProvider>
         </View>

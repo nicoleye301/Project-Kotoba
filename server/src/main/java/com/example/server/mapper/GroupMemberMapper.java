@@ -7,4 +7,6 @@ public interface GroupMemberMapper {
     void insert(GroupMember member);
     void delete(GroupMember member);
     List<GroupMember> selectByGroupId(Integer groupId);
+
+    List<Integer> selectGroupIdsByUserId(Integer userId);
 }

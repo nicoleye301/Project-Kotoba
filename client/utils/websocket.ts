@@ -49,16 +49,6 @@ export function closeWebSocket(): void {
     }
 }
 
-
-export function sendMessage(message: string):void {
-    if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(message);
-    } else {
-        console.error("WebSocket is not open. Ready state: ", socket ? socket.readyState : "no socket");
-    }
-}
-
 export default {
     connect: connectWebSocket,
-    sendMessage,
 };

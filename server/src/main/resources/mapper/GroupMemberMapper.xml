@@ -12,8 +12,8 @@
 
     <!-- Insert a new group member record -->
     <insert id="insert" parameterType="com.example.server.entity.GroupMember">
-        INSERT INTO group_member (user_id, group_id)
-        VALUES (#{userId}, #{groupId})
+        INSERT INTO group_member (user_id, group_id, unread_messages, status)
+        VALUES (#{userId}, #{groupId}, 0, 'active')
     </insert>
 
     <!-- Delete a group member record -->
@@ -27,6 +27,12 @@
         SELECT user_id, group_id
         FROM group_member
         WHERE group_id = #{groupId}
+    </select>
+
+    <select id="selectGroupIdsByUserId" parameterType="int" resultType="int">
+        SELECT group_id
+        FROM group_member
+        WHERE user_id = #{userId}
     </select>
 
 </mapper>

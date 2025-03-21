@@ -32,15 +32,6 @@ const SendFriendRequest: React.FC<SendFriendRequestProps> = ({ onClose }) => {
 
     return (
         <View style={styles.container}>
-            <Button
-                mode="text"
-                onPress={onClose}
-                style={styles.closeButton}
-                labelStyle={styles.closeButtonLabel}
-            >
-                X
-            </Button>
-
             <TextInput
                 label="Friend's Username"
                 mode="outlined"
