@@ -7,6 +7,10 @@ import UserApi from "@/api/user";
 import { Appbar, Modal, PaperProvider, Portal } from "react-native-paper";
 import CreateGroupChat from "@/components/CreateGroupChat";
 import {createGroup, ChatGroup, getGroupDetails, getGroupChats} from "@/api/ChatGroup";
+import Constants from "expo-constants";
+
+// @ts-ignore
+const BASE_URL = Constants.expoConfig.extra.API_BASE_URL;
 
 export interface ChatItem {
     type: "friend" | "group";
@@ -113,7 +117,7 @@ export default function ChatScreen() {
         >
             <View style={styles.avatarContainer}>
                 {item.avatarUrl ? (
-                    <Image source={{ uri: item.avatarUrl }} style={styles.avatar} />
+                    <Image source={{ uri: BASE_URL+"/uploads/avatar/"+item.avatarUrl }} style={styles.avatar} />
                 ) : (
                     <View style={[styles.avatar, styles.avatarPlaceholder]}>
                         <Text style={styles.avatarInitial}>

@@ -9,6 +9,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.Map;
 
 @RestController
@@ -57,7 +59,8 @@ public class UserController {
 
     @PostMapping("/uploadAvatar")
     public void uploadAvatar(@RequestParam("userId") String userId, @RequestParam("avatar") MultipartFile avatar) {
-        Path path = Paths.get(uploadBaseDir, "avatar", "user_id" + userId + ".jpg");
+        String timeStamp = String.valueOf(System.currentTimeMillis());
+        Path path = Paths.get(uploadBaseDir, "avatar", "user_id" + userId +"_"+ timeStamp + ".jpg");
         userService.uploadFile(userId, avatar, path);
     }
 
