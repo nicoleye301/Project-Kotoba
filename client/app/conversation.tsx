@@ -110,6 +110,14 @@ export default function ConversationScreen() {
             style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
+            <View style={styles.conversationHeader}>
+                <Button mode="text" onPress={undefined} style={styles.headerBackButton}>
+                    &lt;
+                </Button>
+                <Button mode="text" onPress={undefined} style={styles.headerInfoButton}>
+                    Chat Name
+                </Button>
+            </View>
             {loading ? (
                 <ActivityIndicator size="large" color="#333" style={styles.loadingIndicator} />
             ) : (
@@ -152,8 +160,17 @@ const styles = StyleSheet.create({
         borderColor: "#ddd",
         alignItems: "center",
     },
+    conversationHeader: {
+        flexDirection: "row",
+        padding: 10,
+        borderTopWidth: 1,
+        borderColor: "#ddd",
+        alignItems: "center",
+    },
     input: { flex: 1, marginRight: 10 },
     sendButton: { paddingVertical: 6, paddingHorizontal: 12 },
+    headerBackButton: { paddingVertical: 3, paddingHorizontal: 3 },
+    headerInfoButton: { paddingVertical: 6, paddingHorizontal : 6},
     loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
     loadingIndicator: { marginTop: 20 },
 });
