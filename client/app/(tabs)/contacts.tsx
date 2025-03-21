@@ -6,6 +6,7 @@ import FriendApi from "@/api/friend";
 import UserApi from "@/api/user";
 import SendFriendRequest from "@/components/SendFriendRequest";
 import { LightTheme } from '@/theme/theme';
+import eventEmitter from "@/utils/eventEmitter";
 
 // define the Friendship type
 interface Friendship {
@@ -58,6 +59,15 @@ export default function ContactsScreen() {
                 });
         }
     }, [currentUserId]);
+
+    useEffect(() => {
+        const friendListListener = eventEmitter.addListener("friendListUpdated", () => {
+            // call function to refresh the friend list
+            refreshRequestsAndFriends();
+        });
+        return () => friendListListener.remove();
+    }, []);
+
 
     // fetch accepted friends and map them to ChatItem objects
     useEffect(() => {

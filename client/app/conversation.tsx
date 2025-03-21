@@ -19,7 +19,7 @@ type Message = {
     senderId: number;
     chatId: number;
     content: string;
-    sentTime: string;
+    sentTime: string;  // "2025-03-21T07:24:32.306" from server
     status?: string;
 };
 
@@ -49,7 +49,14 @@ export default function ConversationScreen() {
         setLoading(true);
         ChatApi.fetchHistory(chatId)
             .then((history: Message[]) => {
-                setMessages(history);
+                // convert IDs to numbers so "own" check works
+                const mappedHistory = history.map((msg) => ({
+                    ...msg,
+                    id: Number(msg.id),
+                    senderId: Number(msg.senderId),
+                    chatId: Number(msg.chatId),
+                }));
+                setMessages(mappedHistory);
                 setTimeout(() => {
                     flatListRef.current?.scrollToEnd({ animated: true });
                 }, 100);
@@ -58,12 +65,33 @@ export default function ConversationScreen() {
             .finally(() => setLoading(false));
     }, [chatId]);
 
+    // listen for incoming messages via WebSocket
     useEffect(() => {
         const listener = eventEmitter.addListener("message", (data: string) => {
             try {
-                const newMessage: Message = JSON.parse(data);
+                const serverMsg = JSON.parse(data);
+                const newMessage: Message = {
+                    id: Number(serverMsg.id),
+                    senderId: Number(serverMsg.senderId),
+                    chatId: Number(serverMsg.groupId),
+                    content: serverMsg.content,
+                    sentTime: serverMsg.timestamp,
+                    status: serverMsg.status,
+                };
+
+                // ignore broadcasted messages sent by ourselves, prob will change to optimistic update
+                if (currentUserId !== null && newMessage.senderId === currentUserId) {
+                    return;
+                }
+
                 if (newMessage.chatId === chatId) {
-                    setMessages((prev) => [...prev, newMessage]);
+                    setMessages((prev) => {
+                        // deduplicate by ID
+                        if (prev.some((m) => m.id === newMessage.id)) {
+                            return prev;
+                        }
+                        return [...prev, newMessage];
+                    });
                     flatListRef.current?.scrollToEnd({ animated: true });
                 }
             } catch (err) {
@@ -71,8 +99,9 @@ export default function ConversationScreen() {
             }
         });
         return () => listener.remove();
-    }, [chatId]);
+    }, [chatId, currentUserId]);
 
+    // send a message via API
     const sendMessage = async () => {
         if (!inputText.trim() || !currentUserId || !chatId) return;
         try {
@@ -81,6 +110,10 @@ export default function ConversationScreen() {
                 groupId: chatId,
                 content: inputText,
             });
+            // convert IDs to numbers
+            newMessage.id = Number(newMessage.id);
+            newMessage.senderId = Number(newMessage.senderId);
+            newMessage.chatId = Number(newMessage.chatId);
             setMessages((prev) => [...prev, newMessage]);
             setInputText("");
             flatListRef.current?.scrollToEnd({ animated: true });
@@ -115,9 +148,7 @@ export default function ConversationScreen() {
                 <FlatList
                     ref={flatListRef}
                     data={messages}
-                    keyExtractor={(item) =>
-                        item.id ? item.id.toString() : Math.random().toString()
-                    }
+                    keyExtractor={(item) => item.id.toString()}
                     renderItem={renderMessage}
                     contentContainerStyle={styles.messagesContainer}
                     onContentSizeChange={() =>
