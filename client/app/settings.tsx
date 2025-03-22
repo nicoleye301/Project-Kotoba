@@ -78,7 +78,7 @@ export default function Settings() {
             const user = await userApi.getUserById(parseInt(userId))
             setUserName(user.username)
             if (user.avatar){
-                setAvatar(user.avatar)
+                setAvatar(BASE_URL+"/uploads/avatar/"+user.avatar)
             }
         }
     }
@@ -163,7 +163,7 @@ export default function Settings() {
                 <FlatList ListHeaderComponent={
                     <List.Item
                         title={userName}
-                        left={() => <Image source={{uri: (BASE_URL+"/uploads/avatar/")+(avatar?avatar:"default.jpg")}} style={styles.avatar}/>}
+                        left={() => <Image source={{uri: (avatar?avatar:BASE_URL+"/uploads/avatar/default.jpg")}} style={styles.avatar}/>}
                         onPress={pickImage}
                     />
                 }

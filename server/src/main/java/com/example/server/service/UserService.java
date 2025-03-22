@@ -1,9 +1,14 @@
 package com.example.server.service;
 
+import com.example.server.entity.ChatGroup;
+import com.example.server.entity.GroupMember;
 import com.example.server.entity.User;
 import com.example.server.exception.CustomException;
+import com.example.server.mapper.ChatGroupMapper;
+import com.example.server.mapper.GroupMemberMapper;
 import com.example.server.mapper.UserMapper;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
@@ -14,8 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 @Service
 public class UserService {
@@ -25,6 +29,15 @@ public class UserService {
 
     @Value("${upload-directory}")
     private String uploadBaseDir;   //configured in applications.yml
+
+    private final GroupMemberMapper groupMemberMapper;
+    private final MessageService messageService;
+
+    @Autowired
+    public UserService(GroupMemberMapper groupMemberMapper, MessageService messageService) {
+        this.groupMemberMapper = groupMemberMapper;
+        this.messageService = messageService;
+    }
 
     public User login(String username, String password) {
         User user = userMapper.selectByUsername(username);
@@ -74,17 +87,27 @@ public class UserService {
 
     }
 
-    public org.springframework.core.io.Resource getAvatar(String userId) {
-        String fileName = userMapper.selectById(Integer.valueOf(userId)).getAvatar();
-        Path path = Paths.get(uploadBaseDir, "avatar", fileName);
-        try {
-            return new InputStreamResource(Files.newInputStream(path));
-        } catch (IOException e) {
-            throw new CustomException(500, "File IO error when reading file on server");
-        }
-    }
-
     public void setPassword(String userId, String password) {
         userMapper.setPassword(Integer.valueOf(userId), password);
+    }
+
+    public List<Map<String, Object>> getChatStreaks(String userId){
+        List<Map<String, Object>> result = new LinkedList<>();
+        // get all chats with user ID
+        Integer userIdInteger = Integer.valueOf(userId);
+        List<Integer> groups = groupMemberMapper.selectGroupIdsByUserId(userIdInteger);
+        // order by streak length
+        groups.sort((p1, p2) ->
+                messageService.getLongestChatDates(p2, userIdInteger)-
+                messageService.getLongestChatDates(p1, userIdInteger));
+        // take 5 chats with the longest streaks
+        for(int i=0;i<Math.min(5, groups.size());i++){  // maybe less than 5 chats
+            Map<String, Object> item = new HashMap<>();
+            Integer group = groups.get(i);
+            item.put("groupName", group);   //need to fetch group name
+            item.put("streak", messageService.getLongestChatDates(group, userIdInteger));
+            result.add(item);
+        }
+        return result;
     }
 }
