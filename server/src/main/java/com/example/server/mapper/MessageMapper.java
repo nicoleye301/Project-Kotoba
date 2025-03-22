@@ -12,4 +12,6 @@ public interface MessageMapper {
 
     // select all messages for a given direct chat group, ordered by sent_time ascending
     List<Message> selectMessagesByGroupId(@Param("groupId") Integer groupId);
+
+    List<Message> selectMessagesByGroupIdDesc(@Param("groupId") Integer groupId);
 }

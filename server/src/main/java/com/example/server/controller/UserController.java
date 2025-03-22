@@ -11,6 +11,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -64,8 +65,8 @@ public class UserController {
         userService.uploadFile(userId, avatar, path);
     }
 
-    @GetMapping("/getAvatar")
-    public Resource getAvatar(@RequestParam String userId) {
-        return userService.getAvatar(userId);
+    @GetMapping("/getStreaks")
+    public List<Map<String, Object>> getStreaks(@RequestParam String userId) {
+        return userService.getChatStreaks(userId);
     }
 }

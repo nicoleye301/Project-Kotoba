@@ -29,4 +29,8 @@
         ORDER BY sent_time ASC
     </select>
 
+    <select id="selectMessagesByGroupIdDesc" resultType="com.example.server.entity.Message">
+        SELECT * FROM message WHERE group_id = #{groupId} ORDER BY sent_time desc
+    </select>
+
 </mapper>

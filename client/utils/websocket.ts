@@ -50,5 +50,5 @@ export function closeWebSocket(): void {
 }
 
 export default {
-    connect: connectWebSocket,
+    connectWebSocket,
 };
