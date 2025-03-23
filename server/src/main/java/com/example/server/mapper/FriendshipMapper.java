@@ -27,4 +27,6 @@ public interface FriendshipMapper {
 
     // delete a friendship record
     void delete(Friendship friendship);
+
+    void updateMilestoneSettings(@Param("friendShipId") int friendShipId, @Param("milestoneSettings") String milestoneSettings);
 }
