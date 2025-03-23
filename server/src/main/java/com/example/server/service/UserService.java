@@ -128,13 +128,12 @@ public class UserService {
         List<Friendship> friendships = friendshipMapper.selectFriendshipsByUser(userIdInteger);
         Map<String, Object> result = new HashMap<>();
         for(Friendship friendship:friendships){
-            Integer friendIdInteger = friendship.getFriendId();
-            int friendShipId = friendship.getId();
-            String friendName = userMapper.selectById(friendIdInteger).getUsername();
-            String milestoneSettings = friendship.getMilestoneSettings();
-            int chatGroupId =  friendship.getDirectChatGroupId();
-
             // parse milestone settings json
+            String milestoneSettings = friendship.getMilestoneSettings();
+            if(milestoneSettings==null || milestoneSettings.isEmpty()){
+                // milestone not enabled for this friend
+                continue;
+            }
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode;
             try {
@@ -142,6 +141,13 @@ public class UserService {
             } catch (JsonProcessingException e) {
                 throw new RuntimeException(e);
             }
+
+            //gather other information
+            Integer friendIdInteger = friendship.getFriendId();
+            int friendShipId = friendship.getId();
+            int chatGroupId =  friendship.getDirectChatGroupId();
+            String friendName = userMapper.selectById(friendIdInteger).getUsername();
+
             long timestamp = jsonNode.get("startTime").asLong();
             int period = jsonNode.get("period").asInt();
             int repeat = jsonNode.get("repeat").asInt();
