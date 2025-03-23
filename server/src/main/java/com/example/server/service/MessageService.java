@@ -83,4 +83,18 @@ public class MessageService {
         }
         return streak;
     }
+
+    public boolean checkMilestone(Integer groupId, Integer userId, LocalDate start, LocalDate end){
+        List<Message> messages = messageMapper.selectMessagesByGroupIdDesc(groupId);
+        for (Message message : messages) {
+            // only messages that the user sent is counted
+            if (message.getSenderId().equals(userId)){
+                LocalDate date = message.getSentTime().toLocalDate();
+                if(!(date.isBefore(start) || date.isAfter(end))){
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 }

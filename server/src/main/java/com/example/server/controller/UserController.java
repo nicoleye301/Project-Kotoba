@@ -69,4 +69,9 @@ public class UserController {
     public List<Map<String, Object>> getStreaks(@RequestParam String userId) {
         return userService.getChatStreaks(userId);
     }
+
+    @GetMapping("/getMilestones")
+    public Map<String, Object> getMilestones(@RequestParam String userId) {
+        return userService.getMilestones(userId);
+    }
 }
