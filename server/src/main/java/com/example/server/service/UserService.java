@@ -197,7 +197,7 @@ public class UserService {
                 item.put("updated", false);
             }
             item.put("progress", progress); // achieved a full cycle
-            item.put("period", period);
+            item.put("repeat", repeat);
             result.add(item);
         }
         return result;
