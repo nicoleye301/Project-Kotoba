@@ -123,10 +123,10 @@ public class UserService {
         return result;
     }
 
-    public Map<String, Object> getMilestones(String userId){
+    public List<Map<String, Object>> getMilestones(String userId){
         Integer userIdInteger = Integer.valueOf(userId);
         List<Friendship> friendships = friendshipMapper.selectFriendshipsByUser(userIdInteger);
-        Map<String, Object> result = new HashMap<>();
+        List<Map<String, Object>> result = new LinkedList<>();
         for(Friendship friendship:friendships){
             // parse milestone settings json
             String milestoneSettings = friendship.getMilestoneSettings();
@@ -198,7 +198,7 @@ public class UserService {
             }
             item.put("progress", progress); // achieved a full cycle
             item.put("period", period);
-            result.put(String.valueOf(friendIdInteger), item);
+            result.add(item);
         }
         return result;
     }

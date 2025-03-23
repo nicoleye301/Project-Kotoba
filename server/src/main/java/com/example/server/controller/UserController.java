@@ -71,7 +71,7 @@ public class UserController {
     }
 
     @GetMapping("/getMilestones")
-    public Map<String, Object> getMilestones(@RequestParam String userId) {
+    public List<Map<String, Object>> getMilestones(@RequestParam String userId) {
         return userService.getMilestones(userId);
     }
 }
