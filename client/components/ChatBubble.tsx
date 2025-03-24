@@ -19,6 +19,19 @@ export default function ChatBubble({ message, isOwn }: ChatBubbleProps) {
     );
 }
 
+export function GameBubble({ message, isOwn }: ChatBubbleProps) {
+    return (
+        <View style={[styles.bubbleContainer, isOwn ? styles.rightAlign : styles.leftAlign]}>
+            <View style={[styles.bubble, isOwn ? styles.ownBubble : styles.friendBubble]}>
+                <Text style={styles.messageText}>{message.content}</Text>
+                <Text style={styles.timestamp}>
+                    {new Date(message.sentTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                </Text>
+            </View>
+        </View>
+    );
+}
+
 const styles = StyleSheet.create({
     bubbleContainer: {
         marginVertical: 4,

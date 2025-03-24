@@ -9,10 +9,12 @@ import {
 } from "react-native";
 import { TextInput, Button } from "react-native-paper";
 import ChatBubble from "@/components/ChatBubble";
+import {GameBubble} from "@/components/ChatBubble";
 import ChatApi from "@/api/message";
 import eventEmitter from "@/utils/eventEmitter";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSearchParams } from "expo-router/build/hooks";
+
 
 type Message = {
     id: number;
@@ -21,6 +23,7 @@ type Message = {
     content: string;
     sentTime: string;
     status?: string;
+    type?: string;
 };
 
 export default function ConversationScreen() {
@@ -89,12 +92,27 @@ export default function ConversationScreen() {
         }
     };
 
-    const renderMessage = ({ item }: { item: Message }) => (
-        <ChatBubble
-            message={item}
-            isOwn={currentUserId !== null && item.senderId === currentUserId}
-        />
-    );
+    const renderMessage = ({ item }: { item: Message }) => {
+
+        switch(item.type) {
+            //case "plaintext":
+            //    return <ChatBubble
+            //        message={item}
+            //        isOwn={currentUserId !== null && item.senderId === currentUserId}
+            //        />
+            case "game":
+                return <GameBubble
+                    message={item}
+                    isOwn={currentUserId !== null && item.senderId === currentUserId}
+                />
+            default:
+                return <ChatBubble
+                    message={item}
+                    isOwn={currentUserId !== null && item.senderId === currentUserId}
+                />
+        }
+
+    };
 
     if (!chatId) {
         return (
