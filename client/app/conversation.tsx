@@ -21,7 +21,6 @@ type Message = {
     content: string;
     sentTime: string;
     status?: string;
-    attachments?: {};
 };
 
 export default function ConversationScreen() {
