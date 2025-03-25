@@ -1,5 +1,6 @@
 import React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import {View, Text, StyleSheet, Button, FlatList} from "react-native";
+import {Icon} from "react-native-paper";
 
 type ChatBubbleProps = {
     message: { content: string; sentTime: string };
@@ -20,10 +21,64 @@ export default function ChatBubble({ message, isOwn }: ChatBubbleProps) {
 }
 
 export function GameBubble({ message, isOwn }: ChatBubbleProps) {
+
+    const itemData = [
+        {
+            icon: (
+                <Icon
+                    source="camera"
+                    size={25}
+                    color='#3b5998'
+                />
+            ),
+            key: 0
+        },
+        {
+            icon: (
+                <Icon
+                    source="camera"
+                    size={25}
+                    color='#3b5998'
+                />
+            ),
+            key: 1
+        },
+        {
+            icon: (
+                <Icon
+                    source="camera"
+                    size={25}
+                    color='#3b5998'
+                />
+            ),
+            key: 2
+        },
+        {
+            icon: (
+                <Icon
+                    source="camera"
+                    size={25}
+                    color='#3b5998'
+                />
+            ),
+            key: 3
+        },
+    ];
+    // @ts-ignore
+    const Item = ({ item }) => {
+        return <View>{item.icon}</View>;
+    };
+
     return (
         <View style={[styles.bubbleContainer, isOwn ? styles.rightAlign : styles.leftAlign]}>
             <View style={[styles.bubble, isOwn ? styles.ownBubble : styles.friendBubble]}>
-                <Text style={styles.messageText}>{message.content}</Text>
+                {/*<Text style={styles.messageText}>{message.content}</Text>*/}
+                <FlatList
+                    data={itemData}
+                    numColumns={4}
+                    renderItem={Item}
+                    keyExtractor={(item ) => ""+item.key}
+                />
                 <Text style={styles.timestamp}>
                     {new Date(message.sentTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </Text>
