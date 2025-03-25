@@ -3,7 +3,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { Link, router } from "expo-router";
 import { useState } from "react";
 import LoginApi from "@/api/login";
-import { connect } from "@/utils/websocket";
+import { connectWebSocket } from "@/utils/websocket";
 
 export default function Login() {
     const [username, setUsername] = useState("");
@@ -13,7 +13,7 @@ export default function Login() {
         try {
             const data = await LoginApi.login({ username, password });
             await AsyncStorage.setItem("loggedInUserId", data.id.toString());
-            connect();
+            connectWebSocket();
             router.replace("/(tabs)/dashboard");
         } catch (error) {
             console.error(error);

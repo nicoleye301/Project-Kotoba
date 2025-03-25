@@ -3,7 +3,7 @@ import eventEmitter from "@/utils/eventEmitter";
 const wsUrl = "ws://10.0.2.2:8080/ws";
 let socket: WebSocket | null = null;
 
-export function connect(): WebSocket {
+export function connectWebSocket(): WebSocket {
 
     if (socket &&
         (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)
@@ -41,7 +41,7 @@ export function connect(): WebSocket {
 }
 
 //close websocket connection if exist
-export function close(): void {
+export function closeWebSocket(): void {
     if (socket) {
         console.log("Closing WebSocket connection.");
         socket.close();
@@ -49,16 +49,6 @@ export function close(): void {
     }
 }
 
-
-export function sendMessage(message: string):void {
-    if (socket && socket.readyState === WebSocket.OPEN) {
-        socket.send(message);
-    } else {
-        console.error("WebSocket is not open. Ready state: ", socket ? socket.readyState : "no socket");
-    }
-}
-
 export default {
-    connect,
-    sendMessage,
+    connectWebSocket,
 };

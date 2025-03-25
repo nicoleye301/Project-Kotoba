@@ -6,12 +6,16 @@ import com.example.server.mapper.FriendshipMapper;
 import org.springframework.stereotype.Service;
 import jakarta.annotation.Resource;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class FriendshipService {
 
     @Resource
     private FriendshipMapper friendshipMapper;
+
+    @Resource
+    private GroupMemberService groupMemberService;
 
     public void sendFriendRequest(Integer senderId, Integer receiverId) {
         if (senderId.equals(receiverId)) {
@@ -44,7 +48,6 @@ public class FriendshipService {
             Integer newChatId = createNewDirectChatId();
             friendship.setDirectChatGroupId(newChatId);
         }
-
         friendshipMapper.update(friendship);
 
         // create reciprocal record
@@ -66,7 +69,12 @@ public class FriendshipService {
             }
             friendshipMapper.update(reciprocal);
         }
+
+        // ensure both users are added to the group_member table for this direct chat
+        groupMemberService.addMember(friendship.getDirectChatGroupId(), friendship.getUserId());
+        groupMemberService.addMember(friendship.getDirectChatGroupId(), friendship.getFriendId());
     }
+
 
     private Integer createNewDirectChatId() {
         return (int)(System.currentTimeMillis() / 1000);
@@ -82,9 +90,11 @@ public class FriendshipService {
     }
 
     public List<Friendship> getAcceptedFriends(Integer userId) {
-        // get all friend records where the user is either the sender or receiver and status is accepted
-        // remove duplicates if any
-        return friendshipMapper.selectFriendshipsByUser(userId);
+        // more robust, guarantess that each friendship appears only once
+        List<Friendship> list = friendshipMapper.selectFriendshipsByUser(userId);
+        return list.stream()
+                .filter(f -> "accepted".equals(f.getStatus()))
+                .collect(Collectors.toList());
     }
 
     public List<Friendship> getPendingFriendRequests(Integer receiverId) {

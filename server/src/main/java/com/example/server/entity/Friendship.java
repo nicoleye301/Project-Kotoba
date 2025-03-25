@@ -7,6 +7,7 @@ public class Friendship {
     private String nickname;          // optional nickname for this friend
     private Integer directChatGroupId; // gor creating a direct chat group later
     private String status;            // "pending", "accepted", "declined", or "deleted"
+    private String milestoneSettings;
 
     // getters and Setters
     public Integer getId() {
@@ -44,5 +45,13 @@ public class Friendship {
     }
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getMilestoneSettings() {
+        return milestoneSettings;
+    }
+
+    public void setMilestoneSettings(String milestoneSettings) {
+        this.milestoneSettings = milestoneSettings;
     }
 }

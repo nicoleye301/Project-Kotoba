@@ -8,13 +8,18 @@ type ChatBubbleProps = {
 };
 
 export default function ChatBubble({ message, isOwn }: ChatBubbleProps) {
+    const date = new Date(message.sentTime);
+    const timeString = !isNaN(date.getTime())
+        ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
+        : "Invalid Date";
+
     return (
         <View style={[styles.bubbleContainer, isOwn ? styles.rightAlign : styles.leftAlign]}>
             <View style={[styles.bubble, isOwn ? styles.ownBubble : styles.friendBubble]}>
-                <Text style={styles.messageText}>{message.content}</Text>
-                <Text style={styles.timestamp}>
-                    {new Date(message.sentTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+                <Text style={[styles.messageText, isOwn ? styles.ownText : styles.friendText]}>
+                    {message.content}
                 </Text>
+                <Text style={styles.timestamp}>{timeString}</Text>
             </View>
         </View>
     );
@@ -119,6 +124,13 @@ const styles = StyleSheet.create({
     },
     messageText: {
         fontSize: 16,
+    },
+    ownText: {
+        textAlign: "right",
+        color: "#000",
+    },
+    friendText: {
+        textAlign: "left",
         color: "#333",
     },
     timestamp: {

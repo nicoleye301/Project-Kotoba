@@ -7,9 +7,11 @@ import com.example.server.websocket.KTextWebSocket;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
+import java.util.Objects;
 
 @Service
 public class MessageService {
@@ -54,5 +56,45 @@ public class MessageService {
         } catch (Exception e) {
             throw new CustomException(500, "Error sending message: " + e.getMessage());
         }
+    }
+
+    public int getLongestChatDates(Integer groupId, Integer userId) {
+        // descending order of time
+        List<Message> messages = messageMapper.selectMessagesByGroupIdDesc(groupId);
+        List<LocalDate> dates = new ArrayList<>(messages.size());
+        for (Message message : messages) {
+            // only messages that the user sent is counted
+            if (message.getSenderId().equals(userId)){
+                LocalDate date = message.getSentTime().toLocalDate();
+                dates.add(date);
+            }
+        }
+        int streak = 0;
+        for (int i = 0; i < dates.size() - 1; i++) {
+            LocalDate date = dates.get(i);
+            LocalDate prevMessageDate = dates.get(i + 1);
+            if (date.equals(prevMessageDate)) {
+                // do nothing
+            } else if (date.minusDays(1).equals(prevMessageDate)) {
+                streak++;
+            } else {
+                break;
+            }
+        }
+        return streak;
+    }
+
+    public boolean checkMilestone(Integer groupId, Integer userId, LocalDate start, LocalDate end){
+        List<Message> messages = messageMapper.selectMessagesByGroupIdDesc(groupId);
+        for (Message message : messages) {
+            // only messages that the user sent is counted
+            if (message.getSenderId().equals(userId)){
+                LocalDate date = message.getSentTime().toLocalDate();
+                if(!(date.isBefore(start) || date.isAfter(end))){
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
