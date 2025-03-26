@@ -22,4 +22,13 @@ async function getMilestones(userId: string):Promise<Milestone[]> {
     return await Http.get(`/user/getMilestones?userId=${userId}`);
 }
 
-export default {getStreaks}
+export interface OneToOneFrequency {
+    friendName: string;
+    count: number;
+}
+
+async function getOneToOneFrequency(userId: string): Promise<OneToOneFrequency[]> {
+    return Http.get(`/user/getOneToOneFrequency?userId=${userId}`);
+}
+
+export default {getStreaks, getMilestones, getOneToOneFrequency}

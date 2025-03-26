@@ -28,4 +28,6 @@
     <select id="searchByUsername" resultType="com.example.server.entity.User" parameterType="string">
         SELECT * FROM "user" WHERE username LIKE CONCAT('%', #{username}, '%')
     </select>
+
+
 </mapper>
