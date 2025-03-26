@@ -78,12 +78,51 @@ export function GameBubble({ message, isOwn }: ChatBubbleProps) {
         <View style={[styles.bubbleContainer, isOwn ? styles.rightAlign : styles.leftAlign]}>
             <View style={[styles.bubble, isOwn ? styles.ownBubble : styles.friendBubble]}>
                 {/*<Text style={styles.messageText}>{message.content}</Text>*/}
-                <FlatList
-                    data={itemData}
-                    numColumns={4}
-                    renderItem={Item}
-                    keyExtractor={(item ) => ""+item.key}
-                />
+                <View
+                    style={[
+                        styles.tictactoeGrid,
+                        {
+                            // Try setting `flexDirection` to `"row"`.
+                            flexDirection: 'column',
+                        },
+                    ]}>
+                    <View
+                        style={[
+                            styles.tictactoeGrid,
+                            {
+                                // Try setting `flexDirection` to `"row"`.
+                                flexDirection: 'row',
+                            },
+                        ]}>
+                        <View style={{flex: 1, backgroundColor: 'red'}} />
+                        <View style={{flex: 1, backgroundColor: 'darkorange'}} />
+                        <View style={{flex: 1, backgroundColor: 'green'}} />
+                    </View>
+                    <View
+                        style={[
+                            styles.tictactoeGrid,
+                            {
+                                // Try setting `flexDirection` to `"row"`.
+                                flexDirection: 'row',
+                            },
+                        ]}>
+                        <View style={{flex: 1, backgroundColor: 'blue'}} />
+                        <View style={{flex: 1, backgroundColor: 'darkorange'}} />
+                        <View style={{flex: 1, backgroundColor: 'green'}} />
+                    </View>
+                    <View
+                        style={[
+                            styles.tictactoeGrid,
+                            {
+                                // Try setting `flexDirection` to `"row"`.
+                                flexDirection: 'row',
+                            },
+                        ]}>
+                        <View style={{flex: 1, backgroundColor: 'black'}} />
+                        <View style={{flex: 1, backgroundColor: 'darkorange'}} />
+                        <View style={{flex: 1, backgroundColor: 'green'}} />
+                    </View>
+                </View>
                 <Text style={styles.timestamp}>
                     {new Date(message.sentTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                 </Text>
@@ -139,4 +178,8 @@ const styles = StyleSheet.create({
         alignSelf: "flex-end",
         marginTop: 4,
     },
+    tictactoeGrid:{
+        flex: 1,
+        padding: 20,
+    }
 });
