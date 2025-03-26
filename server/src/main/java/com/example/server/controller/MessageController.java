@@ -34,12 +34,13 @@ public class MessageController {
                 ? ((Number) data.get("senderId")).intValue() : null;
         Integer chatId = (data.get("groupId") instanceof Number)
                 ? ((Number) data.get("groupId")).intValue() : null;
+        String type = (String) data.get("type");
         String content = (String) data.get("content");
 
         if (senderId == null || chatId == null || content == null) {
             throw new CustomException(400, "senderId, groupId (chatId), and content are required");
         }
 
-        return messageService.sendMessage(senderId, chatId, content);
+        return messageService.sendMessage(senderId, chatId, content, type);
     }
 }

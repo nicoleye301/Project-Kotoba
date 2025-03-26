@@ -105,13 +105,14 @@ export default function ConversationScreen() {
     }, [chatId, currentUserId]);
 
     // send a message via API
-    const sendMessage = async () => {
+    const sendMessageText = async () => {
         if (!inputText.trim() || !currentUserId || !chatId) return;
         try {
             const newMessage: Message = await ChatApi.sendMessage({
                 senderId: currentUserId,
                 groupId: chatId,
                 content: inputText,
+                type: "plaintext",
             });
             // convert IDs to numbers
             newMessage.id = Number(newMessage.id);
@@ -190,7 +191,7 @@ export default function ConversationScreen() {
                     onChangeText={setInputText}
                     style={styles.input}
                 />
-                <Button mode="contained" onPress={sendMessage} style={styles.sendButton}>
+                <Button mode="contained" onPress={sendMessageText} style={styles.sendButton}>
                     Send
                 </Button>
             </View>

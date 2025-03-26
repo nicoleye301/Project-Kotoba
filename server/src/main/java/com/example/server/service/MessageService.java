@@ -27,14 +27,20 @@ public class MessageService {
         return messageMapper.selectMessagesByGroupId(groupId);
     }
 
+    // Overload for compatibility; deprecated
     // send a new message: store in DB, then broadcast via WebSocket
     public Message sendMessage(Integer senderId, Integer groupId, String content) {
+        return sendMessage(senderId, groupId, content, "plaintext");
+    }
+
+    // send a new message: store in DB, then broadcast via WebSocket
+    public Message sendMessage(Integer senderId, Integer groupId, String content, String type) {
         try {
             Message msg = new Message();
             msg.setContent(content);
             msg.setSenderId(senderId);
             msg.setGroupId(groupId);
-            msg.setType("plaintext");
+            msg.setType(type);
             msg.setSentTime(LocalDateTime.now());
             msg.setStatus("sent");
 

@@ -4,6 +4,7 @@ export interface SendMessageParams {
     senderId: number;
     groupId: number; // server expects groupId
     content: string;
+    type?: string;
 }
 
 export interface Message {
