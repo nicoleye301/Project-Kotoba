@@ -86,5 +86,13 @@ export class Tictactoe {
 
         return winArr;
     }
+
+    public symbolAtCoord(row:number, column:number) : string {
+        return this.symbolAtIndex( row * 3 + column );
+    }
+
+    public symbolAtIndex(index:number) : string {
+        return this.board.charAt( index );
+    }
 }
 
