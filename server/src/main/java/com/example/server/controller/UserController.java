@@ -48,6 +48,11 @@ public class UserController {
         userService.updateSettings(userId, settings);
     }
 
+    @GetMapping("/getSettings")
+    public String getUserSettings(@RequestParam Integer userId) {
+        return userService.getUserSettings(userId);
+    }
+
     @PostMapping("/setPassword")
     public void setPassword(@RequestBody Map<String, Object> body) {
         String userId = (String) body.get("userId");
