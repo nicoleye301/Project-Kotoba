@@ -5,7 +5,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import DashboardApi from "@/api/dashboard";
 import InteractiveBarChart, { OneToOneFrequency } from "@/components/InteractiveBarChart";
 
-export default function DashboardScreen() {
+export default function ChatFrequencyGraph() {
     const [userId, setUserId] = useState("");
     const [frequencyData, setFrequencyData] = useState<OneToOneFrequency[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
@@ -47,7 +47,7 @@ export default function DashboardScreen() {
                     onPress={() => fetchFrequency(userId)}
                     style={styles.refreshButton}
                 >
-                    Refresh Dashboard
+                    Refresh Frequencies
                 </Button>
             </View>
         </ScrollView>
