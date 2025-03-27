@@ -3,6 +3,7 @@ package com.example.server.controller;
 import com.example.server.entity.Friendship;
 import com.example.server.entity.User;
 import com.example.server.exception.CustomException;
+import com.example.server.mapper.FriendshipMapper;
 import com.example.server.service.FriendshipService;
 import com.example.server.service.UserService;
 import org.springframework.web.bind.annotation.*;
@@ -102,4 +103,21 @@ public class FriendController {
         friendshipService.removeFriend(userId, friendId);
         return "Friend removed";
     }
+
+    @PostMapping("/setMilestone")
+    public String setMilestone(@RequestBody Map<String, Object> data) {
+        Integer currentUserId = (data.get("currentUserId") instanceof Number)
+                ? ((Number) data.get("currentUserId")).intValue() : null;
+        Integer friendId = (data.get("friendId") instanceof Number)
+                ? ((Number) data.get("friendId")).intValue() : null;
+        String milestoneSettings = (String) data.get("milestoneSettings");
+
+        if (currentUserId == null || friendId == null || milestoneSettings == null) {
+            throw new CustomException(400, "currentUserId, friendId and milestoneSettings are required");
+        }
+
+        friendshipService.setMilestone(currentUserId, friendId, milestoneSettings);
+        return "Milestone updated";
+    }
+
 }

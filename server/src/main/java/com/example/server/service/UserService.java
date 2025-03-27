@@ -102,30 +102,10 @@ public class UserService {
         userMapper.setPassword(Integer.valueOf(userId), password);
     }
 
-//    public List<Map<String, Object>> getChatStreaks(String userId){
-//        List<Map<String, Object>> result = new LinkedList<>();
-//        // get all chats with user ID
-//        Integer userIdInteger = Integer.valueOf(userId);
-//        List<Integer> groups = groupMemberMapper.selectGroupIdsByUserId(userIdInteger);
-//        // order by streak length
-//        groups.sort((p1, p2) ->
-//                messageService.getLongestChatDates(p2, userIdInteger)-
-//                messageService.getLongestChatDates(p1, userIdInteger));
-//        // take 5 chats with the longest streaks
-//        for(int i=0;i<Math.min(5, groups.size());i++){  // maybe less than 5 chats
-//            Map<String, Object> item = new HashMap<>();
-//            Integer group = groups.get(i);
-//            item.put("groupName", group);   //need to fetch group name
-//            item.put("streak", messageService.getLongestChatDates(group, userIdInteger));
-//            result.add(item);
-//        }
-//        return result;
-//    }
-
-    public List<Map<String, Object>> getChatStreaks(String userId) {
+    public List<Map<String, Object>> getChatStreaks(String userId){
         List<Map<String, Object>> result = new LinkedList<>();
+        // get 1-1 chats group ids from accepted friednship
         Integer userIdInteger = Integer.valueOf(userId);
-        // get one-to-one chat group IDs from accepted friendships
         Set<Integer> groupIds = new HashSet<>();
         List<Friendship> friendships = friendshipMapper.selectFriendshipsByUser(userIdInteger);
         for (Friendship f : friendships) {
@@ -136,15 +116,15 @@ public class UserService {
         List<Integer> groups = new ArrayList<>(groupIds);
         // order by streak length
         groups.sort((p1, p2) ->
-                messageService.getLongestChatDates(p2, userIdInteger) -
-                        messageService.getLongestChatDates(p1, userIdInteger));
-        // take the top 5
+                messageService.getLongestChatDates(p2, userIdInteger)-
+                messageService.getLongestChatDates(p1, userIdInteger));
+        // take 5 chats with the longest streaks
         for (int i = 0; i < Math.min(5, groups.size()); i++) {
             Integer groupId = groups.get(i);
             int streak = messageService.getLongestChatDates(groupId, userIdInteger);
             String friendName = getDirectChatFriendName(groupId, userIdInteger);
             Map<String, Object> item = new HashMap<>();
-            item.put("groupName", friendName);
+            item.put("groupName", friendName); // return the friend's username
             item.put("streak", streak);
             result.add(item);
         }
@@ -158,10 +138,13 @@ public class UserService {
             if (chatGroupId.equals(f.getDirectChatGroupId())) {
                 int friendId = f.getUserId().equals(currentUserId) ? f.getFriendId() : f.getUserId();
                 User friend = userMapper.selectById(friendId);
-                if (friend != null) return friend.getUsername();
+                if (friend != null) {
+                    return friend.getUsername();
+                }
             }
         }
-        return chatGroupId.toString();
+        // fallback if not found
+        return "Unknown Friend";
     }
 
     public List<Map<String, Object>> getMilestones(String userId){
@@ -193,6 +176,11 @@ public class UserService {
             int period = jsonNode.get("period").asInt();
             int repeat = jsonNode.get("repeat").asInt();
             int progress = jsonNode.get("progress").asInt();
+
+            String description = "";
+            if (jsonNode.has("description")) {
+                description = jsonNode.get("description").asText();
+            }
             if (repeat==progress){
                 progress=0; // reset last full cycle
             }
@@ -206,6 +194,7 @@ public class UserService {
             // conclude the result
             Map<String, Object> item = new HashMap<>();
             item.put("friendName", friendName);
+            item.put("description", description);
             if(now.isAfter(thisPeriodEnd)){
                 // this period has passed
                 boolean achieved = messageService.checkMilestone(chatGroupId, userIdInteger, thisPeriodStart, thisPeriodEnd);
@@ -224,6 +213,7 @@ public class UserService {
                 milestoneSettingUpdate.put("period", period);
                 milestoneSettingUpdate.put("repeat", repeat);
                 milestoneSettingUpdate.put("progress", progress);
+                milestoneSettingUpdate.put("description", description);
                 try {
                     milestoneSettings = objectMapper.writeValueAsString(milestoneSettingUpdate);
                     friendshipMapper.updateMilestoneSettings(friendShipId, milestoneSettings);
