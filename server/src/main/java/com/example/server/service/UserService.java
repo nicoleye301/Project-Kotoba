@@ -85,6 +85,10 @@ public class UserService {
         userMapper.updateSettings(Integer.valueOf(userId), settings);
     }
 
+    public String getUserSettings(Integer userId) {
+        return userMapper.getSettings(userId);
+    }
+
     public void uploadFile(String userId, MultipartFile file, Path path) {
         try {
             //save to local directory
@@ -266,6 +270,4 @@ public class UserService {
         result.sort((a, b) -> Integer.compare((int) b.get("count"), (int) a.get("count")));
         return result.size() > 5 ? result.subList(0, 5) : result;
     }
-
-
 }

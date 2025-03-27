@@ -7,7 +7,7 @@ import {
     StyleSheet,
     ActivityIndicator,
 } from "react-native";
-import { TextInput, Button } from "react-native-paper";
+import {TextInput, Button, Appbar} from "react-native-paper";
 import ChatBubble from "@/components/ChatBubble";
 import ChatApi from "@/api/message";
 import eventEmitter from "@/utils/eventEmitter";
@@ -142,6 +142,9 @@ export default function ConversationScreen() {
             style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
+            <Appbar.Header>
+                <Appbar.Content title={params.get("title")} />
+            </Appbar.Header>
             {loading ? (
                 <ActivityIndicator size="large" color="#333" style={styles.loadingIndicator} />
             ) : (

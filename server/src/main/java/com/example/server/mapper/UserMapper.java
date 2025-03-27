@@ -17,6 +17,8 @@ public interface UserMapper {
 
     void updateSettings(@Param("id") Integer id, @Param("settings") String settings);
 
+    String getSettings(Integer userId);
+
     void updateAvatar(@Param("id") Integer id, @Param("avatar") String settings);
 
     void setPassword(@Param("id") Integer id, @Param("password") String password);

@@ -1,9 +1,10 @@
-import { Button, View, TextInput, Text, StyleSheet } from "react-native";
+import {Button, View, TextInput, Text, StyleSheet} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { Link, router } from "expo-router";
-import { useState } from "react";
+import {Link, router} from "expo-router";
+import {useState} from "react";
 import LoginApi from "@/api/login";
-import { connectWebSocket } from "@/utils/websocket";
+import SettingsApi from "@/api/settings"
+import {connectWebSocket} from "@/utils/websocket";
 
 export default function Login() {
     const [username, setUsername] = useState("");
@@ -11,15 +12,26 @@ export default function Login() {
 
     const handleLogin = async () => {
         try {
-            const data = await LoginApi.login({ username, password });
+            const data = await LoginApi.login({username, password});
             await AsyncStorage.setItem("loggedInUserId", data.id.toString());
             connectWebSocket();
+            await getUserSettings(data.id)
             router.replace("/(tabs)/dashboard");
         } catch (error) {
             console.error(error);
             alert("Failed");
         }
     };
+
+    const getUserSettings = async (userId: number) => {
+        const userSettings:string = await SettingsApi.getSettings(userId)
+        if(userSettings){
+            await Promise.all(Object.entries(userSettings).map(([name, value]) =>
+                    AsyncStorage.setItem(name, JSON.stringify(value))
+                )
+            )
+        }
+    }
 
     return (
         <View style={styles.container}>
@@ -39,7 +51,7 @@ export default function Login() {
                 secureTextEntry={true}
             />
 
-            <Button title="Login" onPress={handleLogin} />
+            <Button title="Login" onPress={handleLogin}/>
             <Link href="/register" replace>
                 Register
             </Link>
