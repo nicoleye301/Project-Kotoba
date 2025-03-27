@@ -7,6 +7,18 @@
     <insert id="add" parameterType="com.example.server.entity.User">
         INSERT INTO "user" (username, password) VALUES (#{username}, #{password})
     </insert>
+    <update id="updateSettings">
+        update "user" set setting = #{settings} where id = #{id}
+    </update>
+    <select id="getSettings" parameterType="integer" resultType="string">
+        select setting from "user" where id = #{userId}
+    </select>
+    <update id="updateAvatar">
+        update "user" set avatar = #{avatar} where id = #{id}
+    </update>
+    <update id="setPassword">
+        update "user" set password = #{password} where id = #{id}
+    </update>
 
     <select id="selectByUsername" resultType="com.example.server.entity.User" parameterType="string">
         SELECT * FROM "user" WHERE username = #{username}
@@ -19,4 +31,6 @@
     <select id="searchByUsername" resultType="com.example.server.entity.User" parameterType="string">
         SELECT * FROM "user" WHERE username LIKE CONCAT('%', #{username}, '%')
     </select>
+
+
 </mapper>

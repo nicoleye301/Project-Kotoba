@@ -11,9 +11,14 @@ const get = async (url: string) => {
     return response.data;
 };
 
-const post = async (url: string, param: {}) => {
-    const response = await instance.post(url, param);
-    return response.data;
+const post = async (url: string, param: {}|FormData, config?:{}) => {
+    if (config){
+        await instance.post(url, param, config)
+    }
+    else{
+        const response = await instance.post(url, param);
+        return response.data;
+    }
 };
 
 export default { get, post };

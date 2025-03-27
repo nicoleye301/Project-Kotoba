@@ -15,8 +15,8 @@
         <result property="status" column="status"/>
     </resultMap>
 
-    <!-- Insert a new message -->
-    <insert id="insertMessage" parameterType="com.example.server.entity.Message">
+    <!-- Insert a new message with auto-generated keys -->
+    <insert id="insertMessage" parameterType="com.example.server.entity.Message" useGeneratedKeys="true" keyProperty="id">
         INSERT INTO message (content, sender_id, group_id, type, sent_time, status)
         VALUES (#{content}, #{senderId}, #{groupId}, #{type}, #{sentTime}, #{status})
     </insert>
@@ -27,6 +27,15 @@
         FROM message
         WHERE group_id = #{groupId}
         ORDER BY sent_time ASC
+    </select>
+
+    <select id="selectMessagesByGroupIdDesc" resultType="com.example.server.entity.Message">
+        SELECT * FROM message WHERE group_id = #{groupId} ORDER BY sent_time desc
+    </select>
+
+    <!-- Count messages by group_id -->
+    <select id="selectCountByGroupId" parameterType="int" resultType="int">
+        SELECT COUNT(*) FROM message WHERE group_id = #{groupId}
     </select>
 
 </mapper>

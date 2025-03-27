@@ -1,11 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { View, FlatList, StyleSheet, Alert, TouchableOpacity, Text } from "react-native";
-import {Appbar, TextInput, Button, Card, Title, Paragraph, Provider, Portal, Modal, List, PaperProvider, Searchbar, IconButton} from "react-native-paper";
+import { View, FlatList, StyleSheet, Alert, Text } from "react-native";
+import {Appbar, Searchbar, IconButton, Portal, Modal, List, PaperProvider, Button,} from "react-native-paper";
+import { router } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FriendApi from "@/api/friend";
 import UserApi from "@/api/user";
 import SendFriendRequest from "@/components/SendFriendRequest";
-import { LightTheme } from '@/theme/theme';
+import { LightTheme } from "@/theme/theme";
+import eventEmitter from "@/utils/eventEmitter";
 
 // define the Friendship type
 interface Friendship {
@@ -14,7 +16,7 @@ interface Friendship {
     friendId: number;     // the receiver (the other user)
     nickname?: string;
     directChatGroupId?: number;
-    status: string;      // "pending", "accepted", "declined", etc.
+    status: string;       // "pending", "accepted", "declined", etc.
 }
 
 // define ChatItem type for displaying confirmed friends in the UI
@@ -59,16 +61,22 @@ export default function ContactsScreen() {
         }
     }, [currentUserId]);
 
+    useEffect(() => {
+        const friendListListener = eventEmitter.addListener("friendListUpdated", () => {
+            refreshRequestsAndFriends();
+        });
+        return () => friendListListener.remove();
+    }, []);
+
     // fetch accepted friends and map them to ChatItem objects
     useEffect(() => {
         if (currentUserId !== null) {
             FriendApi.getFriendList(currentUserId)
                 .then(async (friendships: Friendship[]) => {
-                    // use a dictionary to remove duplicates
                     const friendItemsMap: { [key: number]: ChatItem } = {};
                     await Promise.all(
                         friendships.map(async (f: Friendship) => {
-                            // determine the other
+                            // determine the other friend's ID
                             const friendId = f.userId === currentUserId ? f.friendId : f.userId;
                             if (!friendItemsMap[friendId]) {
                                 try {
@@ -77,8 +85,8 @@ export default function ContactsScreen() {
                                         type: "friend",
                                         id: friendId,
                                         title: friendUser.username,
-                                        subtitle: "Tap to chat",
-                                        updatedAt: "Just now", // update with a proper timestamp later
+                                        subtitle: "Set milestone",
+                                        updatedAt: "Just now",
                                         avatarUrl: friendUser.avatar || "",
                                     };
                                 } catch (error) {
@@ -87,7 +95,7 @@ export default function ContactsScreen() {
                                         type: "friend",
                                         id: friendId,
                                         title: `Friend #${friendId}`,
-                                        subtitle: "Tap to chat",
+                                        subtitle: "Set milestone",
                                         updatedAt: "Just now",
                                         avatarUrl: "",
                                     };
@@ -122,7 +130,7 @@ export default function ContactsScreen() {
                                     type: "friend",
                                     id: friendId,
                                     title: friendUser.username,
-                                    subtitle: "Tap to chat",
+                                    subtitle: "Set milestone",
                                     updatedAt: "Just now",
                                     avatarUrl: friendUser.avatar || "",
                                 };
@@ -132,7 +140,7 @@ export default function ContactsScreen() {
                                     type: "friend",
                                     id: friendId,
                                     title: `Friend #${friendId}`,
-                                    subtitle: "Tap to chat",
+                                    subtitle: "Set milestone",
                                     updatedAt: "Just now",
                                     avatarUrl: "",
                                 };
@@ -147,7 +155,6 @@ export default function ContactsScreen() {
         }
     };
 
-    // when accepting or declining a friend request, pass the friendship record's id
     const handleAccept = async (friendship: Friendship) => {
         if (!currentUserId) return;
         try {
@@ -187,17 +194,20 @@ export default function ContactsScreen() {
         />
     );
 
+    // when a friend item is pressed, navigate to the milestone setup screen
     const renderFriendItem = ({ item }: { item: ChatItem }) => (
         <List.Item
             title={item.title}
             description={item.subtitle}
             left={() => <List.Icon icon="account" />}
             right={() => <List.Icon icon="chevron-right" />}
+            onPress={() =>
+                router.push(`/SetMilestone?friendId=${item.id}&friendName=${encodeURIComponent(item.title)}`)
+            }
             style={styles.friendListItem}
         />
     );
 
-    // ----- UI -----
     return (
         <PaperProvider theme={LightTheme}>
             <Appbar.Header>
@@ -212,7 +222,6 @@ export default function ContactsScreen() {
                     onChangeText={setSearchQuery}
                     style={styles.searchbar}
                 />
-                {/* Pending requests */}
                 {pendingRequests.length > 0 && (
                     <>
                         <Text style={styles.sectionTitle}>Pending Requests</Text>
@@ -224,7 +233,6 @@ export default function ContactsScreen() {
                         />
                     </>
                 )}
-                {/* Friends */}
                 <Text style={styles.sectionTitle}>Friends</Text>
                 <FlatList
                     data={confirmedFriends}
@@ -232,14 +240,12 @@ export default function ContactsScreen() {
                     renderItem={renderFriendItem}
                     style={styles.flatListSpacing}
                 />
-                {/* Modal for adding friend */}
                 <Portal>
                     <Modal
                         visible={modalVisible}
                         onDismiss={() => setModalVisible(false)}
                         contentContainerStyle={styles.modalContainer}
                     >
-                        {/* Close icon in top-right */}
                         <View style={styles.modalHeader}>
                             <Text style={styles.modalTitle}>Add Friend</Text>
                             <IconButton
@@ -249,11 +255,7 @@ export default function ContactsScreen() {
                             />
                         </View>
                         <SendFriendRequest onClose={() => setModalVisible(false)} />
-                        <Button
-                            mode="contained"
-                            onPress={() => setModalVisible(false)}
-                            style={styles.modalCloseBtn}
-                        >
+                        <Button mode="contained" onPress={() => setModalVisible(false)} style={styles.modalCloseBtn}>
                             Close
                         </Button>
                     </Modal>
@@ -263,7 +265,6 @@ export default function ContactsScreen() {
     );
 }
 
-// ----- STYLES -----
 const styles = StyleSheet.create({
     container: {
         flex: 1,
@@ -284,7 +285,6 @@ const styles = StyleSheet.create({
         marginHorizontal: 8,
         marginBottom: 16,
     },
-    // pending requests
     pendingListItem: {
         backgroundColor: "#fff",
         borderRadius: 8,
@@ -299,14 +299,12 @@ const styles = StyleSheet.create({
     actionBtn: {
         minWidth: 72,
     },
-    // friend list
     friendListItem: {
         backgroundColor: "#fff",
         borderRadius: 8,
         marginVertical: 4,
         elevation: 1,
     },
-    // modal
     modalContainer: {
         backgroundColor: "white",
         padding: 20,

@@ -3,6 +3,7 @@ import { EventEmitter } from "expo-modules-core";
 type NotificationEvents = {
     message: (data: string) => void,
     friendRequest: (data: any) => void,
+    friendListUpdated: () => void;
 };
 
 const eventEmitter = new EventEmitter<NotificationEvents>();

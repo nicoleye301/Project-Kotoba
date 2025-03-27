@@ -21,10 +21,10 @@ export async function fetchHistory(chatId: number): Promise<Message[]> {
     const messages = await Http.get(`/message/history?chatId=${chatId}`);
     return messages.map((msg: any) => ({
         id: msg.id,
-        senderId: msg.sender_id,
-        chatId: msg.group_id,
+        senderId: msg.senderId,
+        chatId: msg.groupId,
         content: msg.content,
-        sentTime: msg.sent_time,
+        sentTime: msg.sentTime,
         status: msg.status,
         type: msg.type,
     }));
@@ -35,10 +35,10 @@ export async function sendMessage(params: SendMessageParams): Promise<Message> {
     const msg = await Http.post("/message/send", params);
     return {
         id: msg.id,
-        senderId: msg.sender_id,
-        chatId: msg.group_id,
+        senderId: msg.senderId,
+        chatId: msg.groupId,
         content: msg.content,
-        sentTime: msg.sent_time,
+        sentTime: msg.sentTime,
         status: msg.status,
         type: msg.type,
     };

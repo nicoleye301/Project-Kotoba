@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.server.mapper.ChatGroupMapper">
+
+    <insert id="insertChatGroup" parameterType="com.example.server.entity.ChatGroup" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO chat_group (owner_id, is_group, group_name, last_update_time, muted)
+        VALUES (#{ownerId}, #{isGroup}, #{groupName}, CURRENT_TIMESTAMP, false)
+    </insert>
+
+    <!-- Select chat groups by a list of group IDs -->
+    <select id="selectChatGroupsByIds" parameterType="java.util.List" resultType="com.example.server.entity.ChatGroup">
+        SELECT id, owner_id, is_group, group_name, last_update_time, muted
+        FROM chat_group
+        WHERE id IN
+        <foreach collection="list" item="groupId" open="(" separator="," close=")">
+            #{groupId}
+        </foreach>
+    </select>
+</mapper>
