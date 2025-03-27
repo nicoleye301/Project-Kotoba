@@ -5,14 +5,8 @@ import { router } from "expo-router";
 import DashboardApi from "@/api/dashboard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ChatFrequencyGraph from "@/components/ChatFrequencyGraph";
-
-type Milestone = {
-    friendName: string;
-    updated: boolean;
-    congrats: boolean;
-    progress: number;
-    repeat: number;
-};
+import StreakDisplay from "@/components/StreakDisplay";
+import MilestoneDisplay, { Milestone } from "@/components/MilestoneDisplay";
 
 export default function DashboardScreen() {
     const [userId, setUserId] = useState("");
@@ -40,6 +34,7 @@ export default function DashboardScreen() {
         }
     };
 
+
     return (
         <ScrollView style={styles.container}>
             <Appbar.Header>
@@ -50,29 +45,13 @@ export default function DashboardScreen() {
                 <Text style={styles.loadingText}>Loading dashboard...</Text>
             ) : (
                 <View style={styles.content}>
-                   <ChatFrequencyGraph userId={userId} />
+                    <ChatFrequencyGraph userId={userId} />
+
+                    <Text style={styles.sectionTitle}>Chat Streaks</Text>
+                    <StreakDisplay userId={userId} />
+
                     <Text style={styles.sectionTitle}>Milestones</Text>
-                    {milestones.length === 0 ? (
-                        <Text style={styles.emptyText}>No milestones enabled.</Text>
-                    ) : (
-                        milestones.map((item, index) => (
-                            <Card key={`milestone-${index}`} style={styles.card}>
-                                <Card.Title title={item.friendName} />
-                                <Card.Content>
-                                    <Text>
-                                        {item.updated
-                                            ? item.congrats
-                                                ? "Milestone achieved! Congratulations!"
-                                                : "Milestone missed!"
-                                            : "Milestone in progress"}
-                                    </Text>
-                                    <Text>
-                                        Progress: {item.progress} / {item.repeat}
-                                    </Text>
-                                </Card.Content>
-                            </Card>
-                        ))
-                    )}
+                    <MilestoneDisplay milestones={milestones} />
 
                     <Button
                         mode="contained"
@@ -105,15 +84,7 @@ const styles = StyleSheet.create({
         fontWeight: "600",
         marginVertical: 10,
     },
-    card: {
-        marginVertical: 5,
-    },
     refreshButton: {
         marginVertical: 20,
-    },
-    emptyText: {
-        textAlign: "center",
-        color: "#777",
-        marginVertical: 5,
     },
 });

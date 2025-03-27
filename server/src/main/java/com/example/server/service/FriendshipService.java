@@ -113,4 +113,12 @@ public class FriendshipService {
             friendshipMapper.delete(reciprocal);
         }
     }
+
+    public void setMilestone(Integer currentUserId, Integer friendId, String milestoneSettings) {
+        Friendship friendship = friendshipMapper.selectByUserIdAndFriendId(currentUserId, friendId);
+        if (friendship == null) {
+            throw new CustomException(404, "Friendship not found");
+        }
+        friendshipMapper.updateMilestoneSettings(friendship.getId(), milestoneSettings);
+    }
 }

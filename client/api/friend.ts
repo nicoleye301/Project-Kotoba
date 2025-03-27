@@ -38,6 +38,15 @@ export function removeFriend(params: FriendRequestParams) {
     return Http.post("/friend/remove", params);
 }
 
+//set a milestone for a friend
+export async function setMilestone(params: {
+    currentUserId: number;
+    friendId: number;
+    milestoneSettings: string;
+}): Promise<any> {
+    return Http.post("/friend/setMilestone", params);
+}
+
 export default {
     sendFriendRequest,
     acceptFriendRequest,
@@ -45,4 +54,5 @@ export default {
     getFriendList,
     getPendingRequests,
     removeFriend,
+    setMilestone
 };
