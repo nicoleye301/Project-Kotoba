@@ -27,53 +27,6 @@ export default function ChatBubble({ message, isOwn }: ChatBubbleProps) {
 
 export function GameBubble({ message, isOwn }: ChatBubbleProps) {
 
-    const itemData = [
-        {
-            icon: (
-                <Icon
-                    source="camera"
-                    size={25}
-                    color='#3b5998'
-                />
-            ),
-            key: 0
-        },
-        {
-            icon: (
-                <Icon
-                    source="camera"
-                    size={25}
-                    color='#3b5998'
-                />
-            ),
-            key: 1
-        },
-        {
-            icon: (
-                <Icon
-                    source="camera"
-                    size={25}
-                    color='#3b5998'
-                />
-            ),
-            key: 2
-        },
-        {
-            icon: (
-                <Icon
-                    source="camera"
-                    size={25}
-                    color='#3b5998'
-                />
-            ),
-            key: 3
-        },
-    ];
-    // @ts-ignore
-    const Item = ({ item }) => {
-        return <View>{item.icon}</View>;
-    };
-
     return (
         <View style={[styles.bubbleContainer, isOwn ? styles.rightAlign : styles.leftAlign]}>
             <View style={[styles.bubble, isOwn ? styles.ownBubble : styles.friendBubble]}>
@@ -82,7 +35,6 @@ export function GameBubble({ message, isOwn }: ChatBubbleProps) {
                     style={[
                         styles.tictactoeGrid,
                         {
-                            // Try setting `flexDirection` to `"row"`.
                             flexDirection: 'column',
                         },
                     ]}>
@@ -90,7 +42,6 @@ export function GameBubble({ message, isOwn }: ChatBubbleProps) {
                         style={[
                             styles.tictactoeGrid,
                             {
-                                // Try setting `flexDirection` to `"row"`.
                                 flexDirection: 'row',
                             },
                         ]}>
