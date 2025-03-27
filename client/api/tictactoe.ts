@@ -19,13 +19,18 @@ export class Tictactoe {
         return result;
     }
 
-    public isMoveValid(params: Tictactoe|String, symbol:string, index:number) {
+    public isMoveValid(params: Tictactoe|String, symbol:string, index:number) : boolean {
         if (params instanceof String)
         {
             params = Tictactoe.fromString(params)
         }
 
         // Evaluate move validity. Format assumes indexes 0-8 as a 3x3 grid
+        if (params.board.charAt(index) == "O" || params.board.charAt(index) == "X")
+        {
+            return false;
+        }
+        return true;
     }
 
     // Return X or O based on amount of X's and O's
