@@ -20,6 +20,9 @@ export default function DashboardScreen() {
                 setUserId(uid);
                 fetchMilestones(uid);
             }
+            else{
+                router.replace("/login")
+            }
             setLoading(false);
         };
         initialize();
@@ -45,7 +48,7 @@ export default function DashboardScreen() {
                 <Text style={styles.loadingText}>Loading dashboard...</Text>
             ) : (
                 <View style={styles.content}>
-                    <ChatFrequencyGraph userId={userId} />
+                    <ChatFrequencyGraph />
 
                     <Text style={styles.sectionTitle}>Chat Streaks</Text>
                     <StreakDisplay userId={userId} />
@@ -58,7 +61,7 @@ export default function DashboardScreen() {
                         onPress={() => fetchMilestones(userId)}
                         style={styles.refreshButton}
                     >
-                        Refresh Dashboard
+                        Refresh Milestones
                     </Button>
                 </View>
             )}
