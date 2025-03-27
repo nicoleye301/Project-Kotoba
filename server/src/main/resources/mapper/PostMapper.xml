@@ -2,13 +2,25 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.example.server.mapper.PostMapper">
-    <resultMap id="PostResultMap" type="com.examlpe.server.entity.FriendPost">
 
-        
+    <resultMap id="PostResultMap" type="com.example.server.entity.FriendPost">
+        <id property="id" column="id"/>
+        <result property="content" column="content"/>
+        <result property="imageURL" column="image_url"/>
+        <result property="posterId" column="sender_id"/>
+        <result property="postTime" column="sent_time"/>
     </resultMap>
 
-    <insert id="add" parameterType="com.example.server.entity.FriendPost">
-        INSERT INTO post (content, poster) VALUES (#{content}, #{sender_id})
+    <insert id="insertPost" parameterType="com.example.server.entity.FriendPost">
+        INSERT INTO post (content, image_url, sender_id, sent_time)
+        VALUES (#{content}, #{imageURL}, #{posterId}, #{postTime})
     </insert>
+
+    <select id="selectPostsByPosterId" resultMap="PostResultMap">
+        SELECT id, content, image_url, sent_time
+        FROM post
+        WHERE sender_id = #{posterId}
+        ORDER BY sent_time ASC
+    </select>
 
 </mapper>
