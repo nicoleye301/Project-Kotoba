@@ -12,9 +12,14 @@ export class Tictactoe {
         let result: Tictactoe = new Tictactoe;
 
         // Copy from Parsed into Result, and return
+        if (parsed.has("board"))
+        {
+            result.board = parsed.board;
+        }
+        return result;
     }
 
-    public isMoveValid(params: Tictactoe|String, move:String) {
+    public isMoveValid(params: Tictactoe|String, symbol:string, index:number) {
         if (params instanceof String)
         {
             params = Tictactoe.fromString(params)
@@ -24,13 +29,57 @@ export class Tictactoe {
     }
 
     // Return X or O based on amount of X's and O's
-    public currentPlayerTurn(){
+    public currentPlayerTurn() : string {
+        let boardArr : Array<string> = Array.from(this.board); // Split board into characters
+        let xes : Array<string>;
+        let oes : Array<string>;
 
+        xes = boardArr.filter((word) => word.toUpperCase() === "X");
+        oes = boardArr.filter((word) => word.toUpperCase() === "O");
+
+        if (xes.length > oes.length)
+        {
+            return "X";
+        }
+        return "O";
     }
 
     // Return an empty array if no wins yet; used to display crosses through the board
-    public winLines():Array {
+    public winLines() : Array<string> {
+        let boardArr : Array<string> = Array.from(this.board); // Split board into characters
+        while (boardArr.length < 9) {
+            boardArr.push("/");
+        }
 
+        let winArr : Array<string> = [];
+        if (boardArr[0] == boardArr[1] && boardArr[1] == boardArr[2] && boardArr[1] != "/") {
+            winArr.push("r0");
+        }
+        if (boardArr[3] == boardArr[4] && boardArr[4] == boardArr[5] && boardArr[4] != "/") {
+            winArr.push("r1");
+        }
+        if (boardArr[6] == boardArr[7] && boardArr[7] == boardArr[8] && boardArr[7] != "/") {
+            winArr.push("r2");
+        }
+
+        if (boardArr[0] == boardArr[3] && boardArr[3] == boardArr[6] && boardArr[0] != "/") {
+            winArr.push("c0");
+        }
+        if (boardArr[1] == boardArr[4] && boardArr[4] == boardArr[7] && boardArr[1] != "/") {
+            winArr.push("c1");
+        }
+        if (boardArr[2] == boardArr[5] && boardArr[5] == boardArr[8] && boardArr[2] != "/") {
+            winArr.push("c2");
+        }
+
+        if (boardArr[0] == boardArr[4] && boardArr[4] == boardArr[8] && boardArr[4] != "/") {
+            winArr.push("dUL");
+        }
+        if (boardArr[2] == boardArr[4] && boardArr[4] == boardArr[6] && boardArr[4] != "/") {
+            winArr.push("dUR");
+        }
+
+        return winArr;
     }
 }
 
