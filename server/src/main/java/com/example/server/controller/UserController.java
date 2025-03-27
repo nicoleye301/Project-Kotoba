@@ -6,11 +6,8 @@ import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -21,7 +18,7 @@ public class UserController {
     private final UserService userService;
 
     @Value("${upload-directory}")
-    private String uploadBaseDir;   //configured in applications.yml
+    private String uploadBaseDir;
 
     public UserController(UserService userService) {
         this.userService = userService;
@@ -61,7 +58,7 @@ public class UserController {
     @PostMapping("/uploadAvatar")
     public void uploadAvatar(@RequestParam("userId") String userId, @RequestParam("avatar") MultipartFile avatar) {
         String timeStamp = String.valueOf(System.currentTimeMillis());
-        Path path = Paths.get(uploadBaseDir, "avatar", "user_id" + userId +"_"+ timeStamp + ".jpg");
+        Path path = Paths.get(uploadBaseDir, "avatar", "user_id" + userId + "_" + timeStamp + ".jpg");
         userService.uploadFile(userId, avatar, path);
     }
 
@@ -73,5 +70,10 @@ public class UserController {
     @GetMapping("/getMilestones")
     public List<Map<String, Object>> getMilestones(@RequestParam String userId) {
         return userService.getMilestones(userId);
+    }
+
+    @GetMapping("/getOneToOneFrequency")
+    public List<Map<String, Object>> getOneToOneFrequency(@RequestParam String userId) {
+        return userService.getOneToOneChatFrequency(userId);
     }
 }

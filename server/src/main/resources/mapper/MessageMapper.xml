@@ -33,4 +33,9 @@
         SELECT * FROM message WHERE group_id = #{groupId} ORDER BY sent_time desc
     </select>
 
+    <!-- Count messages by group_id -->
+    <select id="selectCountByGroupId" parameterType="int" resultType="int">
+        SELECT COUNT(*) FROM message WHERE group_id = #{groupId}
+    </select>
+
 </mapper>
