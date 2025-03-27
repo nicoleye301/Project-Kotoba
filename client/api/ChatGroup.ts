@@ -33,12 +33,16 @@ export interface JoinGroupParams {
 
 // join an existing group via POST
 export async function joinGroup(params: JoinGroupParams): Promise<any> {
-    return Http.post("/chat-group/join", params);
+    return await Http.post("/chat-group/join", params);
 }
 
 // fetch group chats for a user
 export async function getGroupChats(userId: number): Promise<ChatGroup[]> {
-    return Http.get(`/chat-group/list?userId=${userId}`);
+    return await Http.get(`/chat-group/list?userId=${userId}`);
 }
 
-export default { createGroup, getGroupDetails, joinGroup, getGroupChats };
+async function getAvatars(groupId:number){
+    return await Http.get(`/chat-group/getAvatars?chatId=${groupId}`);
+}
+
+export default { createGroup, getGroupDetails, joinGroup, getGroupChats, getAvatars };

@@ -10,9 +10,11 @@ import {
 import {TextInput, Button, Appbar} from "react-native-paper";
 import ChatBubble from "@/components/ChatBubble";
 import ChatApi from "@/api/message";
+import ChatGroupApi from "@/api/ChatGroup";
 import eventEmitter from "@/utils/eventEmitter";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSearchParams } from "expo-router/build/hooks";
+import Avatar from "@/components/Avatar";
 
 type Message = {
     id: number;
@@ -23,6 +25,11 @@ type Message = {
     status?: string;
 };
 
+export type AvatarStructure = {
+    url:string;
+    username: string;
+}
+
 export default function ConversationScreen() {
     const params = useSearchParams();
     const chatIdParam = params.get("chatId");
@@ -32,6 +39,8 @@ export default function ConversationScreen() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [inputText, setInputText] = useState("");
     const [loading, setLoading] = useState(true);
+    const [avatarLoading, setAvatarLoading] = useState(true);
+    const [avatars, setAvatars] = useState<Record<string, AvatarStructure>>({});
     const flatListRef = useRef<FlatList<Message>>(null);
 
     useEffect(() => {
@@ -101,6 +110,21 @@ export default function ConversationScreen() {
         return () => listener.remove();
     }, [chatId, currentUserId]);
 
+    // load avatars and names
+    useEffect(() => {
+        if(chatId){
+            setAvatarLoading(true)
+            ChatGroupApi.getAvatars(chatId).then(
+                ((avatars)=>{
+                    setAvatars(avatars)
+                })
+            ).finally(()=>{
+                setAvatarLoading(false)
+            })
+        }
+
+    }, [chatId]);
+
     // send a message via API
     const sendMessage = async () => {
         if (!inputText.trim() || !currentUserId || !chatId) return;
@@ -122,12 +146,19 @@ export default function ConversationScreen() {
         }
     };
 
-    const renderMessage = ({ item }: { item: Message }) => (
-        <ChatBubble
-            message={item}
-            isOwn={currentUserId !== null && item.senderId === currentUserId}
-        />
-    );
+    const renderMessage = ({ item }: { item: Message }) =>{
+        return (
+            <View>
+                <ChatBubble
+                    message={item}
+                    isOwn={currentUserId !== null && item.senderId === currentUserId}
+                    avatarLoading={avatarLoading}
+                    avatarStructure={avatars[item.senderId.toString()]}
+                />
+            </View>
+
+        )
+    } ;
 
     if (!chatId) {
         return (

@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from "react";
-import { ScrollView, StyleSheet, View, Text } from "react-native";
-import { Appbar, Button, Card, PaperProvider } from "react-native-paper";
-import { router } from "expo-router";
+import React, {useState, useEffect} from "react";
+import {ScrollView, StyleSheet, View, Text} from "react-native";
+import {Appbar, Button, Card, PaperProvider} from "react-native-paper";
+import {router} from "expo-router";
 import DashboardApi from "@/api/dashboard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ChatFrequencyGraph from "@/components/ChatFrequencyGraph";
 import StreakDisplay from "@/components/StreakDisplay";
-import MilestoneDisplay, { Milestone } from "@/components/MilestoneDisplay";
+import MilestoneDisplay, {Milestone} from "@/components/MilestoneDisplay";
 
 export default function DashboardScreen() {
     const [userId, setUserId] = useState("");
@@ -18,9 +18,12 @@ export default function DashboardScreen() {
             const uid = await AsyncStorage.getItem("loggedInUserId");
             if (uid) {
                 setUserId(uid);
-                fetchMilestones(uid);
-            }
-            else{
+                try {
+                    await fetchMilestones(uid);
+                } catch (err) {
+                    router.replace("/login")
+                }
+            } else {
                 router.replace("/login")
             }
             setLoading(false);
@@ -34,6 +37,7 @@ export default function DashboardScreen() {
             setMilestones(data);
         } catch (err) {
             console.error("Error fetching milestones:", err);
+            throw new Error()
         }
     };
 
@@ -41,20 +45,20 @@ export default function DashboardScreen() {
     return (
         <ScrollView style={styles.container}>
             <Appbar.Header>
-                <Appbar.Content title="Dashboard" />
-                <Appbar.Action icon="cog" onPress={() => router.push("/settings")} />
+                <Appbar.Content title="Dashboard"/>
+                <Appbar.Action icon="cog" onPress={() => router.push("/settings")}/>
             </Appbar.Header>
             {loading ? (
                 <Text style={styles.loadingText}>Loading dashboard...</Text>
             ) : (
                 <View style={styles.content}>
-                    <ChatFrequencyGraph />
+                    <ChatFrequencyGraph/>
 
                     <Text style={styles.sectionTitle}>Chat Streaks</Text>
-                    <StreakDisplay userId={userId} />
+                    <StreakDisplay userId={userId}/>
 
                     <Text style={styles.sectionTitle}>Milestones</Text>
-                    <MilestoneDisplay milestones={milestones} />
+                    <MilestoneDisplay milestones={milestones}/>
 
                     <Button
                         mode="contained"
