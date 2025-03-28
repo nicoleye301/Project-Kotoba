@@ -196,7 +196,7 @@ export default function ChatScreen() {
 }
 
 const { width } = Dimensions.get("window");
-const styles = StyleSheet.create({
+export const styles = StyleSheet.create({
     container: {
         flex: 1,
         backgroundColor: "#fff",
@@ -218,8 +218,8 @@ const styles = StyleSheet.create({
         marginRight: 12,
     },
     avatar: {
-        width: 48,
-        height: 48,
+        width: 45,
+        height: 45,
         borderRadius: 24,
         resizeMode: "cover",
     },

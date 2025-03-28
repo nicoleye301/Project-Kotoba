@@ -40,4 +40,9 @@ public class ChatGroupController {
     public List<ChatGroup> listGroupChats(@RequestParam Integer userId) {
         return chatGroupService.getGroupChatsForUser(userId);
     }
+
+    @GetMapping("/getAvatars")
+    public Map<String, Object> getAvatars(@RequestParam Integer chatId) {
+        return chatGroupService.getAvatars(chatId);
+    }
 }
