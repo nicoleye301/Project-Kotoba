@@ -156,6 +156,7 @@ export default function Settings() {
         <View style={{flex: 1}}>
 
             <Appbar.Header>
+                <Appbar.BackAction onPress={() => router.back()} />
                 <Appbar.Content title="Settings"/>
             </Appbar.Header>
 
