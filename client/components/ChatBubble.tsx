@@ -11,6 +11,14 @@ type ChatBubbleProps = {
     avatarStructure: AvatarStructure;
 };
 
+type GameBubbleProps = {
+    message: { content: string; sentTime: string };
+    isOwn: boolean;
+    avatarLoading:boolean;
+    avatarStructure: AvatarStructure;
+    callbackOnPress:Function;
+};
+
 export default function ChatBubble({ message, isOwn, avatarLoading, avatarStructure }: ChatBubbleProps) {
     const date = new Date(message.sentTime);
     const timeString = !isNaN(date.getTime())
@@ -32,7 +40,7 @@ export default function ChatBubble({ message, isOwn, avatarLoading, avatarStruct
     );
 }
 
-export function GameBubble({ message, isOwn }: ChatBubbleProps, callbackOnPress:Function) {
+export function GameBubble({ message, isOwn, callbackOnPress }: GameBubbleProps) {
 
     return (
         <View style={[styles.bubbleContainer, isOwn ? styles.rightAlign : styles.leftAlign]}>

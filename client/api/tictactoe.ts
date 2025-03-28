@@ -16,6 +16,14 @@ export class Tictactoe {
         {
             result.board = parsed.board;
         }
+        else
+        {
+            result.board = "/////////"
+        }
+        while (result.board.length < 9)
+        {
+            result.board += "/"
+        }
         return result;
     }
 
@@ -87,12 +95,23 @@ export class Tictactoe {
         return winArr;
     }
 
-    public symbolAtCoord(row:number, column:number) : string {
-        return this.symbolAtIndex( row * 3 + column );
+    public static symbolAtCoord(params: Tictactoe|String, row:number, column:number) : string {
+        if (params instanceof String)
+        {
+            params = Tictactoe.fromString(params)
+        }
+
+        return Tictactoe.symbolAtIndex(params, row * 3 + column );
     }
 
-    public symbolAtIndex(index:number) : string {
-        return this.board.charAt( index );
+    public static symbolAtIndex(params: Tictactoe|String, index:number) : string {
+        if (params instanceof String)
+        {
+            params = Tictactoe.fromString(params)
+        }
+
+        return params.board.charAt( index );
     }
+
 }
 

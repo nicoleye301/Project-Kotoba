@@ -17,6 +17,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSearchParams } from "expo-router/build/hooks";
 import Avatar from "@/components/Avatar";
 import {router} from "expo-router";
+import {Tictactoe} from "@/api/tictactoe";
 
 
 type Message = {
@@ -174,16 +175,16 @@ export default function ConversationScreen() {
 
     const renderMessage = ({ item }: { item: Message }) =>{
         switch(item.type) {
-            //case "game":
-            //    return <View>
-            //        <GameBubble
-            //            message={item}
-            //            isOwn={currentUserId !== null && item.senderId === currentUserId}
-            //            avatarLoading={avatarLoading}
-            //            avatarStructure={avatars[item.senderId.toString()]}
-            //            callbackOnPress={null}
-            //        />
-            //    </View>
+            case "game":
+               return <View>
+                   <GameBubble
+                       message={item}
+                       isOwn={currentUserId !== null && item.senderId === currentUserId}
+                       avatarLoading={avatarLoading}
+                       avatarStructure={avatars[item.senderId.toString()]}
+                       callbackOnPress={Tictactoe.symbolAtIndex.bind(item.content)} //
+                   />
+               </View>
             default:
                 return <View>
                     <ChatBubble
