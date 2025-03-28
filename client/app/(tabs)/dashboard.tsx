@@ -1,7 +1,7 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useCallback} from "react";
 import {ScrollView, StyleSheet, View, Text} from "react-native";
 import {Appbar, Button, Card, PaperProvider} from "react-native-paper";
-import {router} from "expo-router";
+import {router, useFocusEffect} from "expo-router";
 import DashboardApi from "@/api/dashboard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ChatFrequencyGraph from "@/components/ChatFrequencyGraph";
@@ -13,8 +13,9 @@ export default function DashboardScreen() {
     const [milestones, setMilestones] = useState<Milestone[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
-    useEffect(() => {
-        const initialize = async () => {
+
+    const initialize = useCallback( // prevent infinite loop
+        async () => {
             const uid = await AsyncStorage.getItem("loggedInUserId");
             if (uid) {
                 setUserId(uid);
@@ -27,9 +28,11 @@ export default function DashboardScreen() {
                 router.replace("/login")
             }
             setLoading(false);
-        };
+        }, [])
+
+    useFocusEffect(useCallback(() => {
         initialize();
-    }, []);
+    }, []));
 
     const fetchMilestones = async (uid: string) => {
         try {
