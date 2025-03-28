@@ -218,8 +218,8 @@ export const styles = StyleSheet.create({
         marginRight: 12,
     },
     avatar: {
-        width: 48,
-        height: 48,
+        width: 45,
+        height: 45,
         borderRadius: 24,
         resizeMode: "cover",
     },
