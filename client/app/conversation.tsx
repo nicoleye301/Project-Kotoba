@@ -15,6 +15,7 @@ import eventEmitter from "@/utils/eventEmitter";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSearchParams } from "expo-router/build/hooks";
 import Avatar from "@/components/Avatar";
+import {router} from "expo-router";
 
 type Message = {
     id: number;
@@ -174,6 +175,7 @@ export default function ConversationScreen() {
             behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
             <Appbar.Header>
+                <Appbar.BackAction onPress={() => router.back()} />
                 <Appbar.Content title={params.get("title")} />
             </Appbar.Header>
             {loading ? (
