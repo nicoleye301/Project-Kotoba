@@ -29,7 +29,7 @@
         WHERE user_id = #{userId} AND friend_id = #{friendId}
     </update>
     <update id="updateMilestoneSettings">
-        UPDATE friendship SET milestone_settings = #{milestoneSettings} where friend_id=#{friendShipId}
+        UPDATE friendship SET milestone_settings = #{milestoneSettings} WHERE id = #{friendShipId}
     </update>
 
     <!-- Select a friendship record by userId and friendId -->

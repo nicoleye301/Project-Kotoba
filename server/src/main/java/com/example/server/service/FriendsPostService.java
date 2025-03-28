@@ -2,34 +2,38 @@ package com.example.server.service;
 
 import com.example.server.entity.FriendPost;
 import com.example.server.entity.User;
+import com.example.server.exception.CustomException;
+import com.example.server.mapper.PostMapper;
+import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.time.LocalDateTime;
+import java.util.List;
 
 @Service
 public class FriendsPostService {
 
-    private HashMap<User, ArrayList<FriendPost>> postHashMap;
+    @Resource
+    private PostMapper postMapper;
 
-    public FriendPost retrievePost(User user, Integer id) {
-        FriendPost friendPost = postHashMap.get(user).get(id);
-        return friendPost;
+    public List<FriendPost> retrievePost(Integer posterId) {
+        return postMapper.selectPostsByPosterId(posterId);
     }
 
-    public void post(User user, String contents) {
-        if(postHashMap.get(user) == null)
-        {
-            postHashMap.put(user, new ArrayList<FriendPost>());
-            postHashMap.get(user).add(new FriendPost(0, contents, user));
-            System.out.print("null");
-        }
-        else
-        {
-            postHashMap.get(user).add(new FriendPost(postHashMap.get(user).size(), contents, user));
-            System.out.print("not null");
-        }
+    public FriendPost post(Integer posterId, String imageURL, String content) {
+        try {
+            FriendPost post = new FriendPost();
+            post.setPosterId(posterId);
+            post.setImageURL(imageURL);
+            post.setContent(content);
+            post.setPostTime(LocalDateTime.now());
 
+            postMapper.insertPost(post);
+
+            return post;
+        } catch(Exception e) {
+            throw new CustomException(500, "Error posting: " + e.getMessage());
+        }
     }
 
 }

@@ -1,4 +1,5 @@
 import Http from "../utils/http"
+import {User} from "@/api/user";
 
 async function uploadSettings(params: {}) {
     return Http.post("/user/uploadSettings", params)
@@ -14,8 +15,13 @@ async function uploadAvatar(data: FormData) {
     )
 }
 
+async function getSettings(userId:number): Promise<string> {
+    return Http.get(`/user/getSettings?userId=${userId}`);
+}
+
 export default {
     uploadSettings,
+    getSettings,
     setPassword,
     uploadAvatar
 };

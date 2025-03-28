@@ -10,6 +10,9 @@
     <update id="updateSettings">
         update "user" set setting = #{settings} where id = #{id}
     </update>
+    <select id="getSettings" parameterType="integer" resultType="string">
+        select setting from "user" where id = #{userId}
+    </select>
     <update id="updateAvatar">
         update "user" set avatar = #{avatar} where id = #{id}
     </update>
@@ -28,4 +31,6 @@
     <select id="searchByUsername" resultType="com.example.server.entity.User" parameterType="string">
         SELECT * FROM "user" WHERE username LIKE CONCAT('%', #{username}, '%')
     </select>
+
+
 </mapper>
