@@ -151,19 +151,52 @@ export default function ConversationScreen() {
         }
     };
 
-    const renderMessage = ({ item }: { item: Message }) =>{
-        return (
-            <View>
-                <ChatBubble
-                    message={item}
-                    isOwn={currentUserId !== null && item.senderId === currentUserId}
-                    avatarLoading={avatarLoading}
-                    avatarStructure={avatars[item.senderId.toString()]}
-                />
-            </View>
+    // send a message via API
+    const sendMessageGame = async () => {
+        if (!currentUserId || !chatId) return;
+        try {
+            const newMessage: Message = await ChatApi.sendMessage({
+                senderId: currentUserId,
+                groupId: chatId,
+                content: "/////////",
+                type: "game",
+            });
+            // convert IDs to numbers
+            newMessage.id = Number(newMessage.id);
+            newMessage.senderId = Number(newMessage.senderId);
+            newMessage.chatId = Number(newMessage.chatId);
+            setMessages((prev) => [...prev, newMessage]);
+            flatListRef.current?.scrollToEnd({ animated: true });
+        } catch (err) {
+            console.error("Error sending message:", err);
+        }
+    };
 
-        )
-    } ;
+    const renderMessage = ({ item }: { item: Message }) =>{
+        switch(item.type) {
+            //case "game":
+            //    return <View>
+            //        <GameBubble
+            //            message={item}
+            //            isOwn={currentUserId !== null && item.senderId === currentUserId}
+            //            avatarLoading={avatarLoading}
+            //            avatarStructure={avatars[item.senderId.toString()]}
+            //            callbackOnPress={null}
+            //        />
+            //    </View>
+            default:
+                return <View>
+                    <ChatBubble
+                        message={item}
+                        isOwn={currentUserId !== null && item.senderId === currentUserId}
+                        avatarLoading={avatarLoading}
+                        avatarStructure={avatars[item.senderId.toString()]}
+                    />
+                </View>
+        }
+
+    };
+
 
     if (!chatId) {
         return (
@@ -207,6 +240,9 @@ export default function ConversationScreen() {
                 <Button mode="contained" onPress={sendMessageText} style={styles.sendButton}>
                     Send
                 </Button>
+                <Button mode="contained" onPress={sendMessageGame} style={styles.gameButton}>
+                    Play
+                </Button>
             </View>
         </KeyboardAvoidingView>
     );
@@ -231,6 +267,7 @@ const styles = StyleSheet.create({
     },
     input: { flex: 1, marginRight: 10 },
     sendButton: { paddingVertical: 6, paddingHorizontal: 12 },
+    gameButton: { paddingVertical: 3, paddingHorizontal: 3 },
     headerBackButton: { paddingVertical: 3, paddingHorizontal: 3 },
     headerInfoButton: { paddingVertical: 6, paddingHorizontal : 6},
     loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
