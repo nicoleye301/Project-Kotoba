@@ -19,8 +19,7 @@ export default function ChatBubble({ message, isOwn, avatarLoading, avatarStruct
     return (
         <View style={[styles.bubbleContainer, isOwn ? styles.rightAlign : styles.leftAlign]}>
             {!avatarLoading && <Avatar avatarUrl={avatarStructure.url} title={avatarStructure.username}/>}
-            {!avatarLoading && <Text>{avatarStructure.username}</Text>
-            }
+            {/*{!avatarLoading && <Text>{avatarStructure.username}</Text>}*/}
             <View style={[styles.bubble, isOwn ? styles.ownBubble : styles.friendBubble]}>
                 <Text style={[styles.messageText, isOwn ? styles.ownText : styles.friendText]}>
                     {message.content}
@@ -34,13 +33,15 @@ export default function ChatBubble({ message, isOwn, avatarLoading, avatarStruct
 const styles = StyleSheet.create({
     bubbleContainer: {
         marginVertical: 4,
-        paddingHorizontal: 10,
+        // paddingHorizontal: 10,
     },
     leftAlign: {
         alignSelf: "flex-start",
+        flexDirection: "row"
     },
     rightAlign: {
         alignSelf: "flex-end",
+        flexDirection: "row-reverse"
     },
     bubble: {
         maxWidth: "80%",
