@@ -11,11 +11,7 @@ type ChatBubbleProps = {
     avatarStructure: AvatarStructure;
 };
 
-type GameBubbleProps = {
-    message: { content: string; sentTime: string };
-    isOwn: boolean;
-    avatarLoading:boolean;
-    avatarStructure: AvatarStructure;
+type GameBubbleProps = ChatBubbleProps & {
     callbackOnPress:Function;
 };
 
