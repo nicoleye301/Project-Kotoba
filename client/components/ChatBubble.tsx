@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import Avatar from "@/components/Avatar";
 import {AvatarStructure} from "@/app/conversation"
+import {Button} from "react-native-paper";
 
 type ChatBubbleProps = {
     message: { content: string; sentTime: string };
@@ -31,7 +32,7 @@ export default function ChatBubble({ message, isOwn, avatarLoading, avatarStruct
     );
 }
 
-export function GameBubble({ message, isOwn }: ChatBubbleProps) {
+export function GameBubble({ message, isOwn }: ChatBubbleProps, callbackOnPress:Function) {
 
     return (
         <View style={[styles.bubbleContainer, isOwn ? styles.rightAlign : styles.leftAlign]}>
@@ -51,9 +52,15 @@ export function GameBubble({ message, isOwn }: ChatBubbleProps) {
                                 flexDirection: 'row',
                             },
                         ]}>
-                        <View style={{flex: 1, backgroundColor: 'red'}} />
-                        <View style={{flex: 1, backgroundColor: 'darkorange'}} />
-                        <View style={{flex: 1, backgroundColor: 'green'}} />
+                        <Button mode="contained" onPress={callbackOnPress.bind(0)} style={{flex: 1, backgroundColor: 'darkorange'}}>
+                            W
+                        </Button>
+                        <Button mode="contained" onPress={callbackOnPress.bind(1)} style={{flex: 1, backgroundColor: 'darkorange'}}>
+                            W
+                        </Button>
+                        <Button mode="contained" onPress={callbackOnPress.bind(2)} style={{flex: 1, backgroundColor: 'darkorange'}}>
+                            W
+                        </Button>
                     </View>
                     <View
                         style={[
@@ -63,9 +70,15 @@ export function GameBubble({ message, isOwn }: ChatBubbleProps) {
                                 flexDirection: 'row',
                             },
                         ]}>
-                        <View style={{flex: 1, backgroundColor: 'blue'}} />
-                        <View style={{flex: 1, backgroundColor: 'darkorange'}} />
-                        <View style={{flex: 1, backgroundColor: 'green'}} />
+                        <Button mode="contained" onPress={callbackOnPress.bind(3)} style={{flex: 1, backgroundColor: 'darkorange'}}>
+                            W
+                        </Button>
+                        <Button mode="contained" onPress={callbackOnPress.bind(4)} style={{flex: 1, backgroundColor: 'darkorange'}}>
+                            W
+                        </Button>
+                        <Button mode="contained" onPress={callbackOnPress.bind(5)} style={{flex: 1, backgroundColor: 'darkorange'}}>
+                            W
+                        </Button>
                     </View>
                     <View
                         style={[
@@ -75,9 +88,15 @@ export function GameBubble({ message, isOwn }: ChatBubbleProps) {
                                 flexDirection: 'row',
                             },
                         ]}>
-                        <View style={{flex: 1, backgroundColor: 'black'}} />
-                        <View style={{flex: 1, backgroundColor: 'darkorange'}} />
-                        <View style={{flex: 1, backgroundColor: 'green'}} />
+                        <Button mode="contained" onPress={callbackOnPress.bind(6)} style={{flex: 1, backgroundColor: 'darkorange'}}>
+                            W
+                        </Button>
+                        <Button mode="contained" onPress={callbackOnPress.bind(7)} style={{flex: 1, backgroundColor: 'darkorange'}}>
+                            W
+                        </Button>
+                        <Button mode="contained" onPress={callbackOnPress.bind(8)} style={{flex: 1, backgroundColor: 'darkorange'}}>
+                            W
+                        </Button>
                     </View>
                 </View>
                 <Text style={styles.timestamp}>
