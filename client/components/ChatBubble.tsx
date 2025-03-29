@@ -47,6 +47,8 @@ export function GameBubble({ message, isOwn, callbackOnPress }: GameBubbleProps)
                         styles.tictactoeGrid,
                         {
                             flexDirection: 'column',
+                            aspectRatio: 1,
+                            flex: 0.1,
                         },
                     ]}>
                     <View
@@ -56,31 +58,13 @@ export function GameBubble({ message, isOwn, callbackOnPress }: GameBubbleProps)
                                 flexDirection: 'row',
                             },
                         ]}>
-                        <Button mode="contained" onPress={callbackOnPress.bind(0)} style={{flex: 1, backgroundColor: 'darkorange'}}>
+                        <Button mode="contained" onPress={callbackOnPress.bind(0)} style={[styles.tictactoeCell,]}>
                             W
                         </Button>
-                        <Button mode="contained" onPress={callbackOnPress.bind(1)} style={{flex: 1, backgroundColor: 'darkorange'}}>
+                        <Button mode="contained" onPress={callbackOnPress.bind(1)} style={[styles.tictactoeCell,]}>
                             W
                         </Button>
-                        <Button mode="contained" onPress={callbackOnPress.bind(2)} style={{flex: 1, backgroundColor: 'darkorange'}}>
-                            W
-                        </Button>
-                    </View>
-                    <View
-                        style={[
-                            styles.tictactoeGrid,
-                            {
-                                // Try setting `flexDirection` to `"row"`.
-                                flexDirection: 'row',
-                            },
-                        ]}>
-                        <Button mode="contained" onPress={callbackOnPress.bind(3)} style={{flex: 1, backgroundColor: 'darkorange'}}>
-                            W
-                        </Button>
-                        <Button mode="contained" onPress={callbackOnPress.bind(4)} style={{flex: 1, backgroundColor: 'darkorange'}}>
-                            W
-                        </Button>
-                        <Button mode="contained" onPress={callbackOnPress.bind(5)} style={{flex: 1, backgroundColor: 'darkorange'}}>
+                        <Button mode="contained" onPress={callbackOnPress.bind(2)} style={[styles.tictactoeCell,]}>
                             W
                         </Button>
                     </View>
@@ -92,13 +76,31 @@ export function GameBubble({ message, isOwn, callbackOnPress }: GameBubbleProps)
                                 flexDirection: 'row',
                             },
                         ]}>
-                        <Button mode="contained" onPress={callbackOnPress.bind(6)} style={{flex: 1, backgroundColor: 'darkorange'}}>
+                        <Button mode="contained" onPress={callbackOnPress.bind(3)} style={[styles.tictactoeCell,]}>
                             W
                         </Button>
-                        <Button mode="contained" onPress={callbackOnPress.bind(7)} style={{flex: 1, backgroundColor: 'darkorange'}}>
+                        <Button mode="contained" onPress={callbackOnPress.bind(4)} style={[styles.tictactoeCell,]}>
                             W
                         </Button>
-                        <Button mode="contained" onPress={callbackOnPress.bind(8)} style={{flex: 1, backgroundColor: 'darkorange'}}>
+                        <Button mode="contained" onPress={callbackOnPress.bind(5)} style={[styles.tictactoeCell,]}>
+                            W
+                        </Button>
+                    </View>
+                    <View
+                        style={[
+                            styles.tictactoeGrid,
+                            {
+                                // Try setting `flexDirection` to `"row"`.
+                                flexDirection: 'row',
+                            },
+                        ]}>
+                        <Button mode="contained" onPress={callbackOnPress.bind(6)} style={[styles.tictactoeCell,]}>
+                            W
+                        </Button>
+                        <Button mode="contained" onPress={callbackOnPress.bind(7)} style={[styles.tictactoeCell,]}>
+                            W
+                        </Button>
+                        <Button mode="contained" onPress={callbackOnPress.bind(8)} style={[styles.tictactoeCell,]}>
                             W
                         </Button>
                     </View>
@@ -161,5 +163,10 @@ const styles = StyleSheet.create({
     tictactoeGrid:{
         flex: 1,
         padding: 20,
+    },
+    tictactoeCell:{
+        aspectRatio: 1,
+        flex: 1,
+        backgroundColor: 'darkorange'
     }
 });
