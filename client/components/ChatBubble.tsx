@@ -58,31 +58,13 @@ export function GameBubble({ message, isOwn, callbackOnPress }: GameBubbleProps)
                                 flexDirection: 'row',
                             },
                         ]}>
-                        <Button mode="contained" onPress={callbackOnPress.bind(0)} style={[styles.tictactoeCell,]}>
+                        <Button mode="contained" onPress={callbackOnPress.bind(message.content, 0)} style={[styles.tictactoeCell,]}>
                             W
                         </Button>
-                        <Button mode="contained" onPress={callbackOnPress.bind(1)} style={[styles.tictactoeCell,]}>
+                        <Button mode="contained" onPress={callbackOnPress.bind(message.content, 1)} style={[styles.tictactoeCell,]}>
                             W
                         </Button>
-                        <Button mode="contained" onPress={callbackOnPress.bind(2)} style={[styles.tictactoeCell,]}>
-                            W
-                        </Button>
-                    </View>
-                    <View
-                        style={[
-                            styles.tictactoeGrid,
-                            {
-                                // Try setting `flexDirection` to `"row"`.
-                                flexDirection: 'row',
-                            },
-                        ]}>
-                        <Button mode="contained" onPress={callbackOnPress.bind(3)} style={[styles.tictactoeCell,]}>
-                            W
-                        </Button>
-                        <Button mode="contained" onPress={callbackOnPress.bind(4)} style={[styles.tictactoeCell,]}>
-                            W
-                        </Button>
-                        <Button mode="contained" onPress={callbackOnPress.bind(5)} style={[styles.tictactoeCell,]}>
+                        <Button mode="contained" onPress={callbackOnPress.bind(message.content, 2)} style={[styles.tictactoeCell,]}>
                             W
                         </Button>
                     </View>
@@ -94,13 +76,31 @@ export function GameBubble({ message, isOwn, callbackOnPress }: GameBubbleProps)
                                 flexDirection: 'row',
                             },
                         ]}>
-                        <Button mode="contained" onPress={callbackOnPress.bind(6)} style={[styles.tictactoeCell,]}>
+                        <Button mode="contained" onPress={callbackOnPress.bind(message.content, 3)} style={[styles.tictactoeCell,]}>
                             W
                         </Button>
-                        <Button mode="contained" onPress={callbackOnPress.bind(7)} style={[styles.tictactoeCell,]}>
+                        <Button mode="contained" onPress={callbackOnPress.bind(message.content, 4)} style={[styles.tictactoeCell,]}>
                             W
                         </Button>
-                        <Button mode="contained" onPress={callbackOnPress.bind(8)} style={[styles.tictactoeCell,]}>
+                        <Button mode="contained" onPress={callbackOnPress.bind(message.content, 5)} style={[styles.tictactoeCell,]}>
+                            W
+                        </Button>
+                    </View>
+                    <View
+                        style={[
+                            styles.tictactoeGrid,
+                            {
+                                // Try setting `flexDirection` to `"row"`.
+                                flexDirection: 'row',
+                            },
+                        ]}>
+                        <Button mode="contained" onPress={callbackOnPress.bind(message.content, 6)} style={[styles.tictactoeCell,]}>
+                            W
+                        </Button>
+                        <Button mode="contained" onPress={callbackOnPress.bind(message.content, 7)} style={[styles.tictactoeCell,]}>
+                            W
+                        </Button>
+                        <Button mode="contained" onPress={callbackOnPress.bind(message.content, 8)} style={[styles.tictactoeCell,]}>
                             W
                         </Button>
                     </View>

@@ -182,7 +182,7 @@ export default function ConversationScreen() {
                        isOwn={currentUserId !== null && item.senderId === currentUserId}
                        avatarLoading={avatarLoading}
                        avatarStructure={avatars[item.senderId.toString()]}
-                       callbackOnPress={Tictactoe.symbolAtIndex.bind(item.content)} //
+                       callbackOnPress={Tictactoe.symbolAtIndex} //
                    />
                </View>
             default:
