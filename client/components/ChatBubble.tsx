@@ -3,6 +3,7 @@ import { View, Text, StyleSheet } from "react-native";
 import Avatar from "@/components/Avatar";
 import {AvatarStructure} from "@/app/conversation"
 import {Button} from "react-native-paper";
+import {Tictactoe} from "@/api/tictactoe";
 
 type ChatBubbleProps = {
     message: { content: string; sentTime: string };
@@ -59,13 +60,13 @@ export function GameBubble({ message, isOwn, callbackOnPress }: GameBubbleProps)
                             },
                         ]}>
                         <Button mode="contained" onPress={callbackOnPress.bind(message.content, 0)} style={[styles.tictactoeCell,]}>
-                            W
+                            {Tictactoe.symbolAtIndex(message.content,0)}
                         </Button>
                         <Button mode="contained" onPress={callbackOnPress.bind(message.content, 1)} style={[styles.tictactoeCell,]}>
-                            W
+                            {Tictactoe.symbolAtIndex(message.content,1)}
                         </Button>
                         <Button mode="contained" onPress={callbackOnPress.bind(message.content, 2)} style={[styles.tictactoeCell,]}>
-                            W
+                            {Tictactoe.symbolAtIndex(message.content,2)}
                         </Button>
                     </View>
                     <View
@@ -77,13 +78,13 @@ export function GameBubble({ message, isOwn, callbackOnPress }: GameBubbleProps)
                             },
                         ]}>
                         <Button mode="contained" onPress={callbackOnPress.bind(message.content, 3)} style={[styles.tictactoeCell,]}>
-                            W
+                            {Tictactoe.symbolAtIndex(message.content,3)}
                         </Button>
                         <Button mode="contained" onPress={callbackOnPress.bind(message.content, 4)} style={[styles.tictactoeCell,]}>
-                            W
+                            {Tictactoe.symbolAtIndex(message.content,4)}
                         </Button>
                         <Button mode="contained" onPress={callbackOnPress.bind(message.content, 5)} style={[styles.tictactoeCell,]}>
-                            W
+                            {Tictactoe.symbolAtIndex(message.content,5)}
                         </Button>
                     </View>
                     <View
@@ -95,13 +96,13 @@ export function GameBubble({ message, isOwn, callbackOnPress }: GameBubbleProps)
                             },
                         ]}>
                         <Button mode="contained" onPress={callbackOnPress.bind(message.content, 6)} style={[styles.tictactoeCell,]}>
-                            W
+                            {Tictactoe.symbolAtIndex(message.content,6)}
                         </Button>
                         <Button mode="contained" onPress={callbackOnPress.bind(message.content, 7)} style={[styles.tictactoeCell,]}>
-                            W
+                            {Tictactoe.symbolAtIndex(message.content,7)}
                         </Button>
                         <Button mode="contained" onPress={callbackOnPress.bind(message.content, 8)} style={[styles.tictactoeCell,]}>
-                            W
+                            {Tictactoe.symbolAtIndex(message.content,8)}
                         </Button>
                     </View>
                 </View>
