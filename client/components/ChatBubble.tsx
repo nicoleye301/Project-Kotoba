@@ -60,13 +60,13 @@ export function GameBubble({ message, isOwn, callbackOnPress }: GameBubbleProps)
                             },
                         ]}>
                         <Button mode="contained" onPress={callbackOnPress.bind(message.content, 0)} style={[styles.tictactoeCell,]}>
-                            {Tictactoe.symbolAtIndex(message.content,0)}
+                            {Tictactoe.symbolAtIndex(Tictactoe.fromString(message.content),0)}
                         </Button>
                         <Button mode="contained" onPress={callbackOnPress.bind(message.content, 1)} style={[styles.tictactoeCell,]}>
-                            {Tictactoe.symbolAtIndex(message.content,1)}
+                            {Tictactoe.symbolAtIndex(Tictactoe.fromString(message.content),1)}
                         </Button>
                         <Button mode="contained" onPress={callbackOnPress.bind(message.content, 2)} style={[styles.tictactoeCell,]}>
-                            {Tictactoe.symbolAtIndex(message.content,2)}
+                            {Tictactoe.symbolAtIndex(Tictactoe.fromString(message.content),2)}
                         </Button>
                     </View>
                     <View
@@ -78,13 +78,13 @@ export function GameBubble({ message, isOwn, callbackOnPress }: GameBubbleProps)
                             },
                         ]}>
                         <Button mode="contained" onPress={callbackOnPress.bind(message.content, 3)} style={[styles.tictactoeCell,]}>
-                            {Tictactoe.symbolAtIndex(message.content,3)}
+                            {Tictactoe.symbolAtIndex(Tictactoe.fromString(message.content),3)}
                         </Button>
                         <Button mode="contained" onPress={callbackOnPress.bind(message.content, 4)} style={[styles.tictactoeCell,]}>
-                            {Tictactoe.symbolAtIndex(message.content,4)}
+                            {Tictactoe.symbolAtIndex(Tictactoe.fromString(message.content),4)}
                         </Button>
                         <Button mode="contained" onPress={callbackOnPress.bind(message.content, 5)} style={[styles.tictactoeCell,]}>
-                            {Tictactoe.symbolAtIndex(message.content,5)}
+                            {Tictactoe.symbolAtIndex(Tictactoe.fromString(message.content),5)}
                         </Button>
                     </View>
                     <View
@@ -96,13 +96,13 @@ export function GameBubble({ message, isOwn, callbackOnPress }: GameBubbleProps)
                             },
                         ]}>
                         <Button mode="contained" onPress={callbackOnPress.bind(message.content, 6)} style={[styles.tictactoeCell,]}>
-                            {Tictactoe.symbolAtIndex(message.content,6)}
+                            {Tictactoe.symbolAtIndex(Tictactoe.fromString(message.content),6)}
                         </Button>
                         <Button mode="contained" onPress={callbackOnPress.bind(message.content, 7)} style={[styles.tictactoeCell,]}>
-                            {Tictactoe.symbolAtIndex(message.content,7)}
+                            {Tictactoe.symbolAtIndex(Tictactoe.fromString(message.content),7)}
                         </Button>
                         <Button mode="contained" onPress={callbackOnPress.bind(message.content, 8)} style={[styles.tictactoeCell,]}>
-                            {Tictactoe.symbolAtIndex(message.content,8)}
+                            {Tictactoe.symbolAtIndex(Tictactoe.fromString(message.content),8)}
                         </Button>
                     </View>
                 </View>

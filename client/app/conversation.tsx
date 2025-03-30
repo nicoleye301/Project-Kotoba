@@ -18,6 +18,7 @@ import { useSearchParams } from "expo-router/build/hooks";
 import Avatar from "@/components/Avatar";
 import {router} from "expo-router";
 import {Tictactoe} from "@/api/tictactoe";
+import message from "@/api/message";
 
 
 type Message = {
@@ -156,10 +157,12 @@ export default function ConversationScreen() {
     const sendMessageGame = async () => {
         if (!currentUserId || !chatId) return;
         try {
+            let ttt : Tictactoe = new Tictactoe();
+
             const newMessage: Message = await ChatApi.sendMessage({
                 senderId: currentUserId,
                 groupId: chatId,
-                content: "/////////",
+                content: ttt.toString(),
                 type: "game",
             });
             // convert IDs to numbers
