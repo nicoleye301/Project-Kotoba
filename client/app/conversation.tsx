@@ -153,12 +153,24 @@ export default function ConversationScreen() {
         }
     };
 
+    function playTictictoe(content:string, position:number)
+    {
+        let ttt = Tictactoe.fromString(content);
+        if (ttt.isMoveValid(ttt.currentPlayerTurn(), position))
+        {
+            ttt.setSymbolAtIndex(ttt.currentPlayerTurn(), position);
+        }
+        sendMessageGame(ttt);
+    }
+
+    const sendMessageNewGame = async () => {
+        return sendMessageGame()
+    };
+
     // send a message via API
-    const sendMessageGame = async () => {
+    const sendMessageGame = async (ttt:Tictactoe=new Tictactoe()) => {
         if (!currentUserId || !chatId) return;
         try {
-            let ttt : Tictactoe = new Tictactoe();
-
             const newMessage: Message = await ChatApi.sendMessage({
                 senderId: currentUserId,
                 groupId: chatId,
@@ -185,7 +197,7 @@ export default function ConversationScreen() {
                        isOwn={currentUserId !== null && item.senderId === currentUserId}
                        avatarLoading={avatarLoading}
                        avatarStructure={avatars[item.senderId.toString()]}
-                       callbackOnPress={Tictactoe.symbolAtIndex} //
+                       callbackOnPress={playTictictoe} //
                    />
                </View>
             default:
@@ -244,13 +256,15 @@ export default function ConversationScreen() {
                 <Button mode="contained" onPress={sendMessageText} style={styles.sendButton}>
                     Send
                 </Button>
-                <Button mode="contained" onPress={sendMessageGame} style={styles.gameButton}>
+                <Button mode="contained" onPress={sendMessageNewGame} style={styles.gameButton}>
                     Play
                 </Button>
             </View>
         </KeyboardAvoidingView>
     );
 }
+
+
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: "#ffffff" },

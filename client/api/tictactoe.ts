@@ -27,14 +27,10 @@ export class Tictactoe {
         return result;
     }
 
-    public isMoveValid(params: Tictactoe|String, symbol:string, index:number) : boolean {
-        if (params instanceof String)
-        {
-            params = Tictactoe.fromString(params)
-        }
+    public isMoveValid(symbol:string, index:number) : boolean {
 
         // Evaluate move validity. Format assumes indexes 0-8 as a 3x3 grid
-        if (params.board.charAt(index) == "O" || params.board.charAt(index) == "X")
+        if (this.board.charAt(index) == "O" || this.board.charAt(index) == "X")
         {
             return false;
         }
@@ -103,6 +99,11 @@ export class Tictactoe {
     public static symbolAtIndex(params: Tictactoe, index:number=0) : string {
 
         return (params.board+"").charAt( index );
+    }
+
+    public setSymbolAtIndex(symbol:string, index:number=0) : void {
+        symbol += "-"; // Add default character in case string is empty
+        this.board = this.board.substring(0,index) + symbol.charAt(0) + this.board.substring(index+1);
     }
 
 }
