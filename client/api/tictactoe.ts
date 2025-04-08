@@ -91,11 +91,6 @@ export class Tictactoe {
         return winArr;
     }
 
-    public static symbolAtCoord(params: Tictactoe, row:number, column:number) : string {
-
-        return Tictactoe.symbolAtIndex(params, row * 3 + column );
-    }
-
     public static symbolAtIndex(params: Tictactoe, index:number=0) : string {
 
         return (params.board+"").charAt( index );

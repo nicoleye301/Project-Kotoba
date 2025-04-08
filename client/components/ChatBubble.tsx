@@ -72,7 +72,6 @@ export function GameBubble({ message, isOwn, callbackOnPress }: GameBubbleProps)
                         style={[
                             styles.tictactoeGrid,
                             {
-                                // Try setting `flexDirection` to `"row"`.
                                 flexDirection: 'row',
                             },
                         ]}>
