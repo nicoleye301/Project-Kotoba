@@ -159,8 +159,9 @@ export default function ConversationScreen() {
         if (ttt.isMoveValid(ttt.currentPlayerTurn(), position))
         {
             ttt.setSymbolAtIndex(ttt.currentPlayerTurn(), position);
+            sendMessageGame(ttt);
         }
-        sendMessageGame(ttt);
+
     }
 
     const sendMessageNewGame = async () => {
