@@ -4,17 +4,24 @@ import com.example.server.entity.FriendPost;
 import com.example.server.entity.User;
 import com.example.server.exception.CustomException;
 import com.example.server.mapper.PostMapper;
+import com.example.server.mapper.UserMapper;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 public class FriendsPostService {
 
     @Resource
     private PostMapper postMapper;
+
+    @Autowired
+    private UserMapper userMapper;
 
     public List<FriendPost> retrievePost(Integer posterId) {
         return postMapper.selectPostsByPosterId(posterId);
@@ -36,4 +43,15 @@ public class FriendsPostService {
         }
     }
 
+    public Map<String, Object> getAvatar(Integer[] friendIds) {
+        Map<String, Object> result = new HashMap<>();
+        for(Integer friendId : friendIds) {
+            Map<String, String> item = new HashMap<>();
+            User user = userMapper.selectById(friendId);
+            item.put("username", user.getUsername());
+            item.put("url", user.getAvatar());
+            result.put(Integer.toString(friendId), item);
+        }
+        return result;
+    }
 }

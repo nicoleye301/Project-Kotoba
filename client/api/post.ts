@@ -22,10 +22,10 @@ export async function retrievePost(posterId: number): Promise<Post[]> {
         imageURL: post.imageURL,
         content: post.content,
         postTime: post.postTime,
-        }));
+    }));
 }
 
-export async function post(param: PostParameters) : Promise<Post> {
+export async function post(param: PostParameters): Promise<Post> {
     const post = await Http.post("/friendPost/postFriendPost", param);
     return {
         id: post.id,
@@ -36,4 +36,19 @@ export async function post(param: PostParameters) : Promise<Post> {
     };
 }
 
-export default{retrievePost, post}
+export async function getAvatar(friendIds: number[]) {
+    let url = '/friendPost/getAvatar'
+    for(let i = 0; i<friendIds.length; i++)
+    {
+        if(url.indexOf('?') === -1) {
+            url = `${url}?friendIds[]=${friendIds[i]}`
+        }
+        else {
+            url = `${url}&friendIds[]=${friendIds[i]}`
+        }
+    }
+    let newUrl = encodeURI(url);
+    return await Http.get(newUrl);
+}
+
+export default{retrievePost, post, getAvatar}

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.server.mapper.PostCommentMapper">
+
+    <resultMap id="PostCommentResultMap" type="com.example.server.entity.PostComment">
+        <id property="id" column="id"/>
+        <result property="postId" column="post_id"/>
+        <result property="senderId" column="sender_id"/>
+        <result property="content" column="content"/>
+        <result property="postTime" column="sent_time"/>
+    </resultMap>
+
+    <insert id="insertPostComment" parameterType="com.example.server.entity.PostComment">
+        INSERT INTO post_comment (post_id, sender_id, content, sent_time)
+        VALUES (#{postId}, #{senderId}, #{content}, #{postTime})
+    </insert>
+
+    <select id="selectCommentsByPostId" resultMap="PostCommentResultMap">
+        SELECT id, sender_id, content, sent_time
+        FROM post_comment
+        WHERE post_id = #{postId}
+        ORDER BY sent_time ASC
+    </select>
+
+</mapper>

@@ -1,7 +1,6 @@
 package com.example.server.controller;
 
 import com.example.server.entity.FriendPost;
-import com.example.server.entity.User;
 import com.example.server.exception.CustomException;
 import com.example.server.service.FriendsPostService;
 import org.springframework.web.bind.annotation.*;
@@ -28,8 +27,6 @@ public class FriendsPostController {
 
     @PostMapping("/postFriendPost")
     public FriendPost post(@RequestBody Map<String, Object> data) {
-        System.out.println("Post1");
-
         Integer posterId = (data.get("posterId") instanceof Number)
                 ? ((Number) data.get("posterId")).intValue() : null;
         String imageURL = (String) data.get("imageURL");
@@ -40,4 +37,7 @@ public class FriendsPostController {
 
         return friendsPostService.post(posterId, imageURL, content);
     }
+
+    @GetMapping("/getAvatar")
+    public Map<String, Object> getAvatar(@RequestParam Integer[] friendIds) { return friendsPostService.getAvatar(friendIds); }
 }

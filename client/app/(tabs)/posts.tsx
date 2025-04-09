@@ -9,7 +9,7 @@ import {
     Dimensions, Text,
 } from "react-native";
 import { TextInput, Button } from "react-native-paper";
-import ChatBubble from "@/components/ChatBubble";
+import PostBox from "@/components/PostBox";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Link, router} from "expo-router";
 import PostApi from "@/api/post"
@@ -22,16 +22,21 @@ export interface Post {
     content: string;
     postTime: string;
     imageURL?: string;
-    posterUsername?: string;
+}
+
+export type AvatarStructure = {
+    url: string;
+    username: string;
 }
 
 export default function posts(){
 
-    const [postContents, setPostContents] = useState("")
     const [currentUserId, setCurrentUserId] = useState<number>(-1);
     const [posts, setPosts] = useState<Post[]>([]);
     const [inputText, setInputText] = useState("");
     const [loading, setLoading] = useState(true);
+    const [avatarLoading, setAvatarLoading] = useState(true);
+    const [avatars, setAvatars] = useState<Record<string, AvatarStructure>>({});
     const flatListRef = useRef<FlatList<Post>>(null);
 
 
@@ -44,6 +49,31 @@ export default function posts(){
             })
             .catch((err) => console.error("Error retrieving user ID:", err));
     }, []);
+
+    useEffect(() => {
+        async function getAvatars() {
+            if(currentUserId)
+            {
+                const friendList = await FriendApi.getFriendList(currentUserId);
+                const friendIdArray = []
+                friendIdArray.push(currentUserId);
+                for(const friends of friendList) {
+                    friendIdArray.push(friends.friendId);
+                }
+
+                PostApi.getAvatar(friendIdArray).then(
+                    ((avatars) =>{
+                        setAvatars(avatars)
+                    })
+                ).finally(() =>{
+                        setAvatarLoading(false)
+                    })
+
+            }
+        }
+        getAvatars();
+
+    }, [currentUserId]);
 
     const handlePost = async () => {
         if (!inputText.trim() || !currentUserId) return;
@@ -70,34 +100,43 @@ export default function posts(){
                 }, 100);
             })
 
+
         const friendList = await FriendApi.getFriendList(currentUserId);
+
         for(const friends of friendList) {
-            const friendsPost: Post[] = await PostApi.retrievePost(friends.friendId)
+            const friendsPost: Post[] = await PostApi.retrievePost(friends.friendId);
             setPosts((prev) => [...prev, ...friendsPost]);
-
-            /*console.log("check before");
-            for(const user of friendsPost) {
-                console.log("check during");
-                user.posterUsername = (await UserApi.getUserById(user.posterId)).username;
-            }
-            console.log("check after");*/
-
         }
-
         setLoading(false);
     }
 
-    const renderPost = ({ item }: { item: Post }) => (
+    const handleLike = async ()=> {
 
-        <View>
-            <Text style={styles.messageText}>{item.posterUsername}</Text>
-            <Text style={styles.messageText}>{item.content}</Text>
-            <Text style={styles.timestamp}>
-                {new Date(item.postTime).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-            </Text>
-        </View>
+    }
 
-    )
+    const handleComment = async ()=> {
+
+    }
+
+    const renderPost = ({ item }: { item: Post }) => {
+        return (
+            <View>
+                <PostBox
+                    post={item}
+                    avatarLoading={avatarLoading}
+                    avatarStructure={avatars[22]}
+                />
+                <Button mode="contained" onPress={handleLike} style={styles.sendButton}>
+                    Like
+                </Button>
+
+                <Button mode="contained" onPress={handleComment} style={styles.sendButton}>
+                    Comment
+                </Button>
+
+            </View>
+        )
+    };
 
     return (
         <KeyboardAvoidingView
@@ -126,9 +165,7 @@ export default function posts(){
                 <FlatList
                     ref={flatListRef}
                     data={posts}
-                    keyExtractor={(item) =>
-                        item.id ? item.id.toString() : Math.random().toString()
-                    }
+                    keyExtractor={(item) => item.id.toString()}
                     renderItem={renderPost}
                     contentContainerStyle={styles.postContainer}
                     onContentSizeChange={() =>
