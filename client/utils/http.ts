@@ -13,7 +13,8 @@ const get = async (url: string) => {
 
 const post = async (url: string, param: {}|FormData, config?:{}) => {
     if (config){
-        await instance.post(url, param, config)
+        const response = await instance.post(url, param, config)
+        return response.data
     }
     else{
         const response = await instance.post(url, param);
