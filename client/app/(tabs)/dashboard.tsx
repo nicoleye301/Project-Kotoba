@@ -1,12 +1,12 @@
-import React, {useState, useEffect, useCallback} from "react";
-import {ScrollView, StyleSheet, View, Text} from "react-native";
-import {Appbar, Button, Card, PaperProvider} from "react-native-paper";
-import {router, useFocusEffect} from "expo-router";
+import React, { useState, useEffect, useCallback } from "react";
+import { ScrollView, StyleSheet, View, Text, Alert } from "react-native";
+import { Appbar, Button, PaperProvider } from "react-native-paper";
+import { router, useFocusEffect } from "expo-router";
 import DashboardApi from "@/api/dashboard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ChatFrequencyGraph from "@/components/ChatFrequencyGraph";
 import StreakDisplay from "@/components/StreakDisplay";
-import MilestoneDisplay, {Milestone} from "@/components/MilestoneDisplay";
+import MilestoneDisplay, { Milestone } from "@/components/MilestoneDisplay";
 
 export default function DashboardScreen() {
     const [userId, setUserId] = useState("");
@@ -40,61 +40,61 @@ export default function DashboardScreen() {
             setMilestones(data);
         } catch (err) {
             console.error("Error fetching milestones:", err);
-            throw new Error()
         }
     };
 
+    // check for any milestones that are updated (period ended) but not achieved
+    useEffect(() => {
+        const missed = milestones.filter(
+            (m) => m.updated === true && m.congrats === false
+        );
+        if (missed.length > 0) {
+            Alert.alert(
+                "Milestone Warning",
+                `You missed your messaging goal for ${missed[0].friendName}. Please review your milestones.`
+            );
+        }
+    }, [milestones]);
 
     return (
-        <ScrollView style={styles.container}>
-            <Appbar.Header>
-                <Appbar.Content title="Dashboard"/>
-                <Appbar.Action icon="cog" onPress={() => router.push("/settings")}/>
-            </Appbar.Header>
-            {loading ? (
-                <Text style={styles.loadingText}>Loading dashboard...</Text>
-            ) : (
-                <View style={styles.content}>
-                    <ChatFrequencyGraph/>
-
-                    <Text style={styles.sectionTitle}>Chat Streaks</Text>
-                    <StreakDisplay userId={userId}/>
-
-                    <Text style={styles.sectionTitle}>Milestones</Text>
-                    <MilestoneDisplay milestones={milestones}/>
-
-                    <Button
-                        mode="contained"
-                        onPress={() => fetchMilestones(userId)}
-                        style={styles.refreshButton}
-                    >
-                        Refresh Milestones
-                    </Button>
-                </View>
-            )}
-        </ScrollView>
+        <PaperProvider>
+            <ScrollView style={styles.container}>
+                <Appbar.Header>
+                    <Appbar.Content title="Dashboard" />
+                    <Appbar.Action icon="cog" onPress={() => router.push("/settings")} />
+                </Appbar.Header>
+                {loading ? (
+                    <Text style={styles.loadingText}>Loading dashboard...</Text>
+                ) : (
+                    <View style={styles.content}>
+                        <ChatFrequencyGraph userId={userId} />
+                        <Text style={styles.sectionTitle}>Chat Streaks</Text>
+                        <StreakDisplay userId={userId} />
+                        <Text style={styles.sectionTitle}>Milestones</Text>
+                        <MilestoneDisplay milestones={milestones} />
+                        <Button
+                            mode="contained"
+                            onPress={() => fetchMilestones(userId)}
+                            style={styles.refreshButton}
+                        >
+                            Refresh Milestones
+                        </Button>
+                    </View>
+                )}
+            </ScrollView>
+        </PaperProvider>
     );
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#F9FBFF",
-    },
-    loadingText: {
-        textAlign: "center",
-        marginTop: 20,
-        fontSize: 16,
-    },
-    content: {
-        padding: 10,
-    },
+    container: { flex: 1, backgroundColor: "#F9FBFF" },
+    loadingText: { textAlign: "center", marginTop: 20, fontSize: 16 },
+    content: { padding: 10 },
     sectionTitle: {
         fontSize: 18,
         fontWeight: "600",
         marginVertical: 10,
     },
-    refreshButton: {
-        marginVertical: 20,
-    },
+    refreshButton: { marginVertical: 20 },
 });
+

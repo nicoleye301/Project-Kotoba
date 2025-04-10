@@ -5,6 +5,7 @@ import DashboardApi from "@/api/dashboard";
 interface StreakItem {
     groupName: string;
     streak: string;
+    active: boolean;
 }
 
 interface StreakDisplayProps {
@@ -32,65 +33,139 @@ export default function StreakDisplay({ userId }: StreakDisplayProps) {
         }
     };
 
-    if (loading) {
-        return <Text style={styles.loadingText}>Loading streaks...</Text>;
-    }
+    // convert streak value to a number and split into active and broken arrays
+    const streakData = streaks.map(item => ({
+        ...item,
+        numericStreak: parseInt(item.streak, 10) || 0
+    }));
 
-    // check if array is empty
-    if (!streaks || streaks.length === 0) {
-        return <Text style={styles.motivation}>No streaks yet. Keep it up!</Text>;
-    }
-
-    // check if *all* streaks are zero
-    const allZero = streaks.every((item) => parseInt(item.streak, 10) === 0);
-    if (allZero) {
-        return <Text style={styles.motivation}>Every streak starts with day one. Let's begin yours today!</Text>;
-    }
+    const activeStreaks = streakData.filter(item => item.numericStreak > 0 && item.active);
+    const brokenStreaks = streakData.filter(item => item.numericStreak > 0 && !item.active);
 
     return (
         <View style={styles.container}>
-            {streaks.map((item, index) => {
-                const numericStreak = parseInt(item.streak, 10) || 0;
-                return (
-                    <View key={`streak-${index}`} style={styles.card}>
-                        <Text style={styles.streakLabel}>{item.groupName}</Text>
-                        <Text style={styles.streakValue}>Streak: {numericStreak} days</Text>
-                    </View>
-                );
-            })}
+            {loading ? (
+                <Text style={styles.loadingText}>Loading streaks...</Text>
+            ) : (
+                <>
+                    {activeStreaks.length === 0 && brokenStreaks.length === 0 ? (
+                        <Text style={styles.motivation}>
+                            Every streak starts with day one. Let's begin yours today!
+                        </Text>
+                    ) : (
+                        <>
+                            {activeStreaks.length > 0 && (
+                                <>
+                                    <Text style={styles.sectionHeader}>Active Streaks</Text>
+                                    <View style={styles.grid}>
+                                        {activeStreaks.map((item, index) => (
+                                            <View key={index} style={styles.gridItem}>
+                                                <Text style={styles.groupName}>{item.groupName}</Text>
+                                                <Text style={styles.streak}>🔥 {item.numericStreak} day streak</Text>
+                                            </View>
+                                        ))}
+                                    </View>
+                                </>
+                            )}
+                            {brokenStreaks.length > 0 && (
+                                <>
+                                    <Text style={styles.encouragement}>
+                                        It's okay to miss a day – tomorrow's a new start!
+                                    </Text>
+                                    <View style={styles.brokenGrid}>
+                                        {brokenStreaks.map((item, index) => (
+                                            <View key={index} style={styles.brokenItem}>
+                                                <Text style={styles.brokenGroup}>{item.groupName}</Text>
+                                                <Text style={styles.brokenStreak}>
+                                                    Last streak: {item.numericStreak} days
+                                                </Text>
+                                            </View>
+                                        ))}
+                                    </View>
+                                </>
+                            )}
+                        </>
+                    )}
+                </>
+            )}
         </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
-        marginBottom: 16,
+        padding: 12,
     },
     loadingText: {
         textAlign: "center",
-        marginVertical: 8,
+        marginVertical: 16,
+        fontSize: 16,
+        color: "#888",
     },
     motivation: {
         textAlign: "center",
-        marginVertical: 8,
+        marginVertical: 16,
         fontSize: 16,
         fontWeight: "500",
         color: "#666",
     },
-    card: {
-        backgroundColor: "#fff",
-        borderRadius: 8,
-        padding: 12,
-        marginBottom: 8,
+    sectionHeader: {
+        fontSize: 18,
+        fontWeight: "600",
+        marginVertical: 8,
+    },
+    grid: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "space-between",
+    },
+    gridItem: {
+        width: "48%",
+        backgroundColor: "#fdfdfd",
+        padding: 16,
+        marginBottom: 12,
+        borderRadius: 12,
         elevation: 2,
     },
-    streakLabel: {
+    groupName: {
         fontSize: 16,
         fontWeight: "600",
         marginBottom: 4,
     },
-    streakValue: {
+    streak: {
         fontSize: 14,
+        color: "#444",
+    },
+    encouragement: {
+        textAlign: "center",
+        fontSize: 15,
+        fontWeight: "500",
+        color: "#999",
+        marginVertical: 10,
+    },
+    brokenGrid: {
+        flexDirection: "row",
+        flexWrap: "wrap",
+        justifyContent: "space-between",
+    },
+    brokenItem: {
+        width: "48%",
+        backgroundColor: "#f0f0f0",
+        padding: 14,
+        marginBottom: 12,
+        borderRadius: 10,
+        borderColor: "#ccc",
+        borderWidth: 1,
+        opacity: 0.6,
+    },
+    brokenGroup: {
+        fontSize: 15,
+        fontWeight: "500",
         color: "#555",
     },
+    brokenStreak: {
+        fontSize: 13,
+        color: "#666",
+    },
 });
+

@@ -106,30 +106,34 @@ public class UserService {
         userMapper.setPassword(Integer.valueOf(userId), password);
     }
 
-    public List<Map<String, Object>> getChatStreaks(String userId){
+    public List<Map<String, Object>> getChatStreaks(String userId) {
         List<Map<String, Object>> result = new LinkedList<>();
-        // get 1-1 chats group ids from accepted friednship
         Integer userIdInteger = Integer.valueOf(userId);
         Set<Integer> groupIds = new HashSet<>();
         List<Friendship> friendships = friendshipMapper.selectFriendshipsByUser(userIdInteger);
+
         for (Friendship f : friendships) {
             if (f.getDirectChatGroupId() != null) {
                 groupIds.add(f.getDirectChatGroupId());
             }
         }
+
         List<Integer> groups = new ArrayList<>(groupIds);
-        // order by streak length
+        // sort by streak length
         groups.sort((p1, p2) ->
-                messageService.getLongestChatDates(p2, userIdInteger)-
-                messageService.getLongestChatDates(p1, userIdInteger));
-        // take 5 chats with the longest streaks
+                messageService.getChatStreakData(p2, userIdInteger).getStreak() -
+                        messageService.getChatStreakData(p1, userIdInteger).getStreak()
+        );
+
         for (int i = 0; i < Math.min(5, groups.size()); i++) {
             Integer groupId = groups.get(i);
-            int streak = messageService.getLongestChatDates(groupId, userIdInteger);
+            MessageService.StreakData data = messageService.getChatStreakData(groupId, userIdInteger);
             String friendName = getDirectChatFriendName(groupId, userIdInteger);
+
             Map<String, Object> item = new HashMap<>();
-            item.put("groupName", friendName); // return the friend's username
-            item.put("streak", streak);
+            item.put("groupName", friendName);
+            item.put("streak", data.getStreak());
+            item.put("active", data.isActive());
             result.add(item);
         }
         return result;
@@ -248,9 +252,12 @@ public class UserService {
             Integer chatGroupId = f.getDirectChatGroupId();
             if (chatGroupId == null) continue;
             int count = messageMapper.selectCountByGroupId(chatGroupId);
+            if (count == 0) continue;
+
             int friendId = f.getUserId().equals(userIdInt) ? f.getFriendId() : f.getUserId();
             User friendUser = userMapper.selectById(friendId);
             String friendName = (friendUser != null) ? friendUser.getUsername() : "Unknown Friend";
+
             Map<String, Object> item = new HashMap<>();
             item.put("friendName", friendName);
             item.put("count", count);
