@@ -7,6 +7,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import ChatFrequencyGraph from "@/components/ChatFrequencyGraph";
 import StreakDisplay from "@/components/StreakDisplay";
 import MilestoneDisplay, {Milestone} from "@/components/MilestoneDisplay";
+import {connectWebSocket} from "@/utils/websocket";
 
 export default function DashboardScreen() {
     const [userId, setUserId] = useState("");
@@ -27,6 +28,7 @@ export default function DashboardScreen() {
             } else {
                 router.replace("/login")
             }
+            connectWebSocket();
             setLoading(false);
         }, [])
 

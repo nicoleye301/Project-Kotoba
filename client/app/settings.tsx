@@ -1,13 +1,13 @@
 import {View, FlatList, Image, StyleSheet} from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {router} from "expo-router";
-import * as ImagePicker from 'expo-image-picker';
 import {closeWebSocket} from "@/utils/websocket";
 import {Appbar, Divider, List, PaperProvider, Switch, TextInput, Button, Text} from "react-native-paper";
 import React, {Dispatch, SetStateAction, useEffect, useState} from "react";
 import settingsApi from "@/api/settings"
 import userApi from "@/api/user"
 import Constants from "expo-constants";
+import pickImage from "@/utils/imagePicker";
 
 // @ts-ignore
 const BASE_URL = Constants.expoConfig.extra.API_BASE_URL;
@@ -83,25 +83,7 @@ export default function Settings() {
         }
     }
 
-    const pickImage = async () => {
-        const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
-        if (!permissionResult.granted) {
-            alert('Permission denied!')
-            return
-        }
-
-        const pickerResult = await ImagePicker.launchImageLibraryAsync({
-            mediaTypes: ["images"],
-            allowsEditing: true,
-            aspect: [1, 1],
-            quality: 1,
-        })
-
-        if (!pickerResult.canceled) {
-            setAvatar(pickerResult.assets[0].uri)
-        }
-    }
 
     const handleSave = async () => {
         try {
@@ -165,7 +147,9 @@ export default function Settings() {
                     <List.Item
                         title={userName}
                         left={() => <Image source={{uri: (avatar?avatar:BASE_URL+"/uploads/avatar/default.jpg")}} style={styles.avatar}/>}
-                        onPress={pickImage}
+                        onPress={async () => {
+                            await pickImage(setAvatar)
+                        }}
                     />
                 }
                           data={settings}

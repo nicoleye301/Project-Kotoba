@@ -4,6 +4,7 @@ export interface SendMessageParams {
     senderId: number;
     groupId: number; // server expects groupId
     content: string;
+    type: string
 }
 
 export interface Message {
@@ -13,7 +14,7 @@ export interface Message {
     content: string;
     sentTime: string; // mapped from server's sent_time
     status?: string;
-    type?: string;
+    type: string;
 }
 
 // fetch conversation history and map server response to our Message type
@@ -44,4 +45,10 @@ export async function sendMessage(params: SendMessageParams): Promise<Message> {
     };
 }
 
-export default { fetchHistory, sendMessage };
+async function sendImage(data: FormData) {
+    return await Http.post("/message/sendImage", data,
+        {headers: {'Content-Type': 'multipart/form-data'}}
+    )
+}
+
+export default { fetchHistory, sendMessage, sendImage };
