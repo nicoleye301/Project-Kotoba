@@ -74,6 +74,7 @@ export default function ConversationScreen() {
             .finally(() => setLoading(false));
     }, [chatId]);
 
+    // listen for incoming messages via WebSocket
     useEffect(() => {
         const listener = eventEmitter.addListener("message", (data: string) => {
             try {
