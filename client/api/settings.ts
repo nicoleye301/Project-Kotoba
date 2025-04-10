@@ -10,7 +10,7 @@ async function setPassword(params: {}) {
 }
 
 async function uploadAvatar(data: FormData) {
-    return Http.post("/user/uploadAvatar", data,
+    return await Http.post("/user/uploadAvatar", data,
         {headers: {'Content-Type': 'multipart/form-data'}}
     )
 }

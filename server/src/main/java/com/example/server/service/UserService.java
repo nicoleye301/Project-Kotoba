@@ -1,8 +1,6 @@
 package com.example.server.service;
 
-import com.example.server.entity.ChatGroup;
 import com.example.server.entity.Friendship;
-import com.example.server.entity.GroupMember;
 import com.example.server.entity.User;
 import com.example.server.exception.CustomException;
 import com.example.server.mapper.*;
@@ -12,7 +10,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.InputStreamResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -89,9 +86,11 @@ public class UserService {
         return userMapper.getSettings(userId);
     }
 
-    public void uploadFile(String userId, MultipartFile file, Path path) {
+    public void uploadAvatar(String userId, MultipartFile file) {
         try {
             //save to local directory
+            String timeStamp = String.valueOf(System.currentTimeMillis());
+            Path path = Paths.get(uploadBaseDir, "avatar", "user_id" + userId + "_" + timeStamp + ".jpg");
             Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
             //update url on database
             userMapper.updateAvatar(Integer.valueOf(userId), path.getFileName().toString());
@@ -99,7 +98,6 @@ public class UserService {
             System.err.println(e);
             throw new CustomException(500, "File IO error when saving file on server");
         }
-
     }
 
     public void setPassword(String userId, String password) {

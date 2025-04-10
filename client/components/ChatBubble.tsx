@@ -1,49 +1,28 @@
 import React from "react";
-import { View, Text, StyleSheet, Pressable } from "react-native";
-import Avatar from "@/components/Avatar";
-import { AvatarStructure } from "@/app/conversation";
+import { View, Text, StyleSheet } from "react-native";
 
 type ChatBubbleProps = {
-    message: { content: string; sentTime: string };
+    message: { content: string; sentTime: string};
     isOwn: boolean;
-    avatarLoading: boolean;
-    avatarStructure: AvatarStructure;
-    onLongPress?: () => void;
 };
 
-export default function ChatBubble({message, isOwn, avatarLoading, avatarStructure, onLongPress,}: ChatBubbleProps) {
+export default function ChatBubble({ message, isOwn}: ChatBubbleProps) {
     const date = new Date(message.sentTime);
     const timeString = !isNaN(date.getTime())
         ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
         : "Invalid Date";
 
     return (
-        <View style={[styles.bubbleContainer, isOwn ? styles.rightAlign : styles.leftAlign]}>
-            {!avatarLoading && <Avatar avatarUrl={avatarStructure.url} title={avatarStructure.username} />}
-            <Pressable onLongPress={onLongPress}>
-                <View style={[styles.bubble, isOwn ? styles.ownBubble : styles.friendBubble]}>
-                    <Text style={[styles.messageText, isOwn ? styles.ownText : styles.friendText]}>
-                        {message.content}
-                    </Text>
-                    <Text style={styles.timestamp}>{timeString}</Text>
-                </View>
-            </Pressable>
+        <View style={[styles.bubble, isOwn ? styles.ownBubble : styles.friendBubble]}>
+            <Text style={[styles.messageText, isOwn ? styles.ownText : styles.friendText]}>
+                {message.content}
+            </Text>
+            <Text style={styles.timestamp}>{timeString}</Text>
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    bubbleContainer: {
-        marginVertical: 4,
-    },
-    leftAlign: {
-        alignSelf: "flex-start",
-        flexDirection: "row",
-    },
-    rightAlign: {
-        alignSelf: "flex-end",
-        flexDirection: "row-reverse",
-    },
     bubble: {
         maxWidth: "80%",
         paddingVertical: 8,

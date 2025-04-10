@@ -6,12 +6,37 @@ import DashboardApi from "@/api/dashboard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ChatFrequencyGraph from "@/components/ChatFrequencyGraph";
 import StreakDisplay from "@/components/StreakDisplay";
-import MilestoneDisplay, { Milestone } from "@/components/MilestoneDisplay";
+
+import MilestoneDisplay, {Milestone} from "@/components/MilestoneDisplay";
+import {connectWebSocket} from "@/utils/websocket";
+
 
 export default function DashboardScreen() {
     const [userId, setUserId] = useState("");
     const [milestones, setMilestones] = useState<Milestone[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
+
+    const initialize = useCallback( // prevent infinite loop
+        async () => {
+            const uid = await AsyncStorage.getItem("loggedInUserId");
+            if (uid) {
+                setUserId(uid);
+                try {
+                    await fetchMilestones(uid);
+                } catch (err) {
+                    router.replace("/login")
+                }
+            } else {
+                router.replace("/login")
+            }
+            connectWebSocket();
+            setLoading(false);
+        }, [])
+
+    useFocusEffect(useCallback(() => {
+        initialize();
+    }, []));
+
 
     const fetchMilestones = async (uid: string) => {
         try {
