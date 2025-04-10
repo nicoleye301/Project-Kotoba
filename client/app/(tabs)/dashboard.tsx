@@ -47,17 +47,6 @@ export default function DashboardScreen() {
         }
     };
 
-    const initialize = useCallback(async () => {
-        const uid = await AsyncStorage.getItem("loggedInUserId");
-        if (uid) {
-            setUserId(uid);
-            await fetchMilestones(uid);
-        } else {
-            router.replace("/login");
-        }
-        setLoading(false);
-    }, []);
-
     useFocusEffect(
         useCallback(() => {
             initialize();
@@ -87,7 +76,7 @@ export default function DashboardScreen() {
                     <Text style={styles.loadingText}>Loading dashboard...</Text>
                 ) : (
                     <View style={styles.content}>
-                        <ChatFrequencyGraph userId={userId} />
+                        <ChatFrequencyGraph/>
                         <Text style={styles.sectionTitle}>Chat Streaks</Text>
                         <StreakDisplay userId={userId} />
                         <Text style={styles.sectionTitle}>Milestones</Text>
