@@ -1,7 +1,6 @@
 import React from "react";
 import { View, Text, StyleSheet } from "react-native";
 
-
 type ChatBubbleProps = {
     message: { content: string; sentTime: string};
     isOwn: boolean;

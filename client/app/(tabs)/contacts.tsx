@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { View, FlatList, StyleSheet, Alert, Text } from "react-native";
 import {Appbar, Searchbar, IconButton, Portal, Modal, List, PaperProvider, Button,} from "react-native-paper";
 import { router } from "expo-router";
@@ -8,6 +8,8 @@ import UserApi from "@/api/user";
 import SendFriendRequest from "@/components/SendFriendRequest";
 import { LightTheme } from "@/theme/theme";
 import eventEmitter from "@/utils/eventEmitter";
+import { getDisplayName } from "@/utils/displayName";
+import { useFocusEffect } from "expo-router";
 
 // define the Friendship type
 interface Friendship {
@@ -37,121 +39,68 @@ export default function ContactsScreen() {
     const [modalVisible, setModalVisible] = useState<boolean>(false);
 
     // retrieve current user's ID from AsyncStorage
-    useEffect(() => {
-        AsyncStorage.getItem("loggedInUserId")
-            .then((storedId) => {
+    useFocusEffect(
+        useCallback(() => {
+            const loadUserId = async () => {
+                const storedId = await AsyncStorage.getItem("loggedInUserId");
                 if (storedId) {
                     setCurrentUserId(Number(storedId));
                 }
-            })
-            .catch((error) => console.error("Error retrieving user ID:", error));
-    }, []);
+            };
+            loadUserId();
+        }, [])
+    );
 
-    // fetch pending friend requests (where the current user is the receiver)
-    useEffect(() => {
-        if (currentUserId !== null) {
-            FriendApi.getPendingRequests(currentUserId)
-                .then((data: Friendship[]) => {
-                    setPendingRequests(data);
-                })
-                .catch((error) => {
-                    console.error("Error fetching pending requests:", error);
-                    Alert.alert("Error", "Failed to fetch pending friend requests.");
-                });
-        }
-    }, [currentUserId]);
-
-    useEffect(() => {
-        const friendListListener = eventEmitter.addListener("friendListUpdated", () => {
-            refreshRequestsAndFriends();
-        });
-        return () => friendListListener.remove();
-    }, []);
-
-    // fetch accepted friends and map them to ChatItem objects
-    useEffect(() => {
-        if (currentUserId !== null) {
-            FriendApi.getFriendList(currentUserId)
-                .then(async (friendships: Friendship[]) => {
-                    const friendItemsMap: { [key: number]: ChatItem } = {};
-                    await Promise.all(
-                        friendships.map(async (f: Friendship) => {
-                            // determine the other friend's ID
-                            const friendId = f.userId === currentUserId ? f.friendId : f.userId;
-                            if (!friendItemsMap[friendId]) {
-                                try {
-                                    const friendUser = await UserApi.getUserById(friendId);
-                                    friendItemsMap[friendId] = {
-                                        type: "friend",
-                                        id: friendId,
-                                        title: friendUser.username,
-                                        subtitle: "Set milestone",
-                                        updatedAt: "Just now",
-                                        avatarUrl: friendUser.avatar || "",
-                                    };
-                                } catch (error) {
-                                    console.error(`Error fetching details for friend ID ${friendId}:`, error);
-                                    friendItemsMap[friendId] = {
-                                        type: "friend",
-                                        id: friendId,
-                                        title: `Friend #${friendId}`,
-                                        subtitle: "Set milestone",
-                                        updatedAt: "Just now",
-                                        avatarUrl: "",
-                                    };
-                                }
-                            }
-                        })
-                    );
-                    setConfirmedFriends(Object.values(friendItemsMap));
-                })
-                .catch((error) => {
-                    console.error("Error fetching friend list:", error);
-                    Alert.alert("Error", "Failed to fetch friend list.");
-                });
-        }
-    }, [currentUserId]);
-
-    // refresh both pending and accepted friend lists
-    const refreshRequestsAndFriends = async () => {
-        if (currentUserId !== null) {
-            try {
-                const pendingData: Friendship[] = await FriendApi.getPendingRequests(currentUserId);
-                setPendingRequests(pendingData);
-                const friendData: Friendship[] = await FriendApi.getFriendList(currentUserId);
-                const friendItemsMap: { [key: number]: ChatItem } = {};
-                await Promise.all(
-                    friendData.map(async (f: Friendship) => {
-                        const friendId = f.userId === currentUserId ? f.friendId : f.userId;
-                        if (!friendItemsMap[friendId]) {
-                            try {
-                                const friendUser = await UserApi.getUserById(friendId);
-                                friendItemsMap[friendId] = {
-                                    type: "friend",
-                                    id: friendId,
-                                    title: friendUser.username,
-                                    subtitle: "Set milestone",
-                                    updatedAt: "Just now",
-                                    avatarUrl: friendUser.avatar || "",
-                                };
-                            } catch (error) {
-                                console.error(`Error fetching details for friend ID ${friendId}:`, error);
-                                friendItemsMap[friendId] = {
-                                    type: "friend",
-                                    id: friendId,
-                                    title: `Friend #${friendId}`,
-                                    subtitle: "Set milestone",
-                                    updatedAt: "Just now",
-                                    avatarUrl: "",
-                                };
-                            }
-                        }
-                    })
-                );
-                setConfirmedFriends(Object.values(friendItemsMap));
-            } catch (error) {
-                console.error("Error refreshing friend lists:", error);
+    // refresh data on screen focus
+    useFocusEffect(
+        useCallback(() => {
+            if (currentUserId !== null) {
+                refreshRequestsAndFriends();
             }
+        }, [currentUserId])
+    );
+
+    const refreshRequestsAndFriends = async () => {
+        if (currentUserId === null) return;
+        try {
+            const [pendingData, friendData] = await Promise.all([
+                FriendApi.getPendingRequests(currentUserId),
+                FriendApi.getFriendList(currentUserId),
+            ]);
+            setPendingRequests(pendingData);
+
+            const friendItemsMap: { [key: number]: ChatItem } = {};
+            await Promise.all(
+                friendData.map(async (f: Friendship) => {
+                    const friendId = f.userId === currentUserId ? f.friendId : f.userId;
+                    if (!friendItemsMap[friendId]) {
+                        try {
+                            const friendUser = await UserApi.getUserById(friendId);
+                            friendItemsMap[friendId] = {
+                                type: "friend",
+                                id: friendId,
+                                title: getDisplayName({ username: friendUser.username }, f.nickname),
+                                subtitle: "Set milestone",
+                                updatedAt: "Just now",
+                                avatarUrl: friendUser.avatar || "",
+                            };
+                        } catch (error) {
+                            console.error(`Error fetching details for friend ID ${friendId}:`, error);
+                            friendItemsMap[friendId] = {
+                                type: "friend",
+                                id: friendId,
+                                title: `Friend #${friendId}`,
+                                subtitle: "Set milestone",
+                                updatedAt: "Just now",
+                                avatarUrl: "",
+                            };
+                        }
+                    }
+                })
+            );
+            setConfirmedFriends(Object.values(friendItemsMap));
+        } catch (error) {
+            console.error("Error refreshing friend data:", error);
         }
     };
 
@@ -202,7 +151,7 @@ export default function ContactsScreen() {
             left={() => <List.Icon icon="account" />}
             right={() => <List.Icon icon="chevron-right" />}
             onPress={() =>
-                router.push(`/SetMilestone?friendId=${item.id}&friendName=${encodeURIComponent(item.title)}`)
+                router.push(`/FriendDetails?friendId=${item.id}`)
             }
             style={styles.friendListItem}
         />

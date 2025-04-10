@@ -70,32 +70,6 @@ public class MessageService {
         }
     }
 
-    public int getLongestChatDates(Integer groupId, Integer userId) {
-        // descending order of time
-        List<Message> messages = messageMapper.selectMessagesByGroupIdDesc(groupId);
-        List<LocalDate> dates = new ArrayList<>(messages.size());
-        for (Message message : messages) {
-            // only messages that the user sent is counted
-            if (message.getSenderId().equals(userId)){
-                LocalDate date = message.getSentTime().toLocalDate();
-                dates.add(date);
-            }
-        }
-        int streak = 0;
-        for (int i = 0; i < dates.size() - 1; i++) {
-            LocalDate date = dates.get(i);
-            LocalDate prevMessageDate = dates.get(i + 1);
-            if (date.equals(prevMessageDate)) {
-                // do nothing
-            } else if (date.minusDays(1).equals(prevMessageDate)) {
-                streak++;
-            } else {
-                break;
-            }
-        }
-        return streak;
-    }
-
     public boolean checkMilestone(Integer groupId, Integer userId, LocalDate start, LocalDate end){
         List<Message> messages = messageMapper.selectMessagesByGroupIdDesc(groupId);
         for (Message message : messages) {
@@ -109,6 +83,52 @@ public class MessageService {
         }
         return false;
     }
+
+    public StreakData getChatStreakData(Integer groupId, Integer userId) {
+        List<Message> messages = messageMapper.selectMessagesByGroupIdDesc(groupId);
+        List<LocalDate> dates = new ArrayList<>();
+        // collect distinct dates for which the user sent a message
+        for (Message message : messages) {
+            if (message.getSenderId().equals(userId)) {
+                LocalDate date = message.getSentTime().toLocalDate();
+                if (!dates.contains(date)) {
+                    dates.add(date);
+                }
+            }
+        }
+        int streak = 0;
+        for (int i = 0; i < dates.size() - 1; i++) {
+            LocalDate current = dates.get(i);
+            LocalDate next = dates.get(i + 1);
+            if (current.minusDays(1).equals(next)) {
+                streak++;
+            } else {
+                break;
+            }
+        }
+        // determine if the streak is active - treat it as active if the most recent message date is either today or yesterday
+        boolean active = false;
+        LocalDate today = LocalDate.now();
+        if (!dates.isEmpty()) {
+            LocalDate mostRecent = dates.get(0);
+            active = mostRecent.equals(today) || mostRecent.equals(today.minusDays(1));
+        }
+        return new StreakData(streak, active);
+    }
+
+
+    public class StreakData {
+        private int streak;
+        private boolean active;
+
+        public StreakData(int streak, boolean active) {
+            this.streak = streak;
+            this.active = active;
+        }
+        public int getStreak() {return streak;}
+        public boolean isActive() {return active;}
+    }
+
 
     public Message sendImage(Integer senderId, Integer chatId, MultipartFile file) {
         try {

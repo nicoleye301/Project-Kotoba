@@ -1,20 +1,20 @@
 import React, { useState, useEffect, useRef } from "react";
-import {
-    View,
-    FlatList,
-    KeyboardAvoidingView,
-    Platform,
-    StyleSheet,
-    ActivityIndicator,
-} from "react-native";
-import {TextInput, Button, Appbar, FAB} from "react-native-paper";
+import {View, FlatList, KeyboardAvoidingView, Platform, StyleSheet, ActivityIndicator, Text, TouchableOpacity,} from "react-native";
+import { TextInput, Button, Appbar, Menu, Portal, FAB } from "react-native-paper";
 import ChatBubble from "@/components/ChatBubble";
 import ChatApi from "@/api/message";
 import ChatGroupApi from "@/api/ChatGroup";
 import eventEmitter from "@/utils/eventEmitter";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useSearchParams } from "expo-router/build/hooks";
-import {router} from "expo-router";
+
+import { router } from "expo-router";
+import SuggestedReplies from "@/components/SuggestedReplies";
+import NlpApi from "@/api/nlp";
+import * as Clipboard from "expo-clipboard";
+import FriendProfileCard from "@/components/FriendProfileCard";
+import { Modal as PaperModal } from 'react-native-paper';
+import Modal from 'react-native-modal';
 import pickImage from "@/utils/imagePicker";
 import Avatar from "@/components/Avatar";
 import message from "@/api/message";
@@ -34,9 +34,9 @@ type Message = {
 };
 
 export type AvatarStructure = {
-    url:string;
+    url: string;
     username: string;
-}
+};
 
 export default function ConversationScreen() {
     const params = useSearchParams();
@@ -50,6 +50,12 @@ export default function ConversationScreen() {
     const [avatarLoading, setAvatarLoading] = useState(true);
     const [avatars, setAvatars] = useState<Record<string, AvatarStructure>>({});
     const flatListRef = useRef<FlatList<Message>>(null);
+
+    const [suggestions, setSuggestions] = useState<string[]>([]);
+    const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
+    const [isModalVisible, setModalVisible] = useState(false);
+    const [menuVisible, setMenuVisible] = useState(false);
+    const [profileVisible, setProfileVisible] = useState(false);
     const [showAddMenu, setShowAddMenu] = useState(false)
     const [image, setImage] = useState<string|null>(null);
 
@@ -122,7 +128,6 @@ export default function ConversationScreen() {
         return () => listener.remove();
     }, [chatId, currentUserId]);
 
-    // load avatars and names
     useEffect(() => {
         if(chatId){
             setAvatarLoading(true)
@@ -134,7 +139,6 @@ export default function ConversationScreen() {
                 setAvatarLoading(false)
             })
         }
-
     }, [chatId]);
 
     // send a message via API
@@ -190,6 +194,28 @@ export default function ConversationScreen() {
             flatListRef.current?.scrollToEnd({ animated: true });
         } catch (err) {
             console.error("Error sending message:", err);
+        }
+    };
+
+
+    const handleLongPress = (text: string) => {
+        setSelectedMessage(text);
+        setModalVisible(true);
+    };
+
+    const handleCopy = () => {
+        if (selectedMessage) {
+            Clipboard.setStringAsync(selectedMessage);
+            setModalVisible(false);
+        }
+    };
+
+    const handleAiReply = () => {
+        if (selectedMessage) {
+            NlpApi.getAiSuggestedReplies(selectedMessage)
+                .then(setSuggestions)
+                .catch(console.error);
+            setModalVisible(false);
         }
     };
 
@@ -256,7 +282,28 @@ export default function ConversationScreen() {
             <Appbar.Header>
                 <Appbar.BackAction onPress={() => router.back()} />
                 <Appbar.Content title={params.get("title")} />
+                {params.get("isGroup") !== "true" && (
+                    <Menu
+                        visible={menuVisible}
+                        onDismiss={() => setMenuVisible(false)}
+                        anchor={
+                            <Appbar.Action
+                                icon="dots-vertical"
+                                onPress={() => setMenuVisible(true)}
+                            />
+                        }
+                    >
+                        <Menu.Item
+                            onPress={() => {
+                                setMenuVisible(false);
+                                setProfileVisible(true);
+                            }}
+                            title="View Friend Profile"
+                        />
+                    </Menu>
+                )}
             </Appbar.Header>
+
             {loading ? (
                 <ActivityIndicator size="large" color="#333" style={styles.loadingIndicator} />
             ) : (
@@ -271,6 +318,53 @@ export default function ConversationScreen() {
                     }
                 />
             )}
+
+            {suggestions.length > 0 && (
+                <SuggestedReplies
+                    suggestions={suggestions}
+                    onSelect={(reply: string) => {
+                        setInputText(reply);
+                        setSuggestions([]);
+                    }}
+                />
+            )}
+
+            <Modal
+                isVisible={isModalVisible}
+                onBackdropPress={() => setModalVisible(false)}
+                animationIn="fadeInUp"
+                animationOut="fadeOutDown"
+                backdropOpacity={0.3}
+                style={{ justifyContent: "flex-end", margin: 0 }}
+            >
+                <View style={styles.modalContent}>
+                    <TouchableOpacity onPress={handleCopy}>
+                        <Text style={styles.modalOption}>Copy</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={handleAiReply}>
+                        <Text style={styles.modalOption}>Suggest a Response</Text>
+                    </TouchableOpacity>
+                    <TouchableOpacity onPress={() => setModalVisible(false)}>
+                        <Text style={[styles.modalOption, { color: "#FF4C4C" }]}>Cancel</Text>
+                    </TouchableOpacity>
+                </View>
+            </Modal>
+
+            <Portal>
+                <PaperModal
+                    visible={profileVisible}
+                    onDismiss={() => setProfileVisible(false)}
+                    contentContainerStyle={{
+                        backgroundColor: "white",
+                        margin: 20,
+                        borderRadius: 12,
+                        padding: 16,
+                    }}
+                >
+                    {chatId && <FriendProfileCard chatId={chatId} />}
+                </PaperModal>
+            </Portal>
+
             <View style={styles.inputContainer}>
                 <TextInput
                     mode="outlined"
@@ -343,4 +437,17 @@ const styles = StyleSheet.create({
     input: { flex: 1, marginRight: 10 },
     loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
     loadingIndicator: { marginTop: 20 },
+    modalContent: {
+        backgroundColor: "#fff",
+        padding: 20,
+        borderTopLeftRadius: 16,
+        borderTopRightRadius: 16,
+    },
+    modalOption: {
+        fontSize: 18,
+        paddingVertical: 12,
+        textAlign: "center",
+        borderBottomWidth: 1,
+        borderColor: "#eee",
+    },
 });

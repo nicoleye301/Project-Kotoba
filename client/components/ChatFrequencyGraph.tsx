@@ -42,13 +42,6 @@ export default function ChatFrequencyGraph() {
                 ) : (
                     <Text style={styles.emptyText}>No chat frequency data available.</Text>
                 )}
-                <Button
-                    mode="contained"
-                    onPress={() => fetchFrequency(userId)}
-                    style={styles.refreshButton}
-                >
-                    Refresh Frequencies
-                </Button>
             </View>
         </ScrollView>
     );

@@ -31,6 +31,11 @@
     <update id="updateMilestoneSettings">
         UPDATE friendship SET milestone_settings = #{milestoneSettings} WHERE id = #{friendShipId}
     </update>
+    <update id="updateNickname">
+        UPDATE friendship
+        SET nickname = #{nickname}
+        WHERE user_id = #{userId} AND friend_id = #{friendId}
+    </update>
 
     <!-- Select a friendship record by userId and friendId -->
     <select id="selectByUserIdAndFriendId" parameterType="map" resultMap="FriendshipResultMap">

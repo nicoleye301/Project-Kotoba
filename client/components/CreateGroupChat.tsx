@@ -17,10 +17,12 @@ import {
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { createGroup, CreateGroupParams, ChatGroup } from "@/api/ChatGroup";
 import { getFriendList } from "@/api/friend";
+import UserApi from "@/api/user";
 
 interface Friend {
     id: number;
     username: string;
+    nickname?: string;
     avatar?: string;
 }
 
@@ -46,13 +48,18 @@ const CreateGroupChat: React.FC<CreateGroupChatProps> = ({ onClose }) => {
 
                 // fetch accepted friends
                 const friendships: any[] = await getFriendList(userId);
-                const friendList = friendships.map((f) => {
-                    const friendId = f.userId === userId ? f.friendId : f.userId;
-                    return {
-                        id: friendId,
-                        username: `Friend #${friendId}`,
-                    } as Friend;
-                });
+                const friendList = await Promise.all(
+                    friendships.map(async (f) => {
+                        const friendId = f.userId === userId ? f.friendId : f.userId;
+                        const friendUser = await UserApi.getUserById(friendId);
+
+                        return {
+                            id: friendId,
+                            username: friendUser.username,
+                            nickname: f.nickname || null,
+                        } as Friend;
+                    })
+                );
                 setFriends(friendList);
             } catch (err) {
                 console.error("Error loading friends:", err);
@@ -110,7 +117,7 @@ const CreateGroupChat: React.FC<CreateGroupChatProps> = ({ onClose }) => {
                 onPress={() => toggleFriendSelection(item.id)}
                 color={theme.colors.primary}
             />
-            <Text style={styles.friendName}>{item.username}</Text>
+            <Text style={styles.friendName}>{item.nickname || item.username}</Text>
         </TouchableOpacity>
     );
 
