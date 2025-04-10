@@ -128,7 +128,7 @@ public class UserService {
         for (int i = 0; i < Math.min(5, groups.size()); i++) {
             Integer groupId = groups.get(i);
             MessageService.StreakData data = messageService.getChatStreakData(groupId, userIdInteger);
-            String friendName = getDirectChatFriendName(groupId, userIdInteger);
+            String friendName = getDirectChatFriendNameOrNickname(groupId, userIdInteger);
 
             Map<String, Object> item = new HashMap<>();
             item.put("groupName", friendName);
@@ -140,18 +140,18 @@ public class UserService {
     }
 
     // helper method -  given a direct chat group ID and current user ID, return the friend’s username
-    private String getDirectChatFriendName(Integer chatGroupId, Integer currentUserId) {
+    private String getDirectChatFriendNameOrNickname(Integer chatGroupId, Integer currentUserId) {
         List<Friendship> friendships = friendshipMapper.selectFriendshipsByUser(currentUserId);
         for (Friendship f : friendships) {
             if (chatGroupId.equals(f.getDirectChatGroupId())) {
                 int friendId = f.getUserId().equals(currentUserId) ? f.getFriendId() : f.getUserId();
+                String nickname = f.getNickname();
                 User friend = userMapper.selectById(friendId);
                 if (friend != null) {
-                    return friend.getUsername();
+                    return nickname != null ? nickname : friend.getUsername();
                 }
             }
         }
-        // fallback if not found
         return "Unknown Friend";
     }
 
@@ -178,7 +178,13 @@ public class UserService {
             Integer friendIdInteger = friendship.getFriendId();
             int friendShipId = friendship.getId();
             int chatGroupId =  friendship.getDirectChatGroupId();
-            String friendName = userMapper.selectById(friendIdInteger).getUsername();
+            String friendName;
+            if (friendship.getNickname() != null) {
+                friendName = friendship.getNickname();
+            } else {
+                User friend = userMapper.selectById(friendIdInteger);
+                friendName = (friend != null) ? friend.getUsername() : "Unknown Friend";
+            }
 
             long timestamp = jsonNode.get("startTime").asLong();
             int period = jsonNode.get("period").asInt();
@@ -256,7 +262,7 @@ public class UserService {
 
             int friendId = f.getUserId().equals(userIdInt) ? f.getFriendId() : f.getUserId();
             User friendUser = userMapper.selectById(friendId);
-            String friendName = (friendUser != null) ? friendUser.getUsername() : "Unknown Friend";
+            String friendName = f.getNickname() != null ? f.getNickname() : friendUser.getUsername();
 
             Map<String, Object> item = new HashMap<>();
             item.put("friendName", friendName);

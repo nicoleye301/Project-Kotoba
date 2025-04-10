@@ -47,6 +47,20 @@ export async function setMilestone(params: {
     return Http.post("/friend/setMilestone", params);
 }
 
+// get friend profile data
+export function getFriendProfile(userId: number, friendId: number) {
+    return Http.get(`/friend/profile?userId=${userId}&friendId=${friendId}`);
+}
+
+// set nickname
+export async function setNickname(params: {
+    userId: number;
+    friendId: number;
+    nickname: string;
+}): Promise<any> {
+    return Http.post("/friend/setNickname", params);
+}
+
 export default {
     sendFriendRequest,
     acceptFriendRequest,
@@ -54,5 +68,7 @@ export default {
     getFriendList,
     getPendingRequests,
     removeFriend,
-    setMilestone
+    setMilestone,
+    getFriendProfile,
+    setNickname
 };

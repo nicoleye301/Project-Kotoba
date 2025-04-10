@@ -4,10 +4,11 @@ import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FriendApi from "@/api/friend";
 import UserApi from "@/api/user";
-import { Appbar, Modal, PaperProvider, Portal } from "react-native-paper";
+import { Appbar, Modal, PaperProvider, Portal, List } from "react-native-paper";
 import CreateGroupChat from "@/components/CreateGroupChat";
 import {createGroup, ChatGroup, getGroupDetails, getGroupChats} from "@/api/ChatGroup";
 import Constants from "expo-constants";
+import { getDisplayName } from "@/utils/displayName";
 
 // @ts-ignore
 const BASE_URL = Constants.expoConfig.extra.API_BASE_URL;
@@ -52,10 +53,11 @@ export default function ChatScreen() {
                         const friendId = f.userId === currentUserId ? f.friendId : f.userId;
                         try {
                             const friendUser = await UserApi.getUserById(friendId);
+                            const displayName = getDisplayName({ username: friendUser.username }, f.nickname);
                             return {
                                 type: "friend",
                                 id: f.directChatGroupId || friendId,
-                                title: friendUser.username,
+                                title: displayName,
                                 subtitle: "Tap to chat",
                                 updatedAt: f.updatedAt || "Just now",
                                 avatarUrl: friendUser.avatar || "",
@@ -116,13 +118,15 @@ export default function ChatScreen() {
             }}
         >
             <View style={styles.avatarContainer}>
-                {item.avatarUrl ? (
-                    <Image source={{ uri: BASE_URL+"/uploads/avatar/"+item.avatarUrl }} style={styles.avatar} />
+                {item.type === "group" ? (
+                    <View style={[styles.avatar, styles.avatarPlaceholder]}>
+                        <List.Icon icon="account-group" color="white" />
+                    </View>
+                ) : item.avatarUrl ? (
+                    <Image source={{ uri: BASE_URL + "/uploads/avatar/" + item.avatarUrl }} style={styles.avatar} />
                 ) : (
                     <View style={[styles.avatar, styles.avatarPlaceholder]}>
-                        <Text style={styles.avatarInitial}>
-                            {item.title ? item.title[0] : "?"}
-                        </Text>
+                        <Text style={styles.avatarInitial}>{item.title ? item.title[0] : "?"}</Text>
                     </View>
                 )}
             </View>

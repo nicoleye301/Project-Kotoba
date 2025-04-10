@@ -8,6 +8,7 @@ import UserApi from "@/api/user";
 import SendFriendRequest from "@/components/SendFriendRequest";
 import { LightTheme } from "@/theme/theme";
 import eventEmitter from "@/utils/eventEmitter";
+import { getDisplayName } from "@/utils/displayName";
 
 // define the Friendship type
 interface Friendship {
@@ -84,8 +85,8 @@ export default function ContactsScreen() {
                                     friendItemsMap[friendId] = {
                                         type: "friend",
                                         id: friendId,
-                                        title: friendUser.username,
-                                        subtitle: "Set milestone",
+                                        title: getDisplayName({ username: friendUser.username }, f.nickname),
+                                        subtitle: "User Profile",
                                         updatedAt: "Just now",
                                         avatarUrl: friendUser.avatar || "",
                                     };
@@ -202,7 +203,7 @@ export default function ContactsScreen() {
             left={() => <List.Icon icon="account" />}
             right={() => <List.Icon icon="chevron-right" />}
             onPress={() =>
-                router.push(`/SetMilestone?friendId=${item.id}&friendName=${encodeURIComponent(item.title)}`)
+                router.push(`/FriendDetails?friendId=${item.id}`)
             }
             style={styles.friendListItem}
         />
