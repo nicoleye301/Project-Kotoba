@@ -16,14 +16,6 @@ export default function postBox({ post, avatarLoading, avatarStructure }: postBo
         ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
         : "Invalid Date";
 
-    const handleLike = async ()=> {
-
-    }
-
-    const handleComment = async ()=> {
-
-    }
-
     return (
         <View style={[styles.postContainer]}>
             {!avatarLoading && <Avatar avatarUrl={avatarStructure.url} title={avatarStructure.username}/>}
@@ -33,12 +25,6 @@ export default function postBox({ post, avatarLoading, avatarStructure }: postBo
                     {post.content}
                 </Text>
                 <Text style={styles.timestamp}>{timeString}</Text>
-                <Button mode="contained" onPress={handleLike} style={styles.button}>
-                    Like
-                </Button>
-                <Button mode="contained" onPress={handleComment} style={styles.button}>
-                    Comment
-                </Button>
 
             </View>
 

@@ -29,7 +29,7 @@ export type AvatarStructure = {
     username: string;
 }
 
-export default function posts(){
+export default function posts() {
 
     const [currentUserId, setCurrentUserId] = useState<number>(-1);
     const [posts, setPosts] = useState<Post[]>([]);
@@ -114,10 +114,6 @@ export default function posts(){
 
     }
 
-    const handleComment = async ()=> {
-
-    }
-
     const renderPost = ({ item }: { item: Post }) => {
         return (
             <View>
@@ -126,13 +122,19 @@ export default function posts(){
                     avatarLoading={avatarLoading}
                     avatarStructure={avatars[22]}
                 />
-                <Button mode="contained" onPress={handleLike} style={styles.sendButton}>
-                    Like
-                </Button>
+                <View style={styles.buttonContainer}>
+                    <Button mode="contained" onPress={handleLike} style={styles.sendButton}>
+                        Like
+                    </Button>
 
-                <Button mode="contained" onPress={handleComment} style={styles.sendButton}>
-                    Comment
-                </Button>
+                    <Button mode="contained" onPress={()=> {
+                        router.push(
+                            `/comments?postId=${item.id}&posterId=${item.posterId}&content=${encodeURIComponent(item.content)}&postTime=${encodeURIComponent(item.postTime)}`
+                        )
+                    }} style={styles.sendButton}>
+                        Comment
+                    </Button>
+                </View>
 
             </View>
         )
@@ -173,7 +175,7 @@ export default function posts(){
                     }
                 />
                 )}
-                </KeyboardAvoidingView>
+        </KeyboardAvoidingView>
     )
 
 
@@ -186,6 +188,7 @@ const styles = StyleSheet.create({
         flex: 1,
         backgroundColor: "#fff",
         paddingTop: 40,
+        overflowY: "scroll",
     },
     headerContainer: {
         paddingHorizontal: 20,
@@ -204,6 +207,9 @@ const styles = StyleSheet.create({
         borderColor: "#ddd",
         alignItems: "center",
     },
+    buttonContainer: {
+        display: "flex"
+    },
     input: { flex: 1, marginRight: 10 },
     sendButton: { paddingVertical: 6, paddingHorizontal: 12 },
     loadingContainer: { flex: 1, justifyContent: "center", alignItems: "center" },
@@ -219,4 +225,4 @@ const styles = StyleSheet.create({
             marginTop: 4,
         },
 
-        });
+});
