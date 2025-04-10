@@ -1,110 +1,94 @@
 import React, { useEffect, useState } from "react";
-import { View, StyleSheet, Image } from "react-native";
-import { Text, TextInput, Button, ActivityIndicator } from "react-native-paper";
-import Constants from "expo-constants";
+import { View, StyleSheet, Image, Alert } from "react-native";
+import { Text, ActivityIndicator, Divider, List, Snackbar } from "react-native-paper";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FriendApi from "@/api/friend";
 import UserApi from "@/api/user";
+import Constants from "expo-constants";
+import { router } from "expo-router";
 
 // @ts-ignore
 const BASE_URL = Constants.expoConfig.extra.API_BASE_URL;
 
 interface Props {
-    friendId: number;
+    chatId: number; // directChatGroupId
 }
 
-const FriendProfileCard = ({ friendId }: Props) => {
+const FriendProfileCard = ({ chatId }: Props) => {
     const [currentUserId, setCurrentUserId] = useState<number | null>(null);
+    const [friendId, setFriendId] = useState<number | null>(null);
     const [friend, setFriend] = useState<any>(null);
     const [nickname, setNickname] = useState("");
-    const [milestoneSettings, setMilestoneSettings] = useState("");
-    const [loading, setLoading] = useState(true);
+    const [friendship, setFriendship] = useState<any>(null);
+    const [snackbarVisible, setSnackbarVisible] = useState(false);
+    const [snackbarMsg, setSnackbarMsg] = useState("");
 
     useEffect(() => {
         AsyncStorage.getItem("loggedInUserId").then((id) => {
             if (id) {
                 const uid = Number(id);
                 setCurrentUserId(uid);
-                loadProfile(uid);
+                resolveFriendFromChat(uid, chatId);
             }
         });
-    }, [friendId]);
+    }, [chatId]);
 
-    const loadProfile = async (userId: number) => {
+    const resolveFriendFromChat = async (userId: number, chatId: number) => {
         try {
-            const data = await FriendApi.getFriendProfile(userId, friendId);
-            const user = await UserApi.getUserById(friendId);
+            const friends = await FriendApi.getFriendList(userId);
+            const match = friends.find((f: any) => f.directChatGroupId === chatId);
+            if (!match) throw new Error("Friendship not found for this chatId");
+
+            const fid = match.userId === userId ? match.friendId : match.userId;
+            setFriendId(fid);
+            setFriendship(match);
+
+            const user = await UserApi.getUserById(fid);
             setFriend(user);
-            setNickname(data.nickname || "");
-            setMilestoneSettings(data.milestoneSettings || "");
+            setNickname(match.nickname || "");
         } catch (err) {
-            console.error("Error loading profile:", err);
-        } finally {
-            setLoading(false);
+            console.error("Error resolving friend info from chatId:", err);
+            Alert.alert("Error", "Unable to load friend info.");
         }
     };
 
-    const handleSaveNickname = async () => {
-        if (!currentUserId) return;
-        try {
-            await FriendApi.setNickname({ userId: currentUserId, friendId, nickname });
-        } catch (err) {
-            console.error("Error saving nickname:", err);
-        }
+    const handleSetMilestone = () => {
+        router.push(`/SetMilestone?friendId=${friend?.id}&friendName=${encodeURIComponent(friend?.username || "")}`);
     };
 
-    const handleSaveMilestone = async () => {
-        if (!currentUserId) return;
-        try {
-            await FriendApi.setMilestone({ currentUserId, friendId, milestoneSettings });
-        } catch (err) {
-            console.error("Error saving milestone:", err);
-        }
+    const handleChangeNickname = () => {
+        router.push(`/ChangeNickname?friendId=${friend?.id}&nickname=${encodeURIComponent(nickname || "")}`);
     };
 
-    if (loading || !friend) {
+    if (!friend) {
         return <ActivityIndicator style={{ margin: 16 }} />;
     }
 
     return (
         <View style={styles.card}>
-            <View style={styles.header}>
+            <View style={styles.profileSection}>
                 <Image
                     source={{ uri: `${BASE_URL}/uploads/avatar/${friend.avatar || "default.jpg"}` }}
                     style={styles.avatar}
                 />
-                <View>
-                    <Text variant="titleMedium">{friend.username}</Text>
-                    <Text variant="bodySmall" style={{ color: "#777" }}>
-                        {friend.email}
-                    </Text>
-                </View>
+                <Text variant="titleMedium" style={styles.username}>
+                    {friend.username}
+                </Text>
+                <Text variant="bodySmall" style={{ color: "#777" }}>
+                    {nickname ? `"${nickname}"` : "No nickname set"}
+                </Text>
             </View>
 
-            <Text style={styles.label}>Nickname</Text>
-            <TextInput
-                mode="outlined"
-                value={nickname}
-                onChangeText={setNickname}
-                placeholder="Your nickname for this friend"
-                style={styles.input}
-            />
-            <Button mode="contained" onPress={handleSaveNickname} style={styles.button}>
-                Save Nickname
-            </Button>
+            <Divider />
 
-            <Text style={styles.label}>Milestone Settings (JSON)</Text>
-            <TextInput
-                mode="outlined"
-                value={milestoneSettings}
-                onChangeText={setMilestoneSettings}
-                multiline
-                numberOfLines={6}
-                style={styles.textarea}
-            />
-            <Button mode="contained" onPress={handleSaveMilestone} style={styles.button}>
-                Save Milestone
-            </Button>
+            <List.Section>
+                <List.Item title="Set Milestone" left={() => <List.Icon icon="target" />} onPress={handleSetMilestone} />
+                <List.Item title="Change Nickname" left={() => <List.Icon icon="account-edit" />} onPress={handleChangeNickname} />
+            </List.Section>
+
+            <Snackbar visible={snackbarVisible} onDismiss={() => setSnackbarVisible(false)} duration={3000}>
+                {snackbarMsg}
+            </Snackbar>
         </View>
     );
 };
@@ -114,34 +98,21 @@ const styles = StyleSheet.create({
         backgroundColor: "#fff",
         borderRadius: 12,
         padding: 16,
-        elevation: 2,
         margin: 10,
     },
-    header: {
-        flexDirection: "row",
+    profileSection: {
         alignItems: "center",
-        marginBottom: 16,
+        paddingBottom: 20,
     },
     avatar: {
-        width: 60,
-        height: 60,
-        borderRadius: 30,
-        marginRight: 12,
+        width: 80,
+        height: 80,
+        borderRadius: 40,
+        marginBottom: 12,
     },
-    label: {
-        marginTop: 12,
-        marginBottom: 4,
+    username: {
+        fontSize: 20,
         fontWeight: "bold",
-    },
-    input: {
-        marginBottom: 12,
-    },
-    textarea: {
-        height: 120,
-        marginBottom: 12,
-    },
-    button: {
-        marginBottom: 16,
     },
 });
 

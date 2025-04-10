@@ -1,14 +1,7 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import { View, StyleSheet, Image, Alert } from "react-native";
-import {
-    Appbar,
-    Text,
-    List,
-    Divider,
-    Snackbar,
-    ActivityIndicator,
-} from "react-native-paper";
-import { useLocalSearchParams, router } from "expo-router";
+import {Appbar, Text, List, Divider, Snackbar, ActivityIndicator,} from "react-native-paper";
+import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FriendApi from "@/api/friend";
 import UserApi from "@/api/user";
@@ -20,6 +13,7 @@ const BASE_URL = Constants.expoConfig.extra.API_BASE_URL;
 export default function FriendDetailsScreen() {
     const params = useLocalSearchParams();
     const friendId = Number(params.friendId);
+
     const [currentUserId, setCurrentUserId] = useState<number | null>(null);
     const [friend, setFriend] = useState<any>(null);
     const [nickname, setNickname] = useState("");
@@ -27,15 +21,17 @@ export default function FriendDetailsScreen() {
     const [snackbarMsg, setSnackbarMsg] = useState("");
     const [friendship, setFriendship] = useState<any>(null);
 
-    useEffect(() => {
-        AsyncStorage.getItem("loggedInUserId").then((id) => {
-            if (id) {
-                const uid = Number(id);
-                setCurrentUserId(uid);
-                loadFriendProfile(uid);
-            }
-        });
-    }, []);
+    useFocusEffect(
+        useCallback(() => {
+            AsyncStorage.getItem("loggedInUserId").then((id) => {
+                if (id) {
+                    const uid = Number(id);
+                    setCurrentUserId(uid);
+                    loadFriendProfile(uid);
+                }
+            });
+        }, [friendId])
+    );
 
     const loadFriendProfile = async (uid: number) => {
         try {

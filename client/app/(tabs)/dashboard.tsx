@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useCallback } from "react";
+import React, { useState, useCallback } from "react";
 import { ScrollView, StyleSheet, View, Text, Alert } from "react-native";
-import { Appbar, Button, PaperProvider } from "react-native-paper";
+import { Appbar, PaperProvider } from "react-native-paper";
 import { router, useFocusEffect } from "expo-router";
 import DashboardApi from "@/api/dashboard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
@@ -13,27 +13,6 @@ export default function DashboardScreen() {
     const [milestones, setMilestones] = useState<Milestone[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
 
-
-    const initialize = useCallback( // prevent infinite loop
-        async () => {
-            const uid = await AsyncStorage.getItem("loggedInUserId");
-            if (uid) {
-                setUserId(uid);
-                try {
-                    await fetchMilestones(uid);
-                } catch (err) {
-                    router.replace("/login")
-                }
-            } else {
-                router.replace("/login")
-            }
-            setLoading(false);
-        }, [])
-
-    useFocusEffect(useCallback(() => {
-        initialize();
-    }, []));
-
     const fetchMilestones = async (uid: string) => {
         try {
             const data: Milestone[] = await DashboardApi.getMilestones(uid);
@@ -43,18 +22,34 @@ export default function DashboardScreen() {
         }
     };
 
-    // check for any milestones that are updated (period ended) but not achieved
-    useEffect(() => {
-        const missed = milestones.filter(
-            (m) => m.updated === true && m.congrats === false
-        );
-        if (missed.length > 0) {
-            Alert.alert(
-                "Milestone Warning",
-                `You missed your messaging goal for ${missed[0].friendName}. Please review your milestones.`
-            );
+    const initialize = useCallback(async () => {
+        const uid = await AsyncStorage.getItem("loggedInUserId");
+        if (uid) {
+            setUserId(uid);
+            await fetchMilestones(uid);
+        } else {
+            router.replace("/login");
         }
-    }, [milestones]);
+        setLoading(false);
+    }, []);
+
+    useFocusEffect(
+        useCallback(() => {
+            initialize();
+        }, [initialize])
+    );
+
+    useFocusEffect(
+        useCallback(() => {
+            const missed = milestones.filter((m) => m.updated && !m.congrats);
+            if (missed.length > 0) {
+                Alert.alert(
+                    "Milestone Warning",
+                    `You missed your messaging goal for ${missed[0].friendName}. Please review your milestones.`
+                );
+            }
+        }, [milestones])
+    );
 
     return (
         <PaperProvider>
@@ -72,13 +67,6 @@ export default function DashboardScreen() {
                         <StreakDisplay userId={userId} />
                         <Text style={styles.sectionTitle}>Milestones</Text>
                         <MilestoneDisplay milestones={milestones} />
-                        <Button
-                            mode="contained"
-                            onPress={() => fetchMilestones(userId)}
-                            style={styles.refreshButton}
-                        >
-                            Refresh Milestones
-                        </Button>
                     </View>
                 )}
             </ScrollView>
@@ -95,6 +83,4 @@ const styles = StyleSheet.create({
         fontWeight: "600",
         marginVertical: 10,
     },
-    refreshButton: { marginVertical: 20 },
 });
-

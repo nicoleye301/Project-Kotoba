@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import {View, FlatList, KeyboardAvoidingView, Platform, StyleSheet, ActivityIndicator, Text, TouchableOpacity,} from "react-native";
-import { TextInput, Button, Appbar } from "react-native-paper";
+import { TextInput, Button, Appbar, Menu, Portal } from "react-native-paper";
 import ChatBubble from "@/components/ChatBubble";
 import ChatApi from "@/api/message";
 import ChatGroupApi from "@/api/ChatGroup";
@@ -10,8 +10,10 @@ import { useSearchParams } from "expo-router/build/hooks";
 import { router } from "expo-router";
 import SuggestedReplies from "@/components/SuggestedReplies";
 import NlpApi from "@/api/nlp";
-import Modal from "react-native-modal";
 import * as Clipboard from "expo-clipboard";
+import FriendProfileCard from "@/components/FriendProfileCard";
+import { Modal as PaperModal } from 'react-native-paper';
+import Modal from 'react-native-modal';
 
 type Message = {
     id: number;
@@ -42,6 +44,8 @@ export default function ConversationScreen() {
     const [suggestions, setSuggestions] = useState<string[]>([]);
     const [selectedMessage, setSelectedMessage] = useState<string | null>(null);
     const [isModalVisible, setModalVisible] = useState(false);
+    const [menuVisible, setMenuVisible] = useState(false);
+    const [profileVisible, setProfileVisible] = useState(false);
 
     useEffect(() => {
         AsyncStorage.getItem("loggedInUserId")
@@ -191,6 +195,26 @@ export default function ConversationScreen() {
             <Appbar.Header>
                 <Appbar.BackAction onPress={() => router.back()} />
                 <Appbar.Content title={params.get("title")} />
+                {params.get("isGroup") !== "true" && (
+                    <Menu
+                        visible={menuVisible}
+                        onDismiss={() => setMenuVisible(false)}
+                        anchor={
+                            <Appbar.Action
+                                icon="dots-vertical"
+                                onPress={() => setMenuVisible(true)}
+                            />
+                        }
+                    >
+                        <Menu.Item
+                            onPress={() => {
+                                setMenuVisible(false);
+                                setProfileVisible(true);
+                            }}
+                            title="View Friend Profile"
+                        />
+                    </Menu>
+                )}
             </Appbar.Header>
 
             {loading ? (
@@ -238,6 +262,21 @@ export default function ConversationScreen() {
                     </TouchableOpacity>
                 </View>
             </Modal>
+
+            <Portal>
+                <PaperModal
+                    visible={profileVisible}
+                    onDismiss={() => setProfileVisible(false)}
+                    contentContainerStyle={{
+                        backgroundColor: "white",
+                        margin: 20,
+                        borderRadius: 12,
+                        padding: 16,
+                    }}
+                >
+                    {chatId && <FriendProfileCard chatId={chatId} />}
+                </PaperModal>
+            </Portal>
 
             <View style={styles.inputContainer}>
                 <TextInput
