@@ -132,6 +132,7 @@ export default function ConversationScreen() {
                 groupId: chatId,
                 content: inputText,
             });
+            // convert IDs to numbers
             newMessage.id = Number(newMessage.id);
             newMessage.senderId = Number(newMessage.senderId);
             newMessage.chatId = Number(newMessage.chatId);
