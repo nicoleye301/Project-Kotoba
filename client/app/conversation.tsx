@@ -123,6 +123,7 @@ export default function ConversationScreen() {
         }
     }, [chatId]);
 
+    // send a message via API
     const sendMessage = async () => {
         if (!inputText.trim() || !currentUserId || !chatId) return;
         try {
