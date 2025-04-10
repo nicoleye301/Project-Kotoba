@@ -14,7 +14,6 @@ export default function Login() {
         try {
             const data = await LoginApi.login({username, password});
             await AsyncStorage.setItem("loggedInUserId", data.id.toString());
-            connectWebSocket();
             await getUserSettings(data.id)
             router.replace("/(tabs)/dashboard");
         } catch (error) {
