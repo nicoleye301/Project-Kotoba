@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import {View, FlatList, KeyboardAvoidingView, Platform, StyleSheet, ActivityIndicator, Text, TouchableOpacity,} from "react-native";
+import {View, FlatList, KeyboardAvoidingView, Platform, StyleSheet, ActivityIndicator, Text, TouchableOpacity,Pressable} from "react-native";
 import { TextInput, Button, Appbar, Menu, Portal, FAB } from "react-native-paper";
 import ChatBubble from "@/components/ChatBubble";
 import ChatApi from "@/api/message";
@@ -17,7 +17,6 @@ import { Modal as PaperModal } from 'react-native-paper';
 import Modal from 'react-native-modal';
 import pickImage from "@/utils/imagePicker";
 import Avatar from "@/components/Avatar";
-import message from "@/api/message";
 import ImageBubble from "@/components/ImageBubble";
 import GameBubble from "@/components/GameBubble";
 import {Tictactoe} from "@/api/tictactoe";
@@ -234,10 +233,13 @@ export default function ConversationScreen() {
         }
 
         return (
-            <View style={[styles.bubbleContainer, isOwn ? styles.rightAlign : styles.leftAlign]}>
-                {!avatarLoading && <Avatar avatarUrl={avatarStructure.url} title={avatarStructure.username}/>}
-                {bubble}
-            </View>
+            <Pressable onLongPress={()=>{handleLongPress(item.content)}}>
+                <View style={[styles.bubbleContainer, isOwn ? styles.rightAlign : styles.leftAlign]}>
+                    {!avatarLoading && <Avatar avatarUrl={avatarStructure.url} title={avatarStructure.username}/>}
+                    {bubble}
+                </View>
+            </Pressable>
+
         )
     }
 
