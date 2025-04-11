@@ -6,7 +6,6 @@ import DashboardApi from "@/api/dashboard";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import ChatFrequencyGraph from "@/components/ChatFrequencyGraph";
 import StreakDisplay from "@/components/StreakDisplay";
-
 import MilestoneDisplay, {Milestone} from "@/components/MilestoneDisplay";
 import {connectWebSocket} from "@/utils/websocket";
 

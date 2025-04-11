@@ -28,6 +28,16 @@ export default function TabLayout() {
                         <Icon source="home" size={size} color={color} />
                     ) }}
             />
+            {/* Capsule Demo  */}
+            <Tabs.Screen
+                name="capsule"
+                options={{
+                    title: "Capsule",
+                    tabBarIcon: ({ color, size }) => (
+                        <Icon source="clock" size={size} color={color} />
+                    ),
+                }}
+            />
         </Tabs>
     );
 }
