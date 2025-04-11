@@ -80,7 +80,7 @@ export default function ContactsScreen() {
                                 type: "friend",
                                 id: friendId,
                                 title: getDisplayName({ username: friendUser.username }, f.nickname),
-                                subtitle: "Set milestone",
+                                subtitle: "User Profile",
                                 updatedAt: "Just now",
                                 avatarUrl: friendUser.avatar || "",
                             };
