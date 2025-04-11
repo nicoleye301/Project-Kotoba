@@ -17,7 +17,7 @@
     </insert>
 
     <select id="selectPostsByPosterId" resultMap="PostResultMap">
-        SELECT id, content, image_url, sent_time
+        SELECT id, content, image_url, sender_id, sent_time
         FROM post
         WHERE sender_id = #{posterId}
         ORDER BY sent_time ASC

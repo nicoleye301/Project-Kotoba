@@ -21,7 +21,7 @@ export interface Post {
     posterId: number;
     content: string;
     postTime: string;
-    imageURL?: string;
+    imageURL: string;
 }
 
 export type AvatarStructure = {
@@ -50,30 +50,26 @@ export default function posts() {
             .catch((err) => console.error("Error retrieving user ID:", err));
     }, []);
 
-    useEffect(() => {
-        async function getAvatars() {
-            if(currentUserId)
-            {
-                const friendList = await FriendApi.getFriendList(currentUserId);
-                const friendIdArray = []
-                friendIdArray.push(currentUserId);
-                for(const friends of friendList) {
-                    friendIdArray.push(friends.friendId);
-                }
-
-                PostApi.getAvatar(friendIdArray).then(
-                    ((avatars) =>{
-                        setAvatars(avatars)
-                    })
-                ).finally(() =>{
-                        setAvatarLoading(false)
-                    })
-
+    async function getAvatars() {
+        if(currentUserId)
+        {
+            const friendList = await FriendApi.getFriendList(currentUserId);
+            const friendIdArray = []
+            friendIdArray.push(currentUserId);
+            for(const friends of friendList) {
+                friendIdArray.push(friends.friendId);
             }
-        }
-        getAvatars();
 
-    }, [currentUserId]);
+            PostApi.getAvatar(friendIdArray).then(
+                ((avatars) =>{
+                    setAvatars(avatars)
+                })
+            ).finally(() =>{
+                setAvatarLoading(false)
+            })
+        }
+    }
+
 
     const handlePost = async () => {
         if (!inputText.trim() || !currentUserId) return;
@@ -98,8 +94,7 @@ export default function posts() {
                 setTimeout(() => {
                     flatListRef.current?.scrollToEnd({ animated: true });
                 }, 100);
-            })
-
+            });
 
         const friendList = await FriendApi.getFriendList(currentUserId);
 
@@ -107,8 +102,12 @@ export default function posts() {
             const friendsPost: Post[] = await PostApi.retrievePost(friends.friendId);
             setPosts((prev) => [...prev, ...friendsPost]);
         }
+
+        getAvatars();
         setLoading(false);
     }
+
+
 
     const handleLike = async ()=> {
 
@@ -120,7 +119,7 @@ export default function posts() {
                 <PostBox
                     post={item}
                     avatarLoading={avatarLoading}
-                    avatarStructure={avatars[22]}
+                    avatarStructure={avatars[item.posterId.toString()]}
                 />
                 <View style={styles.buttonContainer}>
                     <Button mode="contained" onPress={handleLike} style={styles.sendButton}>
@@ -129,7 +128,10 @@ export default function posts() {
 
                     <Button mode="contained" onPress={()=> {
                         router.push(
-                            `/comments?postId=${item.id}&posterId=${item.posterId}&content=${encodeURIComponent(item.content)}&postTime=${encodeURIComponent(item.postTime)}`
+                            `/comments?postId=${item.id}&posterId=${item.posterId}&content=${encodeURIComponent(item.content)}
+                            &postTime=${encodeURIComponent(item.postTime)}&imageURL=${encodeURIComponent(item.imageURL)}
+                            &avatarURL=${encodeURIComponent(avatars[item.posterId.toString()].url)}
+                            &avatarUsername=${encodeURIComponent(avatars[item.posterId.toString()].username)}`
                         )
                     }} style={styles.sendButton}>
                         Comment

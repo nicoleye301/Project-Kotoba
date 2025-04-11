@@ -34,7 +34,6 @@ public class PostCommentController {
         if(postId == null || senderId == null || content == null) {
             throw new CustomException(400, "postId, senderId and content are required");
         }
-
         return postCommentService.comment(postId, senderId, content);
     }
 }
