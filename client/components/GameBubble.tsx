@@ -10,6 +10,8 @@ type GameProps = {
 };
 
 export default function GameBubble({message, isOwn, callbackOnPress}:GameProps){
+    const board = JSON.parse(message.content).board
+
     return (
         <View style={styles.bubble}>
             <View
@@ -28,14 +30,14 @@ export default function GameBubble({message, isOwn, callbackOnPress}:GameProps){
                             flexDirection: 'row',
                         },
                     ]}>
-                    <Button mode="contained" onPress={callbackOnPress.bind(message.content, 0)} style={[styles.tictactoeCell,]}>
-                        {Tictactoe.symbolAtIndex(Tictactoe.fromString(message.content),0)}
+                    <Button mode="contained" onPress={()=>{callbackOnPress(board, 0)}} style={[styles.tictactoeCell,]}>
+                        {board.charAt(0)}
                     </Button>
-                    <Button mode="contained" onPress={callbackOnPress.bind(message.content, 1)} style={[styles.tictactoeCell,]}>
-                        {Tictactoe.symbolAtIndex(Tictactoe.fromString(message.content),1)}
+                    <Button mode="contained" onPress={()=>{callbackOnPress(board, 1)}} style={[styles.tictactoeCell,]}>
+                        {board.charAt(1)}
                     </Button>
-                    <Button mode="contained" onPress={callbackOnPress.bind(message.content, 2)} style={[styles.tictactoeCell,]}>
-                        {Tictactoe.symbolAtIndex(Tictactoe.fromString(message.content),2)}
+                    <Button mode="contained" onPress={()=>{callbackOnPress(board, 2)}} style={[styles.tictactoeCell,]}>
+                        {board.charAt(2)}
                     </Button>
                 </View>
                 <View
@@ -45,14 +47,14 @@ export default function GameBubble({message, isOwn, callbackOnPress}:GameProps){
                             flexDirection: 'row',
                         },
                     ]}>
-                    <Button mode="contained" onPress={callbackOnPress.bind(message.content, 3)} style={[styles.tictactoeCell,]}>
-                        {Tictactoe.symbolAtIndex(Tictactoe.fromString(message.content),3)}
+                    <Button mode="contained" onPress={()=>{callbackOnPress(board, 3)}} style={[styles.tictactoeCell,]}>
+                        {board.charAt(3)}
                     </Button>
-                    <Button mode="contained" onPress={callbackOnPress.bind(message.content, 4)} style={[styles.tictactoeCell,]}>
-                        {Tictactoe.symbolAtIndex(Tictactoe.fromString(message.content),4)}
+                    <Button mode="contained" onPress={()=>{callbackOnPress(board, 4)}} style={[styles.tictactoeCell,]}>
+                        {board.charAt(4)}
                     </Button>
-                    <Button mode="contained" onPress={callbackOnPress.bind(message.content, 5)} style={[styles.tictactoeCell,]}>
-                        {Tictactoe.symbolAtIndex(Tictactoe.fromString(message.content),5)}
+                    <Button mode="contained" onPress={()=>{callbackOnPress(board, 5)}} style={[styles.tictactoeCell,]}>
+                        {board.charAt(5)}
                     </Button>
                 </View>
                 <View
@@ -63,14 +65,14 @@ export default function GameBubble({message, isOwn, callbackOnPress}:GameProps){
                             flexDirection: 'row',
                         },
                     ]}>
-                    <Button mode="contained" onPress={callbackOnPress.bind(message.content, 6)} style={[styles.tictactoeCell,]}>
-                        {Tictactoe.symbolAtIndex(Tictactoe.fromString(message.content),6)}
+                    <Button mode="contained" onPress={()=>{callbackOnPress(board, 6)}} style={[styles.tictactoeCell,]}>
+                        {board.charAt(6)}
                     </Button>
-                    <Button mode="contained" onPress={callbackOnPress.bind(message.content, 7)} style={[styles.tictactoeCell,]}>
-                        {Tictactoe.symbolAtIndex(Tictactoe.fromString(message.content),7)}
+                    <Button mode="contained" onPress={()=>{callbackOnPress(board, 7)}} style={[styles.tictactoeCell,]}>
+                        {board.charAt(7)}
                     </Button>
-                    <Button mode="contained" onPress={callbackOnPress.bind(message.content, 8)} style={[styles.tictactoeCell,]}>
-                        {Tictactoe.symbolAtIndex(Tictactoe.fromString(message.content),8)}
+                    <Button mode="contained" onPress={()=>{callbackOnPress(board, 8)}} style={[styles.tictactoeCell,]}>
+                        {board.charAt(8)}
                     </Button>
                 </View>
             </View>
@@ -80,23 +82,19 @@ export default function GameBubble({message, isOwn, callbackOnPress}:GameProps){
 
 const styles = StyleSheet.create({
     bubble: {
-        maxWidth: "80%",
-        paddingVertical: 8,
-        paddingHorizontal: 12,
-        borderRadius: 16,
-        shadowColor: "#000",
-        shadowOffset: { width: 0, height: 1 },
-        shadowOpacity: 0.1,
-        shadowRadius: 2,
-        elevation: 2,
+        maxWidth: "50%",
     },
     tictactoeGrid:{
         flex: 1,
-        padding: 20,
     },
     tictactoeCell:{
+        justifyContent:"center",
         aspectRatio: 1,
         flex: 1,
-        backgroundColor: 'darkorange'
+        backgroundColor: '#3D9576FF',
+        borderRadius: 0,
+        borderWidth: 1,
+        borderColor: '#FFF',
+
     }
 })
