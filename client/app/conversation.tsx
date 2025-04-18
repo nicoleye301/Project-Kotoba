@@ -378,10 +378,11 @@ export default function ConversationScreen() {
                 <FAB
                     icon="plus"
                     onPress={() => setShowAddMenu(!showAddMenu)}
-                    style={{marginRight: 10}}
+                    style={{marginRight: 10, shadowColor: 'transparent'}}
                 />
                 <FAB
                     icon="send"
+                    style={{shadowColor: 'transparent'}}
                     onPress={sendMessage}
                 />
             </View>

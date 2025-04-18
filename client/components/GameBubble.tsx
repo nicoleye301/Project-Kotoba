@@ -31,13 +31,13 @@ export default function GameBubble({message, isOwn, callbackOnPress}:GameProps){
                         },
                     ]}>
                     <Button mode="contained" onPress={()=>{callbackOnPress(board, 0)}} style={[styles.tictactoeCell,]}>
-                        {board.charAt(0)}
+                        {" "}
                     </Button>
                     <Button mode="contained" onPress={()=>{callbackOnPress(board, 1)}} style={[styles.tictactoeCell,]}>
-                        {board.charAt(1)}
+                        {" "}
                     </Button>
                     <Button mode="contained" onPress={()=>{callbackOnPress(board, 2)}} style={[styles.tictactoeCell,]}>
-                        {board.charAt(2)}
+                        {" "}
                     </Button>
                 </View>
                 <View
@@ -48,13 +48,13 @@ export default function GameBubble({message, isOwn, callbackOnPress}:GameProps){
                         },
                     ]}>
                     <Button mode="contained" onPress={()=>{callbackOnPress(board, 3)}} style={[styles.tictactoeCell,]}>
-                        {board.charAt(3)}
+                        {" "}
                     </Button>
                     <Button mode="contained" onPress={()=>{callbackOnPress(board, 4)}} style={[styles.tictactoeCell,]}>
-                        {board.charAt(4)}
+                        {" "}
                     </Button>
                     <Button mode="contained" onPress={()=>{callbackOnPress(board, 5)}} style={[styles.tictactoeCell,]}>
-                        {board.charAt(5)}
+                        {" "}
                     </Button>
                 </View>
                 <View
@@ -66,13 +66,13 @@ export default function GameBubble({message, isOwn, callbackOnPress}:GameProps){
                         },
                     ]}>
                     <Button mode="contained" onPress={()=>{callbackOnPress(board, 6)}} style={[styles.tictactoeCell,]}>
-                        {board.charAt(6)}
+                        {" "}
                     </Button>
                     <Button mode="contained" onPress={()=>{callbackOnPress(board, 7)}} style={[styles.tictactoeCell,]}>
-                        {board.charAt(7)}
+                        {" "}
                     </Button>
                     <Button mode="contained" onPress={()=>{callbackOnPress(board, 8)}} style={[styles.tictactoeCell,]}>
-                        {board.charAt(8)}
+                        {" "}
                     </Button>
                 </View>
             </View>
