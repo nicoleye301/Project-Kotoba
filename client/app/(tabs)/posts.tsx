@@ -14,7 +14,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Link, router} from "expo-router";
 import PostApi from "@/api/post"
 import FriendApi from "@/api/friend";
-import UserApi from "@/api/user";
 
 export interface Post {
     id: number;
@@ -103,15 +102,10 @@ export default function posts() {
             setPosts((prev) => [...prev, ...friendsPost]);
         }
 
-        getAvatars();
+        await getAvatars();
         setLoading(false);
     }
 
-
-
-    const handleLike = async ()=> {
-
-    }
 
     const renderPost = ({ item }: { item: Post }) => {
         return (
@@ -120,12 +114,9 @@ export default function posts() {
                     post={item}
                     avatarLoading={avatarLoading}
                     avatarStructure={avatars[item.posterId.toString()]}
+                    currentUserId={currentUserId}
                 />
                 <View style={styles.buttonContainer}>
-                    <Button mode="contained" onPress={handleLike} style={styles.sendButton}>
-                        Like
-                    </Button>
-
                     <Button mode="contained" onPress={()=> {
                         router.push(
                             `/comments?postId=${item.id}&posterId=${item.posterId}&content=${encodeURIComponent(item.content)}
