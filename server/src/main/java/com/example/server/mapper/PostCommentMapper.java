@@ -9,6 +9,4 @@ public interface PostCommentMapper {
     List<PostComment> selectCommentsByPostId(@Param("postId") Integer postId);
 
     void insertPostComment(PostComment postComment);
-
-
 }
