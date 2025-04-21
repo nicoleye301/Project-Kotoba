@@ -1,13 +1,15 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import {View, FlatList, TouchableOpacity, Image, StyleSheet, ActivityIndicator, Alert, Text, Dimensions,} from "react-native";
 import { useRouter } from "expo-router";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FriendApi from "@/api/friend";
 import UserApi from "@/api/user";
-import { Appbar, Modal, PaperProvider, Portal } from "react-native-paper";
+import { Appbar, Modal, PaperProvider, Portal, List } from "react-native-paper";
 import CreateGroupChat from "@/components/CreateGroupChat";
 import {createGroup, ChatGroup, getGroupDetails, getGroupChats} from "@/api/ChatGroup";
 import Constants from "expo-constants";
+import { getDisplayName } from "@/utils/displayName";
+import { useFocusEffect } from "@react-navigation/native";
 
 // @ts-ignore
 const BASE_URL = Constants.expoConfig.extra.API_BASE_URL;
@@ -41,66 +43,69 @@ export default function ChatScreen() {
     }, []);
 
     // fetch friend chats (accepted friendships)
-    useEffect(() => {
-        if (!currentUserId) return;
-        setLoading(true);
-        FriendApi.getFriendList(currentUserId)
-            .then(async (friendships: any[]) => {
-                const friendItems: ChatItem[] = await Promise.all(
-                    friendships.map(async (f) => {
-                        // determine the other friend’s ID
-                        const friendId = f.userId === currentUserId ? f.friendId : f.userId;
-                        try {
-                            const friendUser = await UserApi.getUserById(friendId);
-                            return {
-                                type: "friend",
-                                id: f.directChatGroupId || friendId,
-                                title: friendUser.username,
-                                subtitle: "Tap to chat",
-                                updatedAt: f.updatedAt || "Just now",
-                                avatarUrl: friendUser.avatar || "",
-                            };
-                        } catch (error) {
-                            console.error(`Error fetching details for friend ID ${friendId}:`, error);
-                            return {
-                                type: "friend",
-                                id: f.directChatGroupId || friendId,
-                                title: `Friend #${friendId}`,
-                                subtitle: "Tap to chat",
-                                updatedAt: f.updatedAt || "Just now",
-                                avatarUrl: "",
-                            };
-                        }
-                    })
-                );
-                setFriendChats(friendItems);
-            })
-            .catch((err) => {
-                console.error("Error fetching friend chats:", err);
-                Alert.alert("Error", "Failed to fetch friend chats.");
-            })
-            .finally(() => setLoading(false));
-    }, [currentUserId]);
-    useEffect(() => {
-        if (!currentUserId) return;
-        getGroupChats(currentUserId)
-            .then((groups: ChatGroup[]) => {
-                const groupItems: ChatItem[] = groups.map((group: ChatGroup) => ({
-                    type: "group",
-                    id: group.id,
-                    title: group.groupName,
-                    subtitle: "Tap to chat",
-                    updatedAt: group.hasOwnProperty("lastUpdateTime")
-                        ? new Date((group as any).lastUpdateTime).toLocaleString()
-                        : "Just now",
-                    avatarUrl: "",
-                }));
-                setGroupChats(groupItems);
-            })
-            .catch((err: any) => {
-                console.error("Error fetching group chats:", err);
-            });
-    }, [currentUserId]);
+    useFocusEffect(
+        useCallback(() => {
+            if (!currentUserId) return;
+            setLoading(true);
+
+            // fetch friend chats
+            FriendApi.getFriendList(currentUserId)
+                .then(async (friendships: any[]) => {
+                    const friendItems: ChatItem[] = await Promise.all(
+                        friendships.map(async (f) => {
+                            // determine the other friend’s ID
+                            const friendId = f.userId === currentUserId ? f.friendId : f.userId;
+                            try {
+                                const friendUser = await UserApi.getUserById(friendId);
+                                const displayName = getDisplayName({ username: friendUser.username }, f.nickname);
+                                return {
+                                    type: "friend",
+                                    id: f.directChatGroupId || friendId,
+                                    title: displayName,
+                                    subtitle: "Tap to chat",
+                                    updatedAt: f.updatedAt || "Just now",
+                                    avatarUrl: friendUser.avatar || "",
+                                };
+                            } catch (error) {
+                                return {
+                                    type: "friend",
+                                    id: f.directChatGroupId || friendId,
+                                    title: `Friend #${friendId}`,
+                                    subtitle: "Tap to chat",
+                                    updatedAt: f.updatedAt || "Just now",
+                                    avatarUrl: "",
+                                };
+                            }
+                        })
+                    );
+                    setFriendChats(friendItems);
+                })
+                .catch((err) => {
+                    console.error("Error fetching friend chats:", err);
+                    Alert.alert("Error", "Failed to fetch friend chats.");
+                });
+
+            // fetch group chats
+            getGroupChats(currentUserId)
+                .then((groups: ChatGroup[]) => {
+                    const groupItems: ChatItem[] = groups.map((group: ChatGroup) => ({
+                        type: "group",
+                        id: group.id,
+                        title: group.groupName,
+                        subtitle: "Tap to chat",
+                        updatedAt: group.hasOwnProperty("lastUpdateTime")
+                            ? new Date((group as any).lastUpdateTime).toLocaleString()
+                            : "Just now",
+                        avatarUrl: "",
+                    }));
+                    setGroupChats(groupItems);
+                })
+                .catch((err: any) => {
+                    console.error("Error fetching group chats:", err);
+                })
+                .finally(() => setLoading(false));
+        }, [currentUserId])
+    );
 
     useEffect(() => {
         setCombinedChats([...friendChats, ...groupChats]);
@@ -116,13 +121,15 @@ export default function ChatScreen() {
             }}
         >
             <View style={styles.avatarContainer}>
-                {item.avatarUrl ? (
-                    <Image source={{ uri: BASE_URL+"/uploads/avatar/"+item.avatarUrl }} style={styles.avatar} />
+                {item.type === "group" ? (
+                    <View style={[styles.avatar, styles.avatarPlaceholder]}>
+                        <List.Icon icon="account-group" color="white" />
+                    </View>
+                ) : item.avatarUrl ? (
+                    <Image source={{ uri: BASE_URL + "/uploads/avatar/" + item.avatarUrl }} style={styles.avatar} />
                 ) : (
                     <View style={[styles.avatar, styles.avatarPlaceholder]}>
-                        <Text style={styles.avatarInitial}>
-                            {item.title ? item.title[0] : "?"}
-                        </Text>
+                        <Text style={styles.avatarInitial}>{item.title ? item.title[0] : "?"}</Text>
                     </View>
                 )}
             </View>

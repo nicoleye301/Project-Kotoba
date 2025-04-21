@@ -29,4 +29,7 @@ public interface FriendshipMapper {
     void delete(Friendship friendship);
 
     void updateMilestoneSettings(@Param("friendShipId") int friendShipId, @Param("milestoneSettings") String milestoneSettings);
+
+    void updateNickname(@Param("userId") Integer userId, @Param("friendId") Integer friendId, @Param("nickname") String nickname);
+
 }

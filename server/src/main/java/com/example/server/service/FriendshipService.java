@@ -121,4 +121,18 @@ public class FriendshipService {
         }
         friendshipMapper.updateMilestoneSettings(friendship.getId(), milestoneSettings);
     }
+
+    public void setNickname(Integer userId, Integer friendId, String nickname) {
+        Friendship friendship = friendshipMapper.selectByUserIdAndFriendId(userId, friendId);
+        if (friendship == null || !"accepted".equals(friendship.getStatus())) {
+            throw new CustomException(404, "Friendship not found or not accepted");
+        }
+        friendship.setNickname(nickname);
+        friendshipMapper.update(friendship);
+    }
+
+    public Friendship getFriendship(Integer userId, Integer friendId) {
+        return friendshipMapper.selectByUserIdAndFriendId(userId, friendId);
+    }
+
 }

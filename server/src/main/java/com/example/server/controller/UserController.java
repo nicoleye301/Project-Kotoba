@@ -2,7 +2,6 @@ package com.example.server.controller;
 
 import com.example.server.entity.User;
 import com.example.server.service.UserService;
-import org.springframework.core.io.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -62,9 +61,7 @@ public class UserController {
 
     @PostMapping("/uploadAvatar")
     public void uploadAvatar(@RequestParam("userId") String userId, @RequestParam("avatar") MultipartFile avatar) {
-        String timeStamp = String.valueOf(System.currentTimeMillis());
-        Path path = Paths.get(uploadBaseDir, "avatar", "user_id" + userId + "_" + timeStamp + ".jpg");
-        userService.uploadFile(userId, avatar, path);
+        userService.uploadAvatar(userId, avatar);
     }
 
     @GetMapping("/getStreaks")

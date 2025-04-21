@@ -8,6 +8,7 @@ import com.example.server.service.FriendshipService;
 import com.example.server.service.UserService;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -119,5 +120,40 @@ public class FriendController {
         friendshipService.setMilestone(currentUserId, friendId, milestoneSettings);
         return "Milestone updated";
     }
+
+    @PostMapping("/setNickname")
+    public String setNickname(@RequestBody Map<String, Object> data) {
+        Integer userId = (data.get("userId") instanceof Number)
+                ? ((Number) data.get("userId")).intValue() : null;
+        Integer friendId = (data.get("friendId") instanceof Number)
+                ? ((Number) data.get("friendId")).intValue() : null;
+        String nickname = (String) data.get("nickname");
+
+        if (userId == null || friendId == null || nickname == null) {
+            throw new CustomException(400, "userId, friendId and nickname are required");
+        }
+
+        friendshipService.setNickname(userId, friendId, nickname);
+        return "Nickname updated";
+    }
+
+    @GetMapping("/profile")
+    public Map<String, Object> getFriendProfile(@RequestParam Integer userId, @RequestParam Integer friendId) {
+        Friendship friendship = friendshipService.getFriendship(userId, friendId);
+        if (friendship == null || !"accepted".equals(friendship.getStatus())) {
+            throw new CustomException(404, "Friendship not found or not accepted");
+        }
+
+        User friend = userService.getUserById(friendId);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("friend", friend);
+        result.put("nickname", friendship.getNickname());
+        result.put("milestoneSettings", friendship.getMilestoneSettings());
+        result.put("directChatGroupId", friendship.getDirectChatGroupId());
+        return result;
+    }
+
+
 
 }

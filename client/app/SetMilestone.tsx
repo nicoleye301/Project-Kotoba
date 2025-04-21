@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { ScrollView, StyleSheet, View, Text } from "react-native";
 import { Appbar, TextInput, Button, Snackbar, Provider } from "react-native-paper";
-import { useSearchParams } from "expo-router/build/hooks";
 import { router } from "expo-router";
+import { useSearchParams } from "expo-router/build/hooks";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import FriendApi from "@/api/friend";
 import DateTimePicker from "@react-native-community/datetimepicker";
@@ -10,17 +10,18 @@ import DateTimePicker from "@react-native-community/datetimepicker";
 export default function SetMilestoneScreen() {
     const searchParams = useSearchParams();
     const friendId = searchParams.get("friendId");
-    const friendName = searchParams.get("friendName");
+    const friendName = searchParams.get("friendName") || "your friend";
 
     const [currentUserId, setCurrentUserId] = useState<number | null>(null);
     const [startDate, setStartDate] = useState<string>("");
-    const [goalInterval, setGoalInterval] = useState<string>("7");
-    const [goalCycles, setGoalCycles] = useState<string>("4");
-    const [goalDescription, setGoalDescription] = useState<string>(""); // NEW FIELD
+    const [goalTarget, setGoalTarget] = useState<string>("3");
+    const [goalCycles, setGoalCycles] = useState<string>("5");
+    const [description, setDescription] = useState<string>("");
     const [loading, setLoading] = useState<boolean>(false);
     const [snackbarVisible, setSnackbarVisible] = useState<boolean>(false);
     const [snackbarMessage, setSnackbarMessage] = useState<string>("");
     const [showDatePicker, setShowDatePicker] = useState<boolean>(false);
+    const MAX_DESCRIPTION_LENGTH = 40;
 
     useEffect(() => {
         AsyncStorage.getItem("loggedInUserId")
@@ -69,13 +70,13 @@ export default function SetMilestoneScreen() {
             return;
         }
 
-        // milestone settings
         const milestoneSettingsObj = {
-            startTime: Math.floor(parsedDate.getTime() / 1000), // epoch seconds
-            period: parseInt(goalInterval, 10),
+            startTime: Math.floor(parsedDate.getTime() / 1000),
+            period: 7,
             repeat: parseInt(goalCycles, 10),
             progress: 0,
-            description: goalDescription.trim(),
+            target: parseInt(goalTarget, 10),
+            description: description.trim() || "No description provided",
         };
         const milestoneSettings = JSON.stringify(milestoneSettingsObj);
 
@@ -110,10 +111,10 @@ export default function SetMilestoneScreen() {
                 </Appbar.Header>
 
                 <View style={styles.form}>
-                    <Text style={styles.label}>Start Date</Text>
+                    <Text style={styles.label}> When do you want to start?</Text>
                     <TextInput
                         mode="outlined"
-                        placeholder="Select date"
+                        placeholder="Select a date"
                         value={startDate}
                         onFocus={() => setShowDatePicker(true)}
                         style={styles.input}
@@ -127,39 +128,41 @@ export default function SetMilestoneScreen() {
                         />
                     )}
 
-                    <Text style={styles.label}>Goal Interval (days)</Text>
+                    <Text style={styles.label}>How many times do you want to check in each week?</Text>
                     <TextInput
                         mode="outlined"
-                        placeholder="e.g. 7"
-                        value={goalInterval}
-                        onChangeText={setGoalInterval}
+                        placeholder="e.g. 3"
+                        value={goalTarget}
+                        onChangeText={setGoalTarget}
                         keyboardType="numeric"
                         style={styles.input}
                     />
 
-                    <Text style={styles.label}>Number of Goal Cycles</Text>
+                    <Text style={styles.label}> For how many weeks do you want to keep this up?</Text>
                     <TextInput
                         mode="outlined"
-                        placeholder="e.g. 4"
+                        placeholder="e.g. 5"
                         value={goalCycles}
                         onChangeText={setGoalCycles}
                         keyboardType="numeric"
                         style={styles.input}
                     />
-                    <Text style={styles.label}>Goal Description</Text>
+
+                    <Text style={styles.label}> Add a short note about this goal (optional)</Text>
                     <TextInput
                         mode="outlined"
-                        placeholder="e.g. 'Check in weekly'"
-                        value={goalDescription}
+                        placeholder="Describe your goal (max 40 chars)"
+                        value={description}
                         onChangeText={(text) => {
-                            // limit to 40 chars
-                            if (text.length <= 40) {
-                                setGoalDescription(text);
+                            if (text.length <= MAX_DESCRIPTION_LENGTH) {
+                                setDescription(text);
                             }
                         }}
                         style={styles.input}
                     />
-                    <Text style={styles.charCount}>{goalDescription.length}/40</Text>
+                    <Text style={styles.charCount}>
+                        {description.length}/{MAX_DESCRIPTION_LENGTH}
+                    </Text>
 
                     <Button
                         mode="contained"
@@ -184,28 +187,10 @@ export default function SetMilestoneScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: "#F9FBFF",
-    },
-    form: {
-        padding: 16,
-    },
-    label: {
-        fontSize: 16,
-        marginBottom: 4,
-        color: "#333",
-    },
-    input: {
-        marginBottom: 12,
-    },
-    charCount: {
-        alignSelf: "flex-end",
-        marginBottom: 16,
-        fontSize: 12,
-        color: "#666",
-    },
-    button: {
-        marginTop: 20,
-    },
+    container: { flex: 1, backgroundColor: "#F9FBFF" },
+    form: { padding: 16 },
+    label: { fontSize: 16, marginBottom: 4, color: "#333" },
+    input: { marginBottom: 12 },
+    charCount: { alignSelf: "flex-end", marginBottom: 12, fontSize: 12, color: "#666" },
+    button: { marginTop: 20 },
 });
