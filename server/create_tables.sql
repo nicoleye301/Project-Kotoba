@@ -78,4 +78,11 @@ create table post_like(
     post_id int not null,
     sender_id int not null,
     content text not null
-)
+);
+
+create table emoji_count(
+    sender_id int not null,
+    emoji text not null, -- Character sequence, which may span 16 characters
+    counter int not null,
+    PRIMARY KEY(sender_id, emoji)
+);
