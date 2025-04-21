@@ -121,23 +121,6 @@ export default function comments() {
         setLoading(false);
     }
 
-    const renderPost = ({ item }: { item: Post }) => {
-        return (
-            <View>
-                <PostBox
-                    post={item}
-                    avatarLoading={avatarLoading}
-                    avatarStructure={avatars[22]}
-                />
-                <View style={styles.buttonContainer}>
-                    <Button mode="contained" onPress={handleLike} style={styles.sendButton}>
-                        Like
-                    </Button>
-                </View>
-            </View>
-        )
-    };
-
     const renderComment = ({ item }: { item: Comment}) => {
         return (
             <View>
@@ -147,7 +130,6 @@ export default function comments() {
             </View>
         )
     }
-
 
     return (
         <KeyboardAvoidingView
@@ -165,12 +147,8 @@ export default function comments() {
                         post={currentPost}
                         avatarLoading={avatarLoading}
                         avatarStructure={postAvatar}
+                        currentUserId={currentUserId}
                     />
-                    <View style={styles.buttonContainer}>
-                        <Button mode="contained" onPress={handleLike} style={styles.sendButton}>
-                            Like
-                        </Button>
-                    </View>
                 </View>
 
                 <View style={styles.inputContainer}>
