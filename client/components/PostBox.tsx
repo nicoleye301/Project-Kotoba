@@ -26,31 +26,35 @@ export default function postBox({ post, avatarLoading, avatarStructure, currentU
         : "Invalid Date";
     const currentPostId = post.id;
     const [likes, setLikes] = useState<Like[]>([]);
-    let count = 0;
+    const [count, setCount] = useState(0);
+
+    useEffect(() => {
+        updatePostLikes();
+    }, []);
 
     const handleLike = async () => {
-        updatePostLikes();
         try{
             const newLike = await LikeApi.like({
                 postId: currentPostId,
                 senderId: currentUserId,
             });
             setLikes((prev) => [...prev, newLike]);
-            count++;
+            updatePostLikes();
+
         } catch (err) {
             console.error("Error liking:", err);
         }
     }
 
     const handleDislike = async () => {
-        updatePostLikes();
         try{
             const newLike = await LikeApi.dislike({
                 postId: currentPostId,
                 senderId: currentUserId,
             });
             setLikes((prev) => [...prev, newLike]);
-            count--;
+            updatePostLikes();
+
         } catch (err) {
             console.error("Error disliking:", err);
         }
@@ -59,48 +63,43 @@ export default function postBox({ post, avatarLoading, avatarStructure, currentU
     const updatePostLikes = async () => {
         const likeList = await LikeApi.retrieveLikes(currentPostId);
         setLikes(likeList);
-        count = 0;
+        setCount(0);
         for(const likes of likeList) {
             if(likes.content === "like") {
-                count++
+                setCount(prevCount => prevCount + 1);
             }
             else if(likes.content === "dislike") {
-                count--
+                setCount(prevCount => prevCount - 1);
             }
         }
     }
 
     return (
-        <View style={[styles.postContainer]}>
+        <View>
             {!avatarLoading && <Avatar avatarUrl={avatarStructure.url} title={avatarStructure.username}/>}
             {/*{!avatarLoading && <Text>{avatarStructure.username}</Text>}*/}
             <View style={styles.post}>
                 <Text style={styles.postText}>
                     {post.content}
                 </Text>
-                <Button mode="contained" onPress={handleLike} style={styles.button}>
-                    Like
-                </Button>
-                <Text style={styles.postText}>
-                    {count}
-                </Text>
-                <Button mode ="contained" onPress={handleDislike} style={styles.button}>
-                    Dislike
-                </Button>
-
+                <View style={styles.buttonContainer}>
+                    <Button mode="contained" onPress={handleLike} style={styles.button}>
+                        Like
+                    </Button>
+                    <Text style={styles.postText}>
+                        {count}
+                    </Text>
+                    <Button mode ="contained" onPress={handleDislike} style={styles.button}>
+                        Dislike
+                    </Button>
+                </View>
                 <Text style={styles.timestamp}>{timeString}</Text>
-
             </View>
-
         </View>
     );
 }
 
 const styles = StyleSheet.create({
-    postContainer: {
-        marginVertical: 4,
-        // paddingHorizontal: 10,
-    },
     post: {
         maxWidth: "80%",
         paddingVertical: 10,
@@ -119,4 +118,11 @@ const styles = StyleSheet.create({
         color: "#555",
         marginTop: 4,
     },
+    buttonContainer: {
+        flexDirection: "row",
+        padding: 10,
+        borderColor: "#ddd",
+        alignItems: "center",
+    },
+
 });

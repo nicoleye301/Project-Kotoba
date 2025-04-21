@@ -8,7 +8,7 @@ import {
     ActivityIndicator,
     Dimensions, Text,
 } from "react-native";
-import { TextInput, Button } from "react-native-paper";
+import {TextInput, Button, Appbar} from "react-native-paper";
 import PostBox from "@/components/PostBox";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Link, router} from "expo-router";
@@ -49,7 +49,8 @@ export default function posts() {
             .catch((err) => console.error("Error retrieving user ID:", err));
     }, []);
 
-    async function getAvatars() {
+
+    const getAvatars = async () => {
         if(currentUserId)
         {
             const friendList = await FriendApi.getFriendList(currentUserId);
@@ -90,9 +91,6 @@ export default function posts() {
         PostApi.retrievePost(currentUserId)
             .then((history: Post[]) => {
                 setPosts(history);
-                setTimeout(() => {
-                    flatListRef.current?.scrollToEnd({ animated: true });
-                }, 100);
             });
 
         const friendList = await FriendApi.getFriendList(currentUserId);
@@ -109,7 +107,7 @@ export default function posts() {
 
     const renderPost = ({ item }: { item: Post }) => {
         return (
-            <View>
+            <View style={styles.postContainer}>
                 <PostBox
                     post={item}
                     avatarLoading={avatarLoading}
@@ -138,6 +136,10 @@ export default function posts() {
             style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : undefined}
         >
+            <Appbar.Header>
+                <Appbar.Content title="Posts" />
+            </Appbar.Header>
+
             <View style={styles.inputContainer}>
                 <TextInput
                     mode="outlined"
@@ -162,10 +164,7 @@ export default function posts() {
                     data={posts}
                     keyExtractor={(item) => item.id.toString()}
                     renderItem={renderPost}
-                    contentContainerStyle={styles.postContainer}
-                    onContentSizeChange={() =>
-                        flatListRef.current?.scrollToEnd({ animated: true })
-                    }
+                    contentContainerStyle={styles.screenContainer}
                 />
                 )}
         </KeyboardAvoidingView>
@@ -192,13 +191,17 @@ const styles = StyleSheet.create({
         fontWeight: "600",
         color: "#000",
     },
-    postContainer: { padding: 12, paddingBottom: 20 },
+    screenContainer: { padding: 12, paddingBottom: 20 },
     inputContainer: {
         flexDirection: "row",
         padding: 10,
         borderTopWidth: 1,
         borderColor: "#ddd",
         alignItems: "center",
+    },
+    postContainer: {
+        marginVertical: 4,
+        borderTopWidth: 5,
     },
     buttonContainer: {
         display: "flex"

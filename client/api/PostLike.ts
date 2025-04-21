@@ -19,7 +19,7 @@ export async function retrieveLikes(postId: number): Promise<Like[]> {
         id: like.id,
         postId: like.postId,
         senderId: like.senderId,
-        content: like.contet,
+        content: like.content,
 
     }))
 }
