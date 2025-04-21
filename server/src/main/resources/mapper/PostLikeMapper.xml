@@ -18,20 +18,26 @@
     <update id="updatePostLike" parameterType="com.example.server.entity.PostLike">
         UPDATE post_like
         SET content = #{content}
-        WHERE sender_id = #{senderId}
+        WHERE post_id = #{postId} AND sender_id = #{senderId}
     </update>
 
     <select id="selectLikesByPostId" resultMap="PostLikeResultMap">
-        SELECT id, sender_id, content
+        SELECT id, post_id, sender_id, content
         FROM post_like
         WHERE post_id = #{postId}
         ORDER BY id ASC
     </select>
 
     <select id="selectLikeByPostIdAndSenderId" resultMap="PostLikeResultMap">
-        SELECT id, content
+        SELECT id, post_id, sender_id, content
         FROM post_like
         WHERE post_id = #{postId} AND sender_id = #{senderId}
     </select>
+
+    <delete id="deleteLikeByPostIdAndSenderId" parameterType="com.example.server.entity.PostLike">
+        DELETE
+        FROM post_like
+        WHERE post_id = #{postId} AND sender_id = #{senderId}
+    </delete>
 
 </mapper>

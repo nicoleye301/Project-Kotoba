@@ -13,4 +13,6 @@ public interface PostLikeMapper {
     void insertPostLike(PostLike postLike);
 
     void updatePostLike(PostLike postLike);
+
+    void deleteLikeByPostIdAndSenderId(@Param("postId") Integer postId, @Param("senderId") Integer senderId);
 }
