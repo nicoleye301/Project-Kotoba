@@ -378,10 +378,11 @@ export default function ConversationScreen() {
                 <FAB
                     icon="plus"
                     onPress={() => setShowAddMenu(!showAddMenu)}
-                    style={{marginRight: 10}}
+                    style={{marginRight: 10, shadowColor: 'transparent'}}
                 />
                 <FAB
                     icon="send"
+                    style={{shadowColor: 'transparent'}}
                     onPress={sendMessage}
                 />
             </View>
@@ -404,8 +405,11 @@ export default function ConversationScreen() {
 }
 
 const styles = StyleSheet.create({
-    container: { flex: 1, backgroundColor: "#ffffff" },
-    messagesContainer: { padding: 12, paddingBottom: 20 },
+    container: { flex: 1,
+        backgroundColor: "#ffffff",
+        flexDirection: "column",
+    },
+    messagesContainer: { padding: 5, paddingBottom: 20 },
     bubbleContainer: {
         marginVertical: 4,
         // paddingHorizontal: 10,

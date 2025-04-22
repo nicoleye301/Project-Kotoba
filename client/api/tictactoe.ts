@@ -1,24 +1,17 @@
 import Http from "@/utils/http";
 
 export class Tictactoe {
-    board: string = "---------";
+    board: string = "         ";
 
     public toString() : string {
         return JSON.stringify(this)
     }
 
-    public static fromString(params: String) : Tictactoe {
-        let parsed = JSON.parse(params.toString());
+    public static fromString(board: string) : Tictactoe {
         let result: Tictactoe = new Tictactoe;
 
-        // Copy from Parsed into Result, and return
-        if (parsed instanceof Tictactoe)
-        {
-            result.board = parsed.board;
-        }
-        else
-        {
-            result.board = "---------"
+        if (board) {
+            result.board = board;
         }
         while (result.board.length < 9)
         {
@@ -89,11 +82,6 @@ export class Tictactoe {
         }
 
         return winArr;
-    }
-
-    public static symbolAtIndex(params: Tictactoe, index:number=0) : string {
-
-        return (params.board+"").charAt( index );
     }
 
     public setSymbolAtIndex(symbol:string, index:number=0) : void {
