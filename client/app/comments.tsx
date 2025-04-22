@@ -88,12 +88,6 @@ export default function comments() {
         })
     }
 
-    const handleLike = async ()=> {
-        getAvatars();
-        console.log("The current post id is " + currentPost.id);
-
-    }
-
     const handleComment = async ()=> {
         if (!inputText.trim() || !currentUserId) return;
         try {
