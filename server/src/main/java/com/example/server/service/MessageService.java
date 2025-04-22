@@ -20,6 +20,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.text.BreakIterator;
+import java.util.Locale;
 
 @Service
 public class MessageService {
@@ -142,5 +144,33 @@ public class MessageService {
             System.err.println(e);
             throw new CustomException(500, "File IO error when saving file on server");
         }
+    }
+
+    private void storeEmojis(Integer senderId, String content)
+    {
+        Locale currentLocale = new Locale ("en","US");
+        BreakIterator characterIterator = BreakIterator.getCharacterInstance(currentLocale);
+        characterIterator.setText(content);
+
+        int start = characterIterator.first();
+        int end = characterIterator.next();
+        ArrayList<String> emojis = new ArrayList<String>();
+
+        while (end != BreakIterator.DONE) {
+            String seme = content.substring(start,end);
+            boolean isEmoji = false;
+            for (int i = 0; i < seme.length(); i++)
+            {
+                isEmoji = Character.isEmoji(seme.charAt(i));
+            }
+            if (isEmoji)
+            {
+                emojis.add(seme);
+            }
+            start = end;
+            end = characterIterator.next();
+        }
+
+        // TODO: update database entries with contents of processing above
     }
 }
