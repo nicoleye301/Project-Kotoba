@@ -1,8 +1,14 @@
 import { Redirect } from "expo-router";
-import * as NavigationBar from 'expo-navigation-bar';
+import { Platform } from "react-native";
 
 export default function Index() {
-    NavigationBar.setBackgroundColorAsync("white")
-    NavigationBar.setButtonStyleAsync('dark');
+    if (Platform.OS === "android") {
+        // @ts-ignore – expo-navigation-bar is Android-only
+        import("expo-navigation-bar").then((NavigationBar) => {
+            NavigationBar.setBackgroundColorAsync("white");
+            NavigationBar.setButtonStyleAsync("dark");
+        });
+    }
+
     return <Redirect href="/(tabs)/dashboard" />;
 }
