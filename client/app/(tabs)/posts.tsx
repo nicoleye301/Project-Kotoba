@@ -49,7 +49,6 @@ export default function posts() {
             .catch((err) => console.error("Error retrieving user ID:", err));
     }, []);
 
-
     const getAvatars = async () => {
         if(currentUserId)
         {
@@ -70,7 +69,6 @@ export default function posts() {
         }
     }
 
-
     const handlePost = async () => {
         if (!inputText.trim() || !currentUserId) return;
         try{
@@ -78,9 +76,7 @@ export default function posts() {
                 posterId: currentUserId,
                 content: inputText,
             });
-            setPosts((prev) => [...prev, newPost]);
             setInputText("");
-            flatListRef.current?.scrollToEnd({ animated: true });
         } catch (err) {
             console.error("Error posting:", err);
         }
@@ -88,19 +84,22 @@ export default function posts() {
 
     const handleRetrieveFriendPost = async () => {
         setLoading(true);
-        PostApi.retrievePost(currentUserId)
-            .then((history: Post[]) => {
-                setPosts(history);
-            });
+        const currentUserPosts: Post[] = await PostApi.retrievePost(currentUserId)
+
 
         const friendList = await FriendApi.getFriendList(currentUserId);
 
+        let postList = [...currentUserPosts];
         for(const friends of friendList) {
             const friendsPost: Post[] = await PostApi.retrievePost(friends.friendId);
-            setPosts((prev) => [...prev, ...friendsPost]);
+            postList = postList.concat(friendsPost);
         }
 
         await getAvatars();
+
+        const sortedPostList = [...postList].sort((a, b) => (new Date(a.postTime) > new Date(b.postTime)) ? -1 : ((new Date(b.postTime) > new Date(a.postTime)) ? 1 : 0))
+        setPosts(sortedPostList);
+
         setLoading(false);
     }
 

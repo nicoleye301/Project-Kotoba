@@ -1,9 +1,10 @@
 import React, { useState, useEffect, useRef } from "react";
-import {View, Text, StyleSheet} from "react-native";
+import {View, TouchableOpacity, Text, StyleSheet} from "react-native";
 import Avatar from "@/components/Avatar";
 import {AvatarStructure, Post} from "@/app/(tabs)/posts";
 import {Button} from "react-native-paper";
 import LikeApi from "@/api/PostLike";
+import {Link, router} from "expo-router";
 
 type postBoxProps = {
     post: { id: number, posterId: number, content: string, postTime: string, imageURL: string};
@@ -76,8 +77,11 @@ export default function postBox({ post, avatarLoading, avatarStructure, currentU
 
     return (
         <View>
-            {!avatarLoading && <Avatar avatarUrl={avatarStructure.url} title={avatarStructure.username}/>}
-            {/*{!avatarLoading && <Text>{avatarStructure.username}</Text>}*/}
+            <TouchableOpacity>
+                <View>
+                    {!avatarLoading && <Avatar avatarUrl={avatarStructure.url} title={avatarStructure.username}/>}
+                </View>
+            </TouchableOpacity>
             <View style={styles.post}>
                 <Text style={styles.postText}>
                     {post.content}
