@@ -14,10 +14,11 @@
     <insert id="insertPostComment" parameterType="com.example.server.entity.PostComment">
         INSERT INTO post_comment (post_id, sender_id, content, sent_time)
         VALUES (#{postId}, #{senderId}, #{content}, #{postTime})
+        RETURNING id
     </insert>
 
     <select id="selectCommentsByPostId" resultMap="PostCommentResultMap">
-        SELECT id, sender_id, content, sent_time
+        SELECT *
         FROM post_comment
         WHERE post_id = #{postId}
         ORDER BY sent_time ASC

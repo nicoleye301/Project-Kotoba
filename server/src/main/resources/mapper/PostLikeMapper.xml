@@ -22,14 +22,14 @@
     </update>
 
     <select id="selectLikesByPostId" resultMap="PostLikeResultMap">
-        SELECT id, post_id, sender_id, content
+        SELECT *
         FROM post_like
         WHERE post_id = #{postId}
         ORDER BY id ASC
     </select>
 
     <select id="selectLikeByPostIdAndSenderId" resultMap="PostLikeResultMap">
-        SELECT id, post_id, sender_id, content
+        SELECT *
         FROM post_like
         WHERE post_id = #{postId} AND sender_id = #{senderId}
     </select>

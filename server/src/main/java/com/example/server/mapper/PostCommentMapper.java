@@ -8,5 +8,5 @@ import java.util.List;
 public interface PostCommentMapper {
     List<PostComment> selectCommentsByPostId(@Param("postId") Integer postId);
 
-    void insertPostComment(PostComment postComment);
+    Integer insertPostComment(PostComment postComment);
 }

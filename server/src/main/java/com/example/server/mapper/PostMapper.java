@@ -8,5 +8,5 @@ import java.util.List;
 public interface PostMapper {
     List<FriendPost> selectPostsByPosterId(@Param("posterId") Integer posterId);
 
-    void insertPost(FriendPost post);
+    Integer insertPost(FriendPost post);
 }

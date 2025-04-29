@@ -14,13 +14,18 @@
     <insert id="insertPost" parameterType="com.example.server.entity.FriendPost">
         INSERT INTO post (content, image_url, sender_id, sent_time)
         VALUES (#{content}, #{imageURL}, #{posterId}, #{postTime})
+        RETURNING id
     </insert>
 
     <select id="selectPostsByPosterId" resultMap="PostResultMap">
-        SELECT id, content, image_url, sender_id, sent_time
+        SELECT *
         FROM post
         WHERE sender_id = #{posterId}
         ORDER BY sent_time ASC
+    </select>
+
+    <select id="selectLastInsertId">
+        SELECT LAST_INSERT_ID();
     </select>
 
 </mapper>

@@ -28,7 +28,7 @@ public class PostCommentService {
            postComment.setContent(content);
            postComment.setPostTime(LocalDateTime.now());
 
-           postCommentMapper.insertPostComment(postComment);
+           postComment.setId(postCommentMapper.insertPostComment(postComment));
 
            return postComment;
 
