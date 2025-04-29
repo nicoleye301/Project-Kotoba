@@ -1,10 +1,14 @@
 import React, { useState, useEffect, useRef } from "react";
-import {View, TouchableOpacity, Text, StyleSheet} from "react-native";
+import {View, TouchableOpacity, Text, StyleSheet, Image} from "react-native";
+import Constants from "expo-constants";
 import Avatar from "@/components/Avatar";
 import {AvatarStructure, Post} from "@/app/(tabs)/posts";
 import {Button} from "react-native-paper";
 import LikeApi from "@/api/PostLike";
 import {Link, router} from "expo-router";
+
+// @ts-ignore
+const BASE_URL = Constants.expoConfig.extra.API_BASE_URL;
 
 type postBoxProps = {
     post: { id: number, posterId: number, content: string, postTime: string, imageURL: string};
@@ -41,7 +45,6 @@ export default function postBox({ post, avatarLoading, avatarStructure, currentU
             });
             setLikes((prev) => [...prev, newLike]);
             updatePostLikes();
-
         } catch (err) {
             console.error("Error liking:", err);
         }
@@ -77,7 +80,10 @@ export default function postBox({ post, avatarLoading, avatarStructure, currentU
 
     return (
         <View>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => {
+                router.push(`/UsersPosts?posterId=${post.posterId}&avatarURL=${encodeURIComponent(avatarStructure.url)}
+                            &avatarUsername=${encodeURIComponent(avatarStructure.username)}`)
+            }}>
                 <View>
                     {!avatarLoading && <Avatar avatarUrl={avatarStructure.url} title={avatarStructure.username}/>}
                 </View>
