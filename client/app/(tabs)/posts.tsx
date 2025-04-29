@@ -14,6 +14,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Link, router} from "expo-router";
 import PostApi from "@/api/post"
 import FriendApi from "@/api/friend";
+import pickImage from "@/utils/imagePicker";
 
 export interface Post {
     id: number;
@@ -29,7 +30,6 @@ export type AvatarStructure = {
 }
 
 export default function posts() {
-
     const [currentUserId, setCurrentUserId] = useState<number>(-1);
     const [posts, setPosts] = useState<Post[]>([]);
     const [inputText, setInputText] = useState("");
@@ -37,7 +37,7 @@ export default function posts() {
     const [avatarLoading, setAvatarLoading] = useState(true);
     const [avatars, setAvatars] = useState<Record<string, AvatarStructure>>({});
     const flatListRef = useRef<FlatList<Post>>(null);
-
+    const [image, setImage] = useState<string|null>(null);
 
     useEffect(() => {
         AsyncStorage.getItem("loggedInUserId")
@@ -48,6 +48,13 @@ export default function posts() {
             })
             .catch((err) => console.error("Error retrieving user ID:", err));
     }, []);
+
+    useEffect(() => {
+        if(currentUserId != -1)
+        {
+            handleRetrieveFriendPost();
+        }
+    }, [currentUserId]);
 
     const getAvatars = async () => {
         if(currentUserId)
@@ -76,6 +83,7 @@ export default function posts() {
                 posterId: currentUserId,
                 content: inputText,
             });
+            setPosts((prev) => [...prev, newPost]);
             setInputText("");
         } catch (err) {
             console.error("Error posting:", err);
@@ -85,8 +93,6 @@ export default function posts() {
     const handleRetrieveFriendPost = async () => {
         setLoading(true);
         const currentUserPosts: Post[] = await PostApi.retrievePost(currentUserId)
-
-
         const friendList = await FriendApi.getFriendList(currentUserId);
 
         let postList = [...currentUserPosts];
@@ -96,11 +102,13 @@ export default function posts() {
         }
 
         await getAvatars();
-
         const sortedPostList = [...postList].sort((a, b) => (new Date(a.postTime) > new Date(b.postTime)) ? -1 : ((new Date(b.postTime) > new Date(a.postTime)) ? 1 : 0))
         setPosts(sortedPostList);
-
         setLoading(false);
+    }
+
+    const handlePickImage = async () => {
+        //await pickImage(setImage)
     }
 
 
@@ -125,7 +133,6 @@ export default function posts() {
                         Comment
                     </Button>
                 </View>
-
             </View>
         )
     };
@@ -168,8 +175,6 @@ export default function posts() {
                 )}
         </KeyboardAvoidingView>
     )
-
-
 };
 
 
