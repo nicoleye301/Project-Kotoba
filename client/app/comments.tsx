@@ -70,6 +70,9 @@ export default function comments() {
             .catch((err) => console.error("Error retrieving user ID:", err));
     }, []);
 
+    useEffect(() => {
+        handleRetrieveComment();
+    }, []);
 
     async function getAvatars() {
         const friendList = await FriendApi.getFriendList(currentPost.posterId);
@@ -98,7 +101,6 @@ export default function comments() {
             });
             setComments((prev) =>[...prev, newComment]);
             setInputText("");
-            flatListRef.current?.scrollToEnd({ animated: true });
         } catch (err) {
             console.error("Error commenting:", err);
         }
@@ -170,18 +172,14 @@ export default function comments() {
                         keyExtractor={(item) => item.id.toString()}
                         renderItem={renderComment}
                         contentContainerStyle={styles.postContainer}
-                        onContentSizeChange={() =>
-                            flatListRef.current?.scrollToEnd({ animated: true })
-                        }
                     />
                 )}
 
             </View>
         </KeyboardAvoidingView>
+    )
+};
 
-
-)
-}
 const { width } = Dimensions.get("window");
 const styles = StyleSheet.create({
     container: {
