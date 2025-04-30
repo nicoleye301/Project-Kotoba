@@ -7,8 +7,16 @@ import com.example.server.mapper.PostMapper;
 import com.example.server.mapper.UserMapper;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.List;
@@ -23,6 +31,9 @@ public class FriendsPostService {
     @Autowired
     private UserMapper userMapper;
 
+    @Value("${upload-directory}")
+    private String uploadBaseDir;
+
     public List<FriendPost> retrievePost(Integer posterId) {
         return postMapper.selectPostsByPosterId(posterId);
     }
@@ -35,7 +46,7 @@ public class FriendsPostService {
             post.setContent(content);
             post.setPostTime(LocalDateTime.now());
 
-            postMapper.insertPost(post);
+            post.setId(postMapper.insertPost(post));
 
             return post;
         } catch(Exception e) {

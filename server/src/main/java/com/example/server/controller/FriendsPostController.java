@@ -4,6 +4,7 @@ import com.example.server.entity.FriendPost;
 import com.example.server.exception.CustomException;
 import com.example.server.service.FriendsPostService;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 import java.util.Map;
