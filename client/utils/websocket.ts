@@ -1,6 +1,6 @@
 import eventEmitter from "@/utils/eventEmitter";
 
-const wsUrl = "ws://169.226.218.93:8080/ws";
+const wsUrl = "ws://169.226.239.220:8080/ws";
 let socket: WebSocket | null = null;
 
 export function connectWebSocket(): WebSocket {

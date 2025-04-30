@@ -1,91 +1,90 @@
-import Http from "@/utils/http";
-
 export class Tictactoe {
     board: string = "         ";
+    gamer1: number | null = null;
+    gamer2: number | null = null;
+    lastPlayer: number | null = null;
+    winner: number | null = null;
+
+    constructor(player: number | null) {
+        this.gamer1 = player
+    }
+
 
     public toString() : string {
         return JSON.stringify(this)
     }
 
-    public static fromString(board: string) : Tictactoe {
-        let result: Tictactoe = new Tictactoe;
+    public static fromString(game: string) : Tictactoe {
+        let result: Tictactoe = new Tictactoe(null);
 
-        if (board) {
-            result.board = board;
+        if (game) {
+            const parsedGame = JSON.parse(game)
+            result.board = parsedGame.board;
+            result.gamer1 = parsedGame.gamer1;
+            result.gamer2 = parsedGame.gamer2;
+            result.lastPlayer = parsedGame.lastPlayer;
         }
         while (result.board.length < 9)
         {
-            result.board += "/"
+            result.board += " "
         }
         return result;
     }
 
-    public isMoveValid(symbol:string, index:number) : boolean {
-
-        // Evaluate move validity. Format assumes indexes 0-8 as a 3x3 grid
-        if (this.board.charAt(index) == "O" || this.board.charAt(index) == "X")
-        {
-            return false;
+    public move(position: number, player: number | null): boolean{
+        if (player===this.lastPlayer){
+            return false
         }
-        return true;
+        if(!this.gamer2 && player!==this.gamer1){   // fill the second player
+            this.gamer2 = player
+        }
+        const symbol = player===this.gamer2?"x":"o"
+        this.setSymbolAtIndex(symbol, position)
+        this.lastPlayer = player
+
+        return true
     }
 
-    // Return X or O based on amount of X's and O's
-    public currentPlayerTurn() : string {
-        let boardArr : Array<string> = Array.from(this.board); // Split board into characters
-        let xes : Array<string>;
-        let oes : Array<string>;
-
-        xes = boardArr.filter((word) => word.toUpperCase() === "X");
-        oes = boardArr.filter((word) => word.toUpperCase() === "O");
-
-        if (xes.length > oes.length)
-        {
-            return "X";
+    public isWin(){
+        let winner = ''
+        if (this.board[0] == this.board[1] && this.board[1] == this.board[2] && this.board[1] != " ") {
+            winner = this.board[0]
         }
-        return "O";
+        if (this.board[3] == this.board[4] && this.board[4] == this.board[5] && this.board[4] != " ") {
+            winner = this.board[3]
+        }
+        if (this.board[6] == this.board[7] && this.board[7] == this.board[8] && this.board[7] != " ") {
+            winner = this.board[6]
+        }
+
+        if (this.board[0] == this.board[3] && this.board[3] == this.board[6] && this.board[0] != " ") {
+            winner = this.board[0]
+        }
+        if (this.board[1] == this.board[4] && this.board[4] == this.board[7] && this.board[1] != " ") {
+            winner = this.board[1]
+        }
+        if (this.board[2] == this.board[5] && this.board[5] == this.board[8] && this.board[2] != " ") {
+            winner = this.board[2]
+        }
+
+        if (this.board[0] == this.board[4] && this.board[4] == this.board[8] && this.board[4] != " ") {
+            winner = this.board[0]
+        }
+        if (this.board[2] == this.board[4] && this.board[4] == this.board[6] && this.board[4] != " ") {
+            winner = this.board[2]
+        }
+
+        if (winner==='x'){
+            this.winner = this.gamer2
+        }
+        else if(winner==='o'){
+            this.winner = this.gamer1
+        }
     }
 
-    // Return an empty array if no wins yet; used to display crosses through the board
-    public winLines() : Array<string> {
-        let boardArr : Array<string> = Array.from(this.board); // Split board into characters
-        while (boardArr.length < 9) {
-            boardArr.push("/");
-        }
-
-        let winArr : Array<string> = [];
-        if (boardArr[0] == boardArr[1] && boardArr[1] == boardArr[2] && boardArr[1] != "/") {
-            winArr.push("r0");
-        }
-        if (boardArr[3] == boardArr[4] && boardArr[4] == boardArr[5] && boardArr[4] != "/") {
-            winArr.push("r1");
-        }
-        if (boardArr[6] == boardArr[7] && boardArr[7] == boardArr[8] && boardArr[7] != "/") {
-            winArr.push("r2");
-        }
-
-        if (boardArr[0] == boardArr[3] && boardArr[3] == boardArr[6] && boardArr[0] != "/") {
-            winArr.push("c0");
-        }
-        if (boardArr[1] == boardArr[4] && boardArr[4] == boardArr[7] && boardArr[1] != "/") {
-            winArr.push("c1");
-        }
-        if (boardArr[2] == boardArr[5] && boardArr[5] == boardArr[8] && boardArr[2] != "/") {
-            winArr.push("c2");
-        }
-
-        if (boardArr[0] == boardArr[4] && boardArr[4] == boardArr[8] && boardArr[4] != "/") {
-            winArr.push("dUL");
-        }
-        if (boardArr[2] == boardArr[4] && boardArr[4] == boardArr[6] && boardArr[4] != "/") {
-            winArr.push("dUR");
-        }
-
-        return winArr;
-    }
 
     public setSymbolAtIndex(symbol:string, index:number=0) : void {
-        symbol += "-"; // Add default character in case string is empty
+        symbol += " "; // Add default character in case string is empty
         this.board = this.board.substring(0,index) + symbol.charAt(0) + this.board.substring(index+1);
     }
 

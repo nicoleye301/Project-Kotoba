@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.server.mapper.CapsuleMapper">
+
+    <!-- resultMap to map columns into your Capsule entity -->
+    <resultMap id="CapsuleResultMap" type="com.example.server.entity.Capsule">
+        <id     property="id"            column="id" />
+        <result property="creatorId"     column="creator_id" />
+        <result property="targetUserId"  column="target_user_id" />
+        <result property="message"       column="message" />
+        <result property="unlockTime"    column="unlock_time" />
+        <result property="createdAt"     column="created_at" />
+        <result property="isUnlocked"    column="is_unlocked" />
+        <result property="unlockedAt"    column="unlocked_at" />
+    </resultMap>
+
+    <!-- insert a new capsule -->
+    <insert id="insertCapsule"
+            parameterType="com.example.server.entity.Capsule"
+            useGeneratedKeys="true"
+            keyProperty="id">
+        INSERT INTO capsule
+        (creator_id, target_user_id, message, unlock_time, created_at, is_unlocked)
+        VALUES
+            (#{creatorId},
+             #{targetUserId},
+             #{message},
+             #{unlockTime},
+             now(),
+             false)
+    </insert>
+
+    <!-- select by creator: see all you’ve scheduled -->
+    <select id="selectByCreator"
+            parameterType="int"
+            resultMap="CapsuleResultMap">
+        SELECT
+            id,
+            creator_id,
+            target_user_id,
+            message,
+            unlock_time,
+            created_at,
+            is_unlocked,
+            unlocked_at
+        FROM capsule
+        WHERE creator_id = #{creatorId}
+        ORDER BY unlock_time ASC
+    </select>
+
+    <!-- select ready capsules for target: unlock_time passed & not yet unlocked -->
+    <select id="selectReadyCapsulesByTarget"
+            parameterType="int"
+            resultMap="CapsuleResultMap">
+        SELECT
+        id,
+        creator_id,
+        target_user_id,
+        message,
+        unlock_time,
+        created_at,
+        is_unlocked,
+        unlocked_at
+        FROM capsule
+        WHERE target_user_id = #{targetUserId}
+        AND is_unlocked = false
+        AND unlock_time   <= now()
+        ORDER BY unlock_time ASC
+    </select>
+
+    <!-- mark as unlocked -->
+    <update id="markCapsuleUnlocked"
+            parameterType="int">
+        UPDATE capsule
+        SET is_unlocked = true,
+            unlocked_at = now()
+        WHERE id = #{id}
+    </update>
+
+    <!-- fetch by id -->
+    <select id="selectById"
+            parameterType="int"
+            resultMap="CapsuleResultMap">
+        SELECT
+            id,
+            creator_id,
+            target_user_id,
+            message,
+            unlock_time,
+            created_at,
+            is_unlocked,
+            unlocked_at
+        FROM capsule
+        WHERE id = #{id}
+    </select>
+
+</mapper>
