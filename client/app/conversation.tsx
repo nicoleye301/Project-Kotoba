@@ -1,5 +1,16 @@
 import React, { useState, useEffect, useRef } from "react";
-import {View, FlatList, KeyboardAvoidingView, Platform, StyleSheet, ActivityIndicator, Text, TouchableOpacity,Pressable} from "react-native";
+import {
+    View,
+    FlatList,
+    KeyboardAvoidingView,
+    Platform,
+    StyleSheet,
+    ActivityIndicator,
+    Text,
+    TouchableOpacity,
+    Pressable,
+    Alert
+} from "react-native";
 import { TextInput, Button, Appbar, Menu, Portal, FAB } from "react-native-paper";
 import ChatBubble from "@/components/ChatBubble";
 import ChatApi from "@/api/message";
@@ -20,6 +31,7 @@ import Avatar from "@/components/Avatar";
 import ImageBubble from "@/components/ImageBubble";
 import GameBubble from "@/components/GameBubble";
 import {Tictactoe} from "@/api/tictactoe";
+import message from "@/api/message";
 
 
 type Message = {
@@ -168,15 +180,14 @@ export default function ConversationScreen() {
     }
 
     const playTictictoe = async (content: string, position: number) => {
-        let ttt = Tictactoe.fromString(content);
-        if (ttt.isMoveValid(ttt.currentPlayerTurn(), position)) {
-            ttt.setSymbolAtIndex(ttt.currentPlayerTurn(), position);
+        const ttt = Tictactoe.fromString(content);
+        if (ttt.move(position, currentUserId)) {
             await sendMessageGame(ttt);
         }
     }
 
     // send a message via API
-    const sendMessageGame = async (ttt:Tictactoe=new Tictactoe()) => {
+    const sendMessageGame = async (ttt:Tictactoe=new Tictactoe(currentUserId)) => {
         if (!currentUserId || !chatId) return;
         try {
             const newMessage: Message = await ChatApi.sendMessage({
@@ -229,6 +240,17 @@ export default function ConversationScreen() {
             bubble = <ImageBubble message={item}/>
         }
         else if(item.type==='game'){
+            const ttt = Tictactoe.fromString(item.content);
+            const winner = ttt.winner
+            if(messages[messages.length-1]===item){
+                if (winner===currentUserId){
+                    alert('You win!')
+                }
+                else if(winner!== null){
+                    alert('You lose!')
+                }
+            }
+
             bubble = <GameBubble message={item} isOwn={isOwn} callbackOnPress={playTictictoe}/>
         }
 
@@ -244,7 +266,8 @@ export default function ConversationScreen() {
     }
 
     const handleSendImage = async () => {
-        await pickImage(setImage)
+        const image = await pickImage()
+        setImage(image)
         try{
             // upload avatar
             if(image){
