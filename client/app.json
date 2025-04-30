@@ -38,7 +38,7 @@
       "typedRoutes": true
     },
     "extra": {
-      "API_BASE_URL": "http://10.0.2.2:8080"
+      "API_BASE_URL": "http://169.226.60.158:8080"
     }
   }
 }

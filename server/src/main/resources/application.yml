@@ -28,3 +28,4 @@ upload-directory: "server/uploads/"
 gemini:
   api:
     key: AIzaSyCZOUqUMVT3HOc-3jqCfyViGULfIgoyrN8
+

@@ -26,4 +26,12 @@ public class NlpController {
         }
         return geminiService.generateReplySuggestions(text);
     }
+    @PostMapping("/analyzeMessage")
+    public Mono<List<String>> analyzeMessage(@RequestBody Map<String,String> payload) {
+        String text = payload.get("text");
+        if (text == null || text.isBlank()) {
+            throw new CustomException(400, "Text input is required for analysis");
+        }
+        return geminiService.generateDeepAnalysis(text);
+    }
 }

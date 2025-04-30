@@ -36,6 +36,7 @@ import Avatar from "@/components/Avatar";
 import ImageBubble from "@/components/ImageBubble";
 import GameBubble from "@/components/GameBubble";
 import { Tictactoe } from "@/api/tictactoe";
+import { MotiView } from 'moti';
 
 type Message = {
     id: number;
@@ -73,6 +74,10 @@ export default function ConversationScreen() {
     const [profileVisible, setProfileVisible] = useState(false);
     const [showAddMenu, setShowAddMenu] = useState(false);
     const [image, setImage] = useState<string | null>(null);
+    const [analysisLines, setAnalysisLines] = useState<string[]>([]);
+    const [analysisLoading, setAnalysisLoading] = useState(false);
+    const [analysisError, setAnalysisError] = useState<string|null>(null);
+
 
     useEffect(() => {
         AsyncStorage.getItem("loggedInUserId")
@@ -231,9 +236,19 @@ export default function ConversationScreen() {
         }
     };
 
-    // New handler to open the AiAnalysis modal
     const handleAiAnalysis = () => {
         setModalVisible(false);
+        if (!selectedMessage) return;
+
+        setAnalysisLoading(true);
+        NlpApi.analyzeMessage(selectedMessage)
+            .then(lines => setAnalysisLines(lines))
+            .catch(err => {
+                console.error(err);
+                setAnalysisError(err.message);
+            })
+            .finally(() => setAnalysisLoading(false));
+
         setAiAnalysisVisible(true);
     };
 
@@ -303,6 +318,11 @@ export default function ConversationScreen() {
     }
 
     return (
+        <MotiView
+            from={{ translateX: 300, opacity: 0 }}
+            animate={{ translateX: 0,   opacity: 1 }}
+            style={{ flex: 1 }}
+        >
         <KeyboardAvoidingView
             style={styles.container}
             behavior={Platform.OS === "ios" ? "padding" : undefined}
@@ -361,7 +381,7 @@ export default function ConversationScreen() {
                 />
             )}
 
-            {/* Long press options modal */}
+            {/* long press options modal */}
             <Modal
                 isVisible={isModalVisible}
                 onBackdropPress={() => setModalVisible(false)}
@@ -389,20 +409,15 @@ export default function ConversationScreen() {
             </Modal>
 
             {/* AiAnalysis modal */}
-            <Modal
-                isVisible={aiAnalysisVisible}
-                onBackdropPress={() => setAiAnalysisVisible(false)}
-                animationIn="fadeInUp"
-                animationOut="fadeOutDown"
-                backdropOpacity={0.3}
-                style={{ justifyContent: "flex-end", margin: 0 }}
-            >
-                <View style={analysisStyles.modalContent}>
-                    <AiAnalysis />
-                    <TouchableOpacity onPress={() => setAiAnalysisVisible(false)}>
-                        <Text style={[styles.modalOption, { color: "#FF4C4C", marginTop: 10 }]}>
-                            Close
-                        </Text>
+            <Modal isVisible={aiAnalysisVisible} /*…*/>
+                <View style={styles.modalContent}>
+                    {analysisLoading && <ActivityIndicator />}
+                    {analysisError && <Text style={{color:'red'}}>{analysisError}</Text>}
+                    {!analysisLoading && !analysisError && analysisLines.map((l,i)=>
+                        <Text key={i} style={styles.analysisText}>{l}</Text>
+                    )}
+                    <TouchableOpacity onPress={()=>setAiAnalysisVisible(false)}>
+                        <Text style={[styles.modalOption,{color:'#FF4C4C',marginTop:10}]}>Close</Text>
                     </TouchableOpacity>
                 </View>
             </Modal>
@@ -452,23 +467,10 @@ export default function ConversationScreen() {
                 </View>
             )}
         </KeyboardAvoidingView>
+        </MotiView>
     );
 }
 
-// AiAnalysis component (demo only)
-function AiAnalysis() {
-    const analysisContent =
-        "The other user appears to be expressing some strong emotions—there may be frustration, disappointment, or confusion underlying their words. Consider approaching the conversation with empathy: acknowledge their feelings, ask open-ended questions to clarify their concerns, and provide supportive responses. This thoughtful engagement can pave the way to a more constructive dialogue.";
-
-    return (
-        <View style={analysisStyles.container}>
-            <Text style={analysisStyles.header}>Conversation Analysis</Text>
-            <ScrollView style={analysisStyles.contentContainer}>
-                <Text style={analysisStyles.analysisText}>{analysisContent}</Text>
-            </ScrollView>
-        </View>
-    );
-}
 const screenHeight = Dimensions.get("window").height;
 
 export const analysisStyles = StyleSheet.create({

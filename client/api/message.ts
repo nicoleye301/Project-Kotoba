@@ -17,6 +17,11 @@ export interface Message {
     type: string;
 }
 
+export interface FetchHistoryOptions {
+    before?: string;
+    limit?: number;
+}
+
 // fetch conversation history and map server response to our Message type
 export async function fetchHistory(chatId: number): Promise<Message[]> {
     const messages = await Http.get(`/message/history?chatId=${chatId}`);

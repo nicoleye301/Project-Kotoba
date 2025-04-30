@@ -9,7 +9,7 @@ import CreateGroupChat from "@/components/CreateGroupChat";
 import {createGroup, ChatGroup, getGroupDetails, getGroupChats} from "@/api/ChatGroup";
 import Constants from "expo-constants";
 import { getDisplayName } from "@/utils/displayName";
-import { useFocusEffect } from "@react-navigation/native";
+import { useFocusEffect } from "expo-router";
 
 // @ts-ignore
 const BASE_URL = Constants.expoConfig.extra.API_BASE_URL;
