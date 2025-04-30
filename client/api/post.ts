@@ -3,6 +3,7 @@ import Http from "@/utils/http"
 export interface PostParameters {
     posterId: number;
     content: string;
+    //imageURL: string | null;
 }
 
 export interface Post {

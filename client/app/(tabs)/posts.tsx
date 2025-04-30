@@ -83,7 +83,7 @@ export default function posts() {
                 posterId: currentUserId,
                 content: inputText,
             });
-            setPosts((prev) => [...prev, newPost]);
+            setPosts((prev) => [newPost, ...prev]);
             setInputText("");
         } catch (err) {
             console.error("Error posting:", err);
