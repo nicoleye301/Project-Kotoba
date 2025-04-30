@@ -60,6 +60,33 @@ public class GeminiService {
                 );
     }
 
+    public Mono<List<String>> generateDeepAnalysis(String inputText) {
+        String prompt = """
+        You are a careful conversation analyst. Given the message:
+        "%s"
+        
+        Provide a concise analysis in 5–7 bullet points. Each bullet should:
+        - Capture the speaker’s likely emotions, intentions, or unspoken needs
+        - Suggest what the listener could reflect on before replying
+        - Be phrased as a short, complete sentence (no numbers or bullets in output)
+        
+        Only return each point on its own line, plain text.
+        """.formatted(inputText);
+
+        var requestBody = new GeminiRequest(prompt);
+
+        return webClient.post()
+                .uri(uriBuilder -> uriBuilder.queryParam("key", apiKey).build())
+                .bodyValue(requestBody)
+                .retrieve()
+                .bodyToMono(GeminiResponse.class)
+                .map(response -> response.getSuggestions().stream()
+                        .map(this::cleanReply)
+                        .filter(s -> !s.isEmpty())
+                        .toList()
+                );
+    }
+
     private String cleanReply(String text) {
         return text
                 .replaceAll("\\*\\*(.*?)\\*\\*", "$1")

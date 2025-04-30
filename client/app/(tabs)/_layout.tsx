@@ -38,6 +38,12 @@ export default function TabLayout() {
                     ),
                 }}
             />
+                <Tabs.Screen
+                    name="Report"
+                    options={{ title: "Report", tabBarIcon: ({ color, size }) => (
+                                <Icon source="compass" size={size} color={color} />
+                            ) }}
+                />
         </Tabs>
     );
 }
