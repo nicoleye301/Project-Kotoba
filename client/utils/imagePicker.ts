@@ -1,11 +1,12 @@
 import * as ImagePicker from "expo-image-picker";
+import { SetStateAction } from "react";
 
-const pickImage = async (setAvatar: (arg0: string) => void) => {
+const pickImage = async () => {
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync();
 
     if (!permissionResult.granted) {
         alert('Permission denied!')
-        return
+        return null
     }
 
     const pickerResult = await ImagePicker.launchImageLibraryAsync({
@@ -16,7 +17,8 @@ const pickImage = async (setAvatar: (arg0: string) => void) => {
     })
 
     if (!pickerResult.canceled) {
-        setAvatar(pickerResult.assets[0].uri)
+        return pickerResult.assets[0].uri
     }
+    return null
 }
 export default pickImage

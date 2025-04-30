@@ -19,6 +19,7 @@ import {
     FAB,
     Modal as PaperModal
 } from "react-native-paper";
+
 import ChatBubble from "@/components/ChatBubble";
 import ChatApi from "@/api/message";
 import ChatGroupApi from "@/api/ChatGroup";
@@ -37,6 +38,7 @@ import ImageBubble from "@/components/ImageBubble";
 import GameBubble from "@/components/GameBubble";
 import { Tictactoe } from "@/api/tictactoe";
 import { MotiView } from 'moti';
+import message from "@/api/message";
 
 type Message = {
     id: number;
@@ -186,16 +188,15 @@ export default function ConversationScreen() {
         flatListRef.current?.scrollToEnd({ animated: true });
     };
 
-    const playTictactoe = async (content: string, position: number) => {
-        let ttt = Tictactoe.fromString(content);
-        if (ttt.isMoveValid(ttt.currentPlayerTurn(), position)) {
-            ttt.setSymbolAtIndex(ttt.currentPlayerTurn(), position);
+    const playTictictoe = async (content: string, position: number) => {
+        const ttt = Tictactoe.fromString(content);
+        if (ttt.move(position, currentUserId)) {
             await sendMessageGame(ttt);
         }
     };
 
-    // Send a game message via API
-    const sendMessageGame = async (ttt: Tictactoe = new Tictactoe()) => {
+    // send a game message via API
+    const sendMessageGame = async (ttt:Tictactoe=new Tictactoe(currentUserId)) => {
         if (!currentUserId || !chatId) return;
         try {
             const newMessage: Message = await ChatApi.sendMessage({
@@ -251,19 +252,30 @@ export default function ConversationScreen() {
 
         setAiAnalysisVisible(true);
     };
+    
+    const renderMessage = ({ item }: { item: Message }) =>{
+        const isOwn= (currentUserId !== null && item.senderId === currentUserId)
+        const avatarStructure= avatars[item.senderId.toString()]
+        let bubble = null
+        if(item.type==='plaintext'){
+            bubble = <ChatBubble message={item} isOwn={isOwn}/>
+        }
+        else if(item.type==='image'){
+            bubble = <ImageBubble message={item}/>
+        }
+        else if(item.type==='game'){
+            const ttt = Tictactoe.fromString(item.content);
+            const winner = ttt.winner
+            if(messages[messages.length-1]===item){
+                if (winner===currentUserId){
+                    alert('You win!')
+                }
+                else if(winner!== null){
+                    alert('You lose!')
+                }
+            }
 
-    const renderMessage = ({ item }: { item: Message }) => {
-        const isOwn = currentUserId !== null && item.senderId === currentUserId;
-        const avatarStructure = avatars[item.senderId.toString()];
-        let bubble = null;
-        if (item.type === "plaintext") {
-            bubble = <ChatBubble message={item} isOwn={isOwn} />;
-        } else if (item.type === "image") {
-            bubble = <ImageBubble message={item} />;
-        } else if (item.type === "game") {
-            bubble = (
-                <GameBubble message={item} isOwn={isOwn} callbackOnPress={playTictactoe} />
-            );
+            bubble = <GameBubble message={item} isOwn={isOwn} callbackOnPress={playTictictoe}/>
         }
 
         return (
@@ -287,12 +299,14 @@ export default function ConversationScreen() {
     };
 
     const handleSendImage = async () => {
-        await pickImage(setImage);
-        try {
-            if (image) {
-                const formData = new FormData();
-                formData.append("senderId", String(currentUserId));
-                formData.append("chatId", String(chatId));
+        const image = await pickImage()
+        setImage(image)
+        try{
+            // upload avatar
+            if(image){
+                const formData = new FormData()
+                formData.append('senderId', String(currentUserId))
+                formData.append('chatId', String(chatId))
                 // @ts-ignore
                 formData.append("avatar", {
                     uri: image,
