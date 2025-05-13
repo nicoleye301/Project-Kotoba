@@ -55,7 +55,6 @@ export default function UsersPosts() {
             <View style={styles.postContainer}>
                 <PostBox
                     post={item}
-                    avatarLoading={false}
                     avatarStructure={postAvatar}
                     currentUserId={currentUserId}
                 />
