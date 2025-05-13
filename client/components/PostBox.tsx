@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import {View, TouchableOpacity, Text, StyleSheet, Image} from "react-native";
 import Constants from "expo-constants";
 import Avatar from "@/components/Avatar";
-import {AvatarStructure, Post} from "@/app/(tabs)/posts";
+import {AvatarStructure} from "@/app/(tabs)/posts";
 import {Button} from "react-native-paper";
 import LikeApi from "@/api/PostLike";
 import {Link, router} from "expo-router";
@@ -12,7 +12,6 @@ const BASE_URL = Constants.expoConfig.extra.API_BASE_URL;
 
 type postBoxProps = {
     post: { id: number, posterId: number, content: string, postTime: string, imageURL: string};
-    avatarLoading: boolean;
     avatarStructure: AvatarStructure;
     currentUserId: number;
 };
@@ -24,7 +23,7 @@ export interface Like {
     content: string;
 }
 
-export default function postBox({ post, avatarLoading, avatarStructure, currentUserId }: postBoxProps) {
+export default function postBox({ post, avatarStructure, currentUserId }: postBoxProps) {
     const date = new Date(post.postTime);
     const timeString = !isNaN(date.getTime())
         ? date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })
@@ -80,15 +79,24 @@ export default function postBox({ post, avatarLoading, avatarStructure, currentU
 
     return (
         <View>
-            <TouchableOpacity onPress={() => {
-                router.push(`/UsersPosts?posterId=${post.posterId}&avatarURL=${encodeURIComponent(avatarStructure.url)}
-                            &avatarUsername=${encodeURIComponent(avatarStructure.username)}`)
-            }}>
-                <View>
-                    {!avatarLoading && <Avatar avatarUrl={avatarStructure.url} title={avatarStructure.username}/>}
-                </View>
-            </TouchableOpacity>
             <View style={styles.post}>
+                <TouchableOpacity onPress={() => {
+                    router.push(`/UsersPosts?posterId=${post.posterId}&avatarURL=${encodeURIComponent(avatarStructure.url)}
+                                &avatarUsername=${encodeURIComponent(avatarStructure.username)}`)
+                }}>
+                    <View style={styles.avatarContainer}>
+                        <Avatar
+                            avatarUrl={avatarStructure.url}
+                            title={avatarStructure.username}
+                        />
+                        <Text style={styles.avatarText}>
+                            {avatarStructure.username}
+                        </Text>
+                        <Text style={styles.timestamp}>
+                            {timeString}
+                        </Text>
+                    </View>
+                </TouchableOpacity>
                 <Text style={styles.postText}>
                     {post.content}
                 </Text>
@@ -103,7 +111,6 @@ export default function postBox({ post, avatarLoading, avatarStructure, currentU
                         Dislike
                     </Button>
                 </View>
-                <Text style={styles.timestamp}>{timeString}</Text>
             </View>
         </View>
     );
@@ -120,13 +127,26 @@ const styles = StyleSheet.create({
         paddingVertical: 5,
         paddingHorizontal: 1
     },
+    avatarText: {
+        fontSize: 30,
+    },
+    avatar: {
+        width: 45,
+        height: 45,
+        borderRadius: 24,
+        resizeMode: "cover",
+    },
+    avatarContainer: {
+        flexDirection: "row",
+        borderColor: "#ddd",
+    },
     postText: {
         fontSize: 20,
     },
     timestamp: {
         fontSize: 10,
         color: "#555",
-        marginTop: 4,
+        textAlign: "right",
     },
     buttonContainer: {
         flexDirection: "row",
