@@ -1,5 +1,6 @@
 package com.example.server.service;
 
+import com.example.server.entity.GroupMember;
 import com.example.server.entity.Message;
 import com.example.server.exception.CustomException;
 import com.example.server.mapper.MessageMapper;
@@ -19,6 +20,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 
 @Service
@@ -29,6 +31,9 @@ public class MessageService {
 
     @Resource
     private KTextWebSocket kTextWebSocket;
+
+    @Resource
+    private GroupMemberService groupMemberService;
 
     @Value("${upload-directory}")
     private String uploadBaseDir;
@@ -62,7 +67,10 @@ public class MessageService {
             data.put("timestamp", msg.getSentTime().toString());
             data.put("type", msg.getType());
             ObjectMapper objectMapper = new ObjectMapper();
-            kTextWebSocket.broadcast(objectMapper.writeValueAsString(data));
+
+            // get group members
+            List<GroupMember> groupMembers = groupMemberService.getMembers(msg.getGroupId());
+            kTextWebSocket.broadcast(objectMapper.writeValueAsString(data), groupMembers);
 
             return msg;
         } catch (Exception e) {

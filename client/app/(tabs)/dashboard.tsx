@@ -20,6 +20,8 @@ export default function DashboardScreen() {
             const uid = await AsyncStorage.getItem("loggedInUserId");
             if (uid) {
                 setUserId(uid);
+                connectWebSocket(uid);
+                setLoading(false);
                 try {
                     await fetchMilestones(uid);
                 } catch (err) {
@@ -28,8 +30,6 @@ export default function DashboardScreen() {
             } else {
                 router.replace("/login")
             }
-            connectWebSocket();
-            setLoading(false);
         }, [])
 
     useFocusEffect(useCallback(() => {

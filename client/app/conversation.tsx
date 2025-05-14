@@ -428,7 +428,7 @@ export default function ConversationScreen() {
                     {analysisLoading && <ActivityIndicator />}
                     {analysisError && <Text style={{color:'red'}}>{analysisError}</Text>}
                     {!analysisLoading && !analysisError && analysisLines.map((l,i)=>
-                        <Text key={i} style={styles.analysisText}>{l}</Text>
+                        <Text key={i} style={analysisStyles.analysisText}>{l}</Text>
                     )}
                     <TouchableOpacity onPress={()=>setAiAnalysisVisible(false)}>
                         <Text style={[styles.modalOption,{color:'#FF4C4C',marginTop:10}]}>Close</Text>
