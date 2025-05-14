@@ -5,7 +5,7 @@ import {
     Platform,
     StyleSheet,
     ActivityIndicator,
-    Dimensions, Text,
+    Dimensions, Text, TouchableOpacity, Image,
 } from "react-native";
 import {TextInput, Button, Appbar} from "react-native-paper";
 import PostBox from "@/components/PostBox";
@@ -16,6 +16,12 @@ import PostApi from "@/api/post";
 import CommentApi from "@/api/PostComment";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {useSearchParams} from "expo-router/build/hooks";
+import Constants from "expo-constants";
+import CommentBox from "@/components/CommentBox";
+
+// @ts-ignore
+const BASE_URL = Constants.expoConfig.extra.API_BASE_URL;
+
 
 export interface Post {
     id: number;
@@ -104,11 +110,10 @@ export default function comments() {
         } catch (err) {
             console.error("Error commenting:", err);
         }
-
     }
 
     const handleRetrieveComment = async ()=> {
-        getAvatars();
+        await getAvatars();
         setLoading(true);
         CommentApi.retrieveComment(currentPost.id)
             .then((history: Comment[]) => {
@@ -120,9 +125,10 @@ export default function comments() {
     const renderComment = ({ item }: { item: Comment}) => {
         return (
             <View>
-                <Text style={styles.commentText}>
-                    {item.content}
-                </Text>
+                <CommentBox
+                    comment={item}
+                    avatarStructure={avatars[item.senderId.toString()]}
+                />
             </View>
         )
     }
@@ -141,7 +147,6 @@ export default function comments() {
                 <View>
                     <PostBox
                         post={currentPost}
-                        avatarLoading={avatarLoading}
                         avatarStructure={postAvatar}
                         currentUserId={currentUserId}
                     />
@@ -163,7 +168,7 @@ export default function comments() {
                     Refresh comments
                 </Button>
 
-                {loading ? (
+                {loading || avatarLoading ? (
                     <ActivityIndicator size="large" color="#333" style={styles.loadingIndicator} />
                 ) : (
                     <FlatList
@@ -205,6 +210,28 @@ const styles = StyleSheet.create({
         borderColor: "#ddd",
         alignItems: "center",
     },
+    avatarText: {
+        fontSize: 20,
+    },
+    avatar: {
+        width: 45,
+        height: 45,
+        borderRadius: 24,
+        resizeMode: "cover",
+    },
+    avatarPlaceholder: {
+        backgroundColor: "#bbb",
+        justifyContent: "center",
+        alignItems: "center",
+    },
+    avatarInitial: {
+        color: "#fff",
+        fontSize: 20,
+        fontWeight: "bold",
+    },
+    avatarContainer: {
+        display: "flex"
+    },
     buttonContainer: {
         display: "flex"
     },
@@ -215,14 +242,5 @@ const styles = StyleSheet.create({
     messageText: {
         fontSize: 16,
         color: "#333",
-    },
-    commentText: {
-        fontSize: 15,
-    },
-    timestamp: {
-        fontSize: 10,
-        color: "#555",
-        alignSelf: "flex-end",
-        marginTop: 4,
     },
 });
