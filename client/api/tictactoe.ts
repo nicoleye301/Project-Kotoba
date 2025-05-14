@@ -23,6 +23,7 @@ export class Tictactoe {
             result.gamer1 = parsedGame.gamer1;
             result.gamer2 = parsedGame.gamer2;
             result.lastPlayer = parsedGame.lastPlayer;
+            result.isWin()
         }
         while (result.board.length < 9)
         {
