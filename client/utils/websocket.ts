@@ -1,9 +1,9 @@
 import eventEmitter from "@/utils/eventEmitter";
 
-const wsUrl = "ws://169.226.239.220:8080/ws";
+const wsUrl = "ws://10.0.2.2:8080/ws";
 let socket: WebSocket | null = null;
 
-export function connectWebSocket(): WebSocket {
+export function connectWebSocket(id: string): WebSocket {
 
     if (socket &&
         (socket.readyState === WebSocket.OPEN || socket.readyState === WebSocket.CONNECTING)
@@ -13,7 +13,7 @@ export function connectWebSocket(): WebSocket {
     }
 
     // create the WebSocket connection - connection establish immediately
-    socket = new WebSocket(wsUrl);
+    socket = new WebSocket(wsUrl+"?userId="+id);
 
     // called when connection is opened
     socket.onopen = function (event: Event) {
