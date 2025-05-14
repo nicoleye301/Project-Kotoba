@@ -6,7 +6,7 @@ import {
     Platform,
     StyleSheet,
     ActivityIndicator,
-    Dimensions, Text,
+    Dimensions, Text, TouchableOpacity, Image,
 } from "react-native";
 import {TextInput, Button, Appbar} from "react-native-paper";
 import PostBox from "@/components/PostBox";
@@ -14,7 +14,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {Link, router} from "expo-router";
 import PostApi from "@/api/post"
 import FriendApi from "@/api/friend";
-import pickImage from "@/utils/imagePicker";
 
 export interface Post {
     id: number;
@@ -113,11 +112,11 @@ export default function posts() {
 
 
     const renderPost = ({ item }: { item: Post }) => {
+        const avatarStructure = avatars[item.posterId.toString()];
         return (
             <View style={styles.postContainer}>
                 <PostBox
                     post={item}
-                    avatarLoading={avatarLoading}
                     avatarStructure={avatars[item.posterId.toString()]}
                     currentUserId={currentUserId}
                 />
@@ -162,7 +161,7 @@ export default function posts() {
                 Refresh Posts
             </Button>
 
-            {loading ? (
+            {loading || avatarLoading ? (
                 <ActivityIndicator size="large" color="#333" style={styles.loadingIndicator} />
             ) : (
                 <FlatList

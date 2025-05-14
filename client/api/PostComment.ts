@@ -20,7 +20,7 @@ export async function retrieveComment(postId: number): Promise<Comment[]> {
     return postComment.map((comment: any) => ({
         id: comment.id,
         postId: comment.postId,
-        senderId: comment.senderID,
+        senderId: comment.senderId,
         content: comment.content,
         postTime: comment.postTime,
     }));
