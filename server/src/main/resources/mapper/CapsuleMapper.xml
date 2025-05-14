@@ -56,20 +56,21 @@
             parameterType="int"
             resultMap="CapsuleResultMap">
         SELECT
-        id,
-        creator_id,
-        target_user_id,
-        message,
-        unlock_time,
-        created_at,
-        is_unlocked,
-        unlocked_at
+            id,
+            creator_id,
+            target_user_id,
+            message,
+            unlock_time,
+            created_at,
+            is_unlocked,
+            unlocked_at
         FROM capsule
         WHERE target_user_id = #{targetUserId}
-        AND is_unlocked = false
-        AND unlock_time   <= now()
+          AND is_unlocked = false
+          AND unlock_time &lt;= now()
         ORDER BY unlock_time ASC
     </select>
+
 
     <!-- mark as unlocked -->
     <update id="markCapsuleUnlocked"
