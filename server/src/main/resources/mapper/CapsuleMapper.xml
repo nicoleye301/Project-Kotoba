@@ -76,6 +76,7 @@
         ORDER BY unlock_time ASC
     </select>
 
+
     <!-- mark as unlocked -->
     <update id="markCapsuleUnlocked"
             parameterType="int">

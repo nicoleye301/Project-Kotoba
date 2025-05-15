@@ -1,15 +1,14 @@
-import {Tictactoe} from "@/api/tictactoe";
 import {Button} from "react-native-paper";
-import {StyleSheet, View} from "react-native";
+import {StyleSheet, View, Text} from "react-native";
 import React from "react";
 
 type GameProps = {
     message: { content: string; sentTime: string};
-    isOwn: boolean;
+    win: number;
     callbackOnPress: Function
 };
 
-export default function GameBubble({message, isOwn, callbackOnPress}:GameProps){
+export default function GameBubble({message, win, callbackOnPress}:GameProps){
     const board = JSON.parse(message.content).board
 
     return (
@@ -76,6 +75,12 @@ export default function GameBubble({message, isOwn, callbackOnPress}:GameProps){
                     </Button>
                 </View>
             </View>
+            {(win===1) &&<Text>
+                You win!
+            </Text>}
+            {(win===-1) &&<Text>
+                You lose!
+            </Text>}
         </View>
     )
 }

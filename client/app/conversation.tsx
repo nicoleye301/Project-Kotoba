@@ -199,6 +199,7 @@ export default function ConversationScreen() {
     const sendMessageGame = async (ttt:Tictactoe=new Tictactoe(currentUserId)) => {
         if (!currentUserId || !chatId) return;
         try {
+            setShowAddMenu(false)
             const newMessage: Message = await ChatApi.sendMessage({
                 senderId: currentUserId,
                 groupId: chatId,
@@ -266,16 +267,15 @@ export default function ConversationScreen() {
         else if(item.type==='game'){
             const ttt = Tictactoe.fromString(item.content);
             const winner = ttt.winner
-            if(messages[messages.length-1]===item){
-                if (winner===currentUserId){
-                    alert('You win!')
-                }
-                else if(winner!== null){
-                    alert('You lose!')
-                }
+            let win = 0;
+            if (winner===currentUserId){
+                win = 1;
+            }
+            else if(winner!== null){
+                win = -1;
             }
 
-            bubble = <GameBubble message={item} isOwn={isOwn} callbackOnPress={playTictictoe}/>
+            bubble = <GameBubble message={item} win={win} callbackOnPress={playTictictoe}/>
         }
 
         return (
@@ -428,7 +428,7 @@ export default function ConversationScreen() {
                     {analysisLoading && <ActivityIndicator />}
                     {analysisError && <Text style={{color:'red'}}>{analysisError}</Text>}
                     {!analysisLoading && !analysisError && analysisLines.map((l,i)=>
-                        <Text key={i} style={styles.analysisText}>{l}</Text>
+                        <Text key={i} style={analysisStyles.analysisText}>{l}</Text>
                     )}
                     <TouchableOpacity onPress={()=>setAiAnalysisVisible(false)}>
                         <Text style={[styles.modalOption,{color:'#FF4C4C',marginTop:10}]}>Close</Text>
