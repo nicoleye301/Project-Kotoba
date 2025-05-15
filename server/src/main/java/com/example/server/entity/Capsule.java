@@ -1,8 +1,7 @@
 package com.example.server.entity;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
-
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 
 public class Capsule {
     private Integer id;
@@ -10,18 +9,18 @@ public class Capsule {
     private Integer targetUserId;
     private String message;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    private LocalDateTime unlockTime;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private OffsetDateTime unlockTime;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    private LocalDateTime createdAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private OffsetDateTime createdAt;
 
     private Boolean isUnlocked;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSS")
-    private LocalDateTime unlockedAt;
+    @JsonFormat(shape = JsonFormat.Shape.STRING)
+    private OffsetDateTime unlockedAt;
 
-    //getter and setter
+    // getters & setters
     public Integer getId() { return id; }
     public void setId(Integer id) { this.id = id; }
 
@@ -34,15 +33,15 @@ public class Capsule {
     public String getMessage() { return message; }
     public void setMessage(String message) { this.message = message; }
 
-    public LocalDateTime getUnlockTime() { return unlockTime; }
-    public void setUnlockTime(LocalDateTime unlockTime) { this.unlockTime = unlockTime; }
+    public OffsetDateTime getUnlockTime() { return unlockTime; }
+    public void setUnlockTime(OffsetDateTime unlockTime) { this.unlockTime = unlockTime; }
 
-    public LocalDateTime getCreatedAt() { return createdAt; }
-    public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
+    public OffsetDateTime getCreatedAt() { return createdAt; }
+    public void setCreatedAt(OffsetDateTime createdAt) { this.createdAt = createdAt; }
 
     public Boolean getIsUnlocked() { return isUnlocked; }
     public void setIsUnlocked(Boolean isUnlocked) { this.isUnlocked = isUnlocked; }
 
-    public LocalDateTime getUnlockedAt() { return unlockedAt; }
-    public void setUnlockedAt(LocalDateTime unlockedAt) { this.unlockedAt = unlockedAt; }
+    public OffsetDateTime getUnlockedAt() { return unlockedAt; }
+    public void setUnlockedAt(OffsetDateTime unlockedAt) { this.unlockedAt = unlockedAt; }
 }
