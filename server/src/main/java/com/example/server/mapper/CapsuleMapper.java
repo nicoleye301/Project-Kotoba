@@ -32,4 +32,7 @@ public interface CapsuleMapper {
      * fetch a single capsule by its id
      */
     Capsule selectById(@Param("id") Integer id);
+
+    List<Capsule> selectReceivedByTarget(@Param("targetUserId") Integer targetUserId);
+
 }

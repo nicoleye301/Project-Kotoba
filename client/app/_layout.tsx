@@ -1,6 +1,6 @@
 import React from "react";
 import { Stack } from "expo-router";
-import { PaperProvider } from "react-native-paper";
+import { PaperProvider, Portal } from "react-native-paper";
 import { LightTheme, DarkTheme } from "@/theme/theme";
 import { useColorScheme } from "react-native";
 
@@ -9,6 +9,7 @@ export default function RootLayout() {
 
     return (
         <PaperProvider theme={scheme === "dark" ? DarkTheme : LightTheme}>
+            <Portal.Host>
             <Stack screenOptions={{headerShown: false}}>
                 {/* Hide header on auth screens */}
                 <Stack.Screen name="login" options={{ headerShown: false }} />
@@ -19,6 +20,7 @@ export default function RootLayout() {
                 <Stack.Screen name="conversation" options={{ title: "Conversation" }} />
                 <Stack.Screen name="settings" options={{ title: "Settings" }} />
             </Stack>
+            </Portal.Host>
         </PaperProvider>
     );
 }

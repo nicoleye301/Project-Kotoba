@@ -3,296 +3,175 @@ import {
     StyleSheet,
     View,
     TouchableOpacity,
-    TextInput,
-    FlatList,
+    ScrollView,
 } from 'react-native';
-import { Modal, Card, Button, Text, Paragraph } from 'react-native-paper';
-import LottieView from 'lottie-react-native';
-import CapsuleApi, { Capsule } from '../api/capsule';
+import { Button, Text, Paragraph } from 'react-native-paper';
+import CapsuleApi, { Capsule as CapsuleModel } from '@/api/capsule';
+import UserApi from '@/api/user';
+import eventEmitter from '@/utils/eventEmitter';
+import { getDisplayName } from '@/utils/displayName';
 
 interface Props {
-    me: number;        // your user ID
-    friendId: number;  // who this capsule is for
+    me: number;
 }
 
-const Capsule: React.FC<Props> = ({ me, friendId }) => {
-    const [visible, setVisible] = useState(false);
+export default function Capsule({ me }: Props) {
+    const [myCapsules, setMyCapsules] = useState<CapsuleModel[]>([]);
+    const [readyCapsules, setReadyCapsules] = useState<CapsuleModel[]>([]);
+    const [tab, setTab] = useState<'sent' | 'received'>('sent');
+    const [sentSubTab, setSentSubTab] = useState<'locked' | 'opened'>('locked');
+    const [userNames, setUserNames] = useState<Record<number, string>>({});
 
-    // all capsules you’ve created
-    const [myCapsules, setMyCapsules] = useState<Capsule[]>([]);
-
-    // for unlock flow
-    const [animatingCapsule, setAnimatingCapsule] = useState<Capsule | null>(null);
-    const [unlockedCapsule, setUnlockedCapsule]   = useState<Capsule | null>(null);
-
-    // for scheduling
-    const [pendingMsg, setPendingMsg] = useState('');
-
-    // load your created capsules once on mount
+    // load scheduled
     useEffect(() => {
-        async function loadMine() {
-            try {
-                const list = await CapsuleApi.fetchByCreator(me);
-                setMyCapsules(list);
-            } catch (e) {
-                console.error('Failed to load capsules', e);
-            }
-        }
-        loadMine();
+        CapsuleApi.fetchByCreator(me).then(setMyCapsules).catch(console.error);
     }, [me]);
 
-    // check for any ready-to-unlock capsules
-    const openCapsule = async () => {
-        setVisible(true);
-        setUnlockedCapsule(null);
+    // load received on demand
+    useEffect(() => {
+        if (tab === 'received') {
+            CapsuleApi.fetchReceived(me).then(setReadyCapsules).catch(console.error);
+        }
+    }, [tab, me]);
 
-        try {
-            const ready = await CapsuleApi.fetchReady(friendId);
-            if (ready.length > 0) {
-                setAnimatingCapsule(ready[0]);
+    // live unlocks
+    useEffect(() => {
+        const sub = eventEmitter.addListener('capsuleUnlockedExternally', p => {
+            if (p.targetUserId === me) {
+                setReadyCapsules(r => [
+                    ...r,
+                    {
+                        id: p.capsuleId,
+                        creatorId: p.creatorId,
+                        targetUserId: p.targetUserId,
+                        message: p.message,
+                        unlockTime: p.unlockTime,
+                        createdAt: new Date().toISOString(),
+                        isUnlocked: true,
+                        unlockedAt: p.unlockTime,
+                    },
+                ]);
             }
-        } catch (e) {
-            console.error('Failed to fetch ready capsules', e);
-        }
-    };
+        });
+        return () => sub.remove();
+    }, [me]);
 
-    // after animation, show the message
-    const onAnimationFinish = () => {
-        if (!animatingCapsule) return;
-        setUnlockedCapsule(animatingCapsule);
-        setAnimatingCapsule(null);
-    };
+    // fetch display names
+    useEffect(() => {
+        const ids = new Set<number>();
+        myCapsules.forEach(c => ids.add(c.targetUserId));
+        readyCapsules.forEach(c => ids.add(c.creatorId));
+        ids.forEach(id => {
+            if (!userNames[id]) {
+                UserApi.getUserById(id)
+                    .then(u =>
+                        setUserNames(n => ({
+                            ...n,
+                            [id]: getDisplayName({ username: u.username }, undefined),
+                        }))
+                    )
+                    .catch(console.error);
+            }
+        });
+    }, [myCapsules, readyCapsules]);
 
-    // schedule a new capsule right now
-    const scheduleCapsule = async () => {
-        try {
-            const newCapsule = await CapsuleApi.createCapsule({
-                creatorId: me,
-                targetUserId: friendId,
-                message: pendingMsg,
-                unlockTime: new Date().toISOString(),
-            });
-            setPendingMsg('');
-            // reload your list so the new one appears
-            const list = await CapsuleApi.fetchByCreator(me);
-            setMyCapsules(list);
-        } catch (e) {
-            console.error('Failed to schedule capsule', e);
-        }
-    };
-
-    // tap on one of your capsules to fetch its full details
-    const viewCapsule = async (id: number) => {
-        try {
-            const full = await CapsuleApi.fetchById(id);
-            console.log('Full capsule details:', full);
-            // optionally display full details somewhere
-        } catch (e) {
-            console.error('Failed to fetch capsule by id', e);
-        }
-    };
-
-    const close = () => {
-        setVisible(false);
-        setAnimatingCapsule(null);
-        setUnlockedCapsule(null);
-        setPendingMsg('');
-    };
+    const locked = myCapsules.filter(c => !c.isUnlocked);
+    const opened = myCapsules.filter(c => c.isUnlocked);
 
     return (
-        <View style={styles.container}>
-            <Text style={styles.pageTitle}>Capsule Demo</Text>
-            <Button mode="contained" onPress={openCapsule} style={styles.openButton}>
-                Open Capsule Demo
-            </Button>
+        <ScrollView
+            style={styles.container}
+            contentContainerStyle={{ paddingBottom: 20 }}
+            keyboardShouldPersistTaps="handled"
+        >
+            {/* main tabs */}
+            <View style={styles.tabBar}>
+                <Button
+                    mode={tab === 'sent' ? 'contained' : 'outlined'}
+                    onPress={() => setTab('sent')}
+                    style={styles.tabButton}
+                >
+                    Scheduled
+                </Button>
+                <Button
+                    mode={tab === 'received' ? 'contained' : 'outlined'}
+                    onPress={() => setTab('received')}
+                    style={styles.tabButton}
+                >
+                    Received
+                </Button>
+            </View>
 
-            <Modal
-                visible={visible}
-                onDismiss={close}
-                contentContainerStyle={styles.modalContainer}
-            >
-                <Card style={styles.capsuleCard}>
-
-                    {/* list of all capsules user created */}
-                    <Text style={styles.sectionTitle}>Your Scheduled Capsules</Text>
-                    <FlatList
-                        data={myCapsules}
-                        keyExtractor={item => item.id.toString()}
-                        style={styles.list}
-                        renderItem={({ item }) => (
-                            <TouchableOpacity onPress={() => viewCapsule(item.id)}>
+            {tab === 'sent' ? (
+                <>
+                    {/* sub-tabs under Scheduled */}
+                    <View style={styles.subTabBar}>
+                        <Button
+                            mode={sentSubTab === 'locked' ? 'contained' : 'outlined'}
+                            onPress={() => setSentSubTab('locked')}
+                            style={styles.subTabButton}
+                        >
+                            Locked
+                        </Button>
+                        <Button
+                            mode={sentSubTab === 'opened' ? 'contained' : 'outlined'}
+                            onPress={() => setSentSubTab('opened')}
+                            style={styles.subTabButton}
+                        >
+                            Opened
+                        </Button>
+                    </View>
+                    <Text style={styles.title}>
+                        {sentSubTab === 'locked' ? 'Locked Capsules' : 'Opened Capsules'}
+                    </Text>
+                    {(sentSubTab === 'locked' ? locked : opened).length === 0 ? (
+                        <Paragraph>No capsules here.</Paragraph>
+                    ) : (
+                        (sentSubTab === 'locked' ? locked : opened).map(c => (
+                            <TouchableOpacity key={c.id}>
                                 <Paragraph>
-                                    To {item.targetUserId} @{' '}
-                                    {new Date(item.unlockTime).toLocaleString()} —{' '}
-                                    {item.isUnlocked ? '🔓' : '🔒'}
+                                    To {userNames[c.targetUserId] ?? c.targetUserId} @{' '}
+                                    {new Date(c.unlockTime).toLocaleString()} —{' '}
+                                    {c.isUnlocked ? '🔓' : '🔒'}
                                 </Paragraph>
                             </TouchableOpacity>
-                        )}
-                    />
-
-                    {/* unlock / animation header */}
-                    <View style={styles.headerRow}>
-                        <Text style={styles.headerTitle}>Capsule</Text>
-                        <TouchableOpacity onPress={close}>
-                            <Text style={styles.closeText}>Close</Text>
-                        </TouchableOpacity>
-                    </View>
-
-                    {/* unlock flow */}
-                    {animatingCapsule ? (
-                        <View style={styles.animationContainer}>
-                            <LottieView
-                                source={require('../assets/unlock_animation.json')}
-                                autoPlay
-                                loop={false}
-                                speed={2}
-                                onAnimationFinish={onAnimationFinish}
-                                style={[styles.lottie, { width: 250, height: 250 }]}
-                            />
-                        </View>
-                    ) : unlockedCapsule ? (
-                        <>
-                            <Text style={styles.secretMessage}>
-                                {unlockedCapsule.message}
-                            </Text>
-                            <Button mode="outlined" style={styles.optionsButton}>
-                                Save to Favorite
-                            </Button>
-                        </>
-                    ) : (
-                        <>
-                            {/* scheduling UI */}
-                            <Paragraph style={styles.lockedText}>
-                                No capsule to open yet. Schedule one below:
-                            </Paragraph>
-                            <TextInput
-                                style={styles.input}
-                                placeholder="Your secret message"
-                                value={pendingMsg}
-                                onChangeText={setPendingMsg}
-                            />
-                            <Button
-                                mode="contained"
-                                onPress={scheduleCapsule}
-                                disabled={!pendingMsg.trim()}
-                                contentStyle={styles.unlockButtonContent}
-                                style={[styles.unlockButton, { marginTop: 12 }]}
-                            >
-                                Schedule & Unlock Now
-                            </Button>
-                        </>
+                        ))
                     )}
-                </Card>
-            </Modal>
-        </View>
+                </>
+            ) : (
+                <>
+                    <Text style={styles.title}>Capsules You’ve Received</Text>
+                    {readyCapsules.length === 0 ? (
+                        <Paragraph>No unlocked capsules yet.</Paragraph>
+                    ) : (
+                        readyCapsules.map(c => (
+                            <View key={c.id} style={styles.capsuleCard}>
+                                <Paragraph>
+                                    From {userNames[c.creatorId] ?? c.creatorId} @{' '}
+                                    {new Date(c.unlockTime).toLocaleString()}
+                                </Paragraph>
+                                <Paragraph style={styles.message}>"{c.message}"</Paragraph>
+                            </View>
+                        ))
+                    )}
+                </>
+            )}
+        </ScrollView>
     );
-};
-
-export default Capsule;
+}
 
 const styles = StyleSheet.create({
-    container: {
-        flex: 1,
-        backgroundColor: '#F2F2F2',
-        justifyContent: 'center',
-        alignItems: 'center',
-        padding: 20,
-    },
-    pageTitle: {
-        fontSize: 28,
-        fontWeight: '600',
-        color: '#333',
-        marginBottom: 20,
-    },
-    openButton: {
-        borderRadius: 8,
-        backgroundColor: '#2f5476',
-    },
-    modalContainer: {
-        backgroundColor: '#fff',
-        margin: 20,
-        borderRadius: 12,
-        padding: 20,
-    },
+    container: { flex: 1, backgroundColor: '#F2F2F2' },
+    tabBar: { flexDirection: 'row', marginBottom: 16 },
+    tabButton: { flex: 1, marginHorizontal: 4 },
+    subTabBar: { flexDirection: 'row', marginBottom: 8 },
+    subTabButton: { flex: 1, marginHorizontal: 4 },
+    title: { fontSize: 20, fontWeight: '600', marginBottom: 12 },
     capsuleCard: {
-        borderRadius: 12,
-        padding: 20,
-        backgroundColor: '#ffffff',
-        shadowColor: '#000',
-        shadowOpacity: 0.12,
-        shadowOffset: { width: 0, height: 4 },
-        shadowRadius: 8,
-        elevation: 8,
-    },
-    sectionTitle: {
-        fontSize: 16,
-        fontWeight: '500',
-        marginBottom: 8,
-    },
-    list: {
-        maxHeight: 150,
-        marginBottom: 12,
-    },
-    headerRow: {
-        flexDirection: 'row',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: 16,
-    },
-    headerTitle: {
-        fontSize: 18,
-        fontWeight: '500',
-        color: '#555',
-    },
-    closeText: {
-        fontSize: 16,
-        color: '#999',
-    },
-    lockedText: {
-        fontSize: 16,
-        color: '#666',
-        textAlign: 'center',
-        marginBottom: 16,
-    },
-    unlockButton: {
-        alignSelf: 'center',
-        borderRadius: 8,
-        backgroundColor: '#2f5476',
-    },
-    unlockButtonContent: {
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-    },
-    input: {
-        borderWidth: 1,
-        borderColor: '#ccc',
-        borderRadius: 6,
         padding: 8,
-        marginHorizontal: 16,
+        marginBottom: 8,
+        backgroundColor: '#fff',
+        borderRadius: 6,
     },
-    secretMessage: {
-        fontSize: 22,
-        fontWeight: '600',
-        color: '#222',
-        textAlign: 'center',
-        marginBottom: 20,
-    },
-    optionsButton: {
-        alignSelf: 'center',
-        borderRadius: 8,
-        borderColor: '#2f5476',
-    },
-    optionsButtonContent: {
-        paddingVertical: 8,
-        paddingHorizontal: 16,
-    },
-    animationContainer: {
-        height: 150,
-        justifyContent: 'center',
-        alignItems: 'center',
-    },
-    lottie: {
-        width: 150,
-        height: 150,
-    },
+    message: { fontStyle: 'italic' },
 });

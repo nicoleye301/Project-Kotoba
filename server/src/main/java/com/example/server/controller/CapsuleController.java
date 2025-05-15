@@ -5,7 +5,7 @@ import com.example.server.service.CapsuleService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.List;
 
 /**
@@ -61,5 +61,10 @@ public class CapsuleController {
     public ResponseEntity<Capsule> getById(@PathVariable Integer id) {
         Capsule c = capsuleService.getCapsuleById(id);
         return ResponseEntity.ok(c);
+    }
+
+    @GetMapping("/received/{userId}")
+    public ResponseEntity<List<Capsule>> listReceived(@PathVariable Integer userId) {
+        return ResponseEntity.ok(capsuleService.getReceivedByTarget(userId));
     }
 }

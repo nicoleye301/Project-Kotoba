@@ -9,7 +9,7 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
 import java.util.HashMap;
 import java.util.List;
 
@@ -23,22 +23,21 @@ public class CapsuleService {
     private KTextWebSocket kTextWebSocket;
 
     /**
-     * Create a new time‐capsule message.
+     * create a new time‐capsule message
      */
     @Transactional
     public Capsule createCapsule(Integer creatorId,
                                  Integer targetUserId,
                                  String message,
-                                 LocalDateTime unlockTime) {
+                                 OffsetDateTime unlockTime) {
         try {
             Capsule c = new Capsule();
             c.setCreatorId(creatorId);
             c.setTargetUserId(targetUserId);
             c.setMessage(message);
             c.setUnlockTime(unlockTime);
-            c.setCreatedAt(LocalDateTime.now());
+            c.setCreatedAt(OffsetDateTime.now());
             c.setIsUnlocked(false);
-
             capsuleMapper.insertCapsule(c);
             return c;
         } catch (Exception e) {
@@ -47,17 +46,17 @@ public class CapsuleService {
     }
 
     /**
-     * Fetch all capsules that the given user has created,
-     * regardless of unlock status/time.
+     * fetch all capsules that the given user has created,
+     * regardless of unlock status/time
      */
     public List<Capsule> getCapsulesByCreator(Integer creatorId) {
         return capsuleMapper.selectByCreator(creatorId);
     }
 
     /**
-     * Fetch any capsules for the target user whose unlock time has passed
-     * but have not yet been marked unlocked.
-     * Marks each one unlocked and broadcasts a WebSocket notification.
+     * fetch any capsules for the target user whose unlock time has passed
+     * but have not yet been marked unlocked
+     * marks each one unlocked and broadcasts a WebSocket notification
      */
     @Transactional
     public List<Capsule> fetchAndUnlockForTarget(Integer targetUserId) {
@@ -88,7 +87,7 @@ public class CapsuleService {
     }
 
     /**
-     * Retrieve a capsule by its ID.
+     * retrieve a capsule by its ID
      */
     public Capsule getCapsuleById(Integer id) {
         Capsule c = capsuleMapper.selectById(id);
@@ -96,5 +95,9 @@ public class CapsuleService {
             throw new CustomException(404, "Capsule not found: " + id);
         }
         return c;
+    }
+
+    public List<Capsule> getReceivedByTarget(Integer targetUserId) {
+        return capsuleMapper.selectReceivedByTarget(targetUserId);
     }
 }

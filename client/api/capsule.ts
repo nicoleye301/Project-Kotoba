@@ -1,4 +1,5 @@
 import Http from "@/utils/http";
+import axios from "axios";
 
 export interface Capsule {
     id: number;
@@ -44,9 +45,13 @@ export async function fetchById(id: number): Promise<Capsule> {
     return await Http.get(`/api/capsules/${id}`);
 }
 
+export async function fetchReceived(targetUserId: number): Promise<Capsule[]> {
+    return await Http.get(`/api/capsules/received/${targetUserId}`);
+}
 export default {
     createCapsule,
     fetchByCreator,
     fetchReady,
     fetchById,
+    fetchReceived
 };
