@@ -148,7 +148,8 @@ export default function Settings() {
                         title={userName}
                         left={() => <Image source={{uri: (avatar?avatar:BASE_URL+"/uploads/avatar/default.jpg")}} style={styles.avatar}/>}
                         onPress={async () => {
-                            await pickImage(setAvatar)
+                            const avatar = await pickImage()
+                            setAvatar(avatar)
                         }}
                     />
                 }

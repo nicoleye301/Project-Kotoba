@@ -20,7 +20,7 @@ export default function GameBubble({message, isOwn, callbackOnPress}:GameProps){
                     {
                         flexDirection: 'column',
                         aspectRatio: 1,
-                        flex: 0.1,
+                        flex: 1,
                     },
                 ]}>
                 <View
@@ -30,14 +30,14 @@ export default function GameBubble({message, isOwn, callbackOnPress}:GameProps){
                             flexDirection: 'row',
                         },
                     ]}>
-                    <Button mode="contained" onPress={()=>{callbackOnPress(board, 0)}} style={[styles.tictactoeCell,]}>
-                        {" "}
+                    <Button mode="contained" onPress={()=>{callbackOnPress(message.content, 0)}} style={[styles.tictactoeCell,]}>
+                        {board[0]}
                     </Button>
-                    <Button mode="contained" onPress={()=>{callbackOnPress(board, 1)}} style={[styles.tictactoeCell,]}>
-                        {" "}
+                    <Button mode="contained" onPress={()=>{callbackOnPress(message.content, 1)}} style={[styles.tictactoeCell,]}>
+                        {board[1]}
                     </Button>
-                    <Button mode="contained" onPress={()=>{callbackOnPress(board, 2)}} style={[styles.tictactoeCell,]}>
-                        {" "}
+                    <Button mode="contained" onPress={()=>{callbackOnPress(message.content, 2)}} style={[styles.tictactoeCell,]}>
+                        {board[2]}
                     </Button>
                 </View>
                 <View
@@ -47,14 +47,14 @@ export default function GameBubble({message, isOwn, callbackOnPress}:GameProps){
                             flexDirection: 'row',
                         },
                     ]}>
-                    <Button mode="contained" onPress={()=>{callbackOnPress(board, 3)}} style={[styles.tictactoeCell,]}>
-                        {" "}
+                    <Button mode="contained" onPress={()=>{callbackOnPress(message.content, 3)}} style={[styles.tictactoeCell,]}>
+                        {board[3]}
                     </Button>
-                    <Button mode="contained" onPress={()=>{callbackOnPress(board, 4)}} style={[styles.tictactoeCell,]}>
-                        {" "}
+                    <Button mode="contained" onPress={()=>{callbackOnPress(message.content, 4)}} style={[styles.tictactoeCell,]}>
+                        {board[4]}
                     </Button>
-                    <Button mode="contained" onPress={()=>{callbackOnPress(board, 5)}} style={[styles.tictactoeCell,]}>
-                        {" "}
+                    <Button mode="contained" onPress={()=>{callbackOnPress(message.content, 5)}} style={[styles.tictactoeCell,]}>
+                        {board[5]}
                     </Button>
                 </View>
                 <View
@@ -65,14 +65,14 @@ export default function GameBubble({message, isOwn, callbackOnPress}:GameProps){
                             flexDirection: 'row',
                         },
                     ]}>
-                    <Button mode="contained" onPress={()=>{callbackOnPress(board, 6)}} style={[styles.tictactoeCell,]}>
-                        {" "}
+                    <Button mode="contained" onPress={()=>{callbackOnPress(message.content, 6)}} style={[styles.tictactoeCell,]}>
+                        {board[6]}
                     </Button>
-                    <Button mode="contained" onPress={()=>{callbackOnPress(board, 7)}} style={[styles.tictactoeCell,]}>
-                        {" "}
+                    <Button mode="contained" onPress={()=>{callbackOnPress(message.content, 7)}} style={[styles.tictactoeCell,]}>
+                        {board[7]}
                     </Button>
-                    <Button mode="contained" onPress={()=>{callbackOnPress(board, 8)}} style={[styles.tictactoeCell,]}>
-                        {" "}
+                    <Button mode="contained" onPress={()=>{callbackOnPress(message.content, 8)}} style={[styles.tictactoeCell,]}>
+                        {board[8]}
                     </Button>
                 </View>
             </View>
