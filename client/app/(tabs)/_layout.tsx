@@ -28,9 +28,14 @@ export default function TabLayout() {
                         <Icon source="home" size={size} color={color} />
                     ) }}
             />
-            {/* Capsule Demo  */}
             <Tabs.Screen
-                name="capsule"
+                name="Report"
+                options={{ title: "Report", tabBarIcon: ({ color, size }) => (
+                            <Icon source="compass" size={size} color={color} />
+                        ) }}
+            />
+            <Tabs.Screen
+                name="TimeCapsule"
                 options={{
                     title: "Capsule",
                     tabBarIcon: ({ color, size }) => (
@@ -38,12 +43,6 @@ export default function TabLayout() {
                     ),
                 }}
             />
-                <Tabs.Screen
-                    name="Report"
-                    options={{ title: "Report", tabBarIcon: ({ color, size }) => (
-                                <Icon source="compass" size={size} color={color} />
-                            ) }}
-                />
         </Tabs>
     );
 }

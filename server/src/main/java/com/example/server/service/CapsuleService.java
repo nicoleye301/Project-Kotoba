@@ -76,7 +76,7 @@ public class CapsuleService {
                 payload.put("targetUserId",c.getTargetUserId());
 
                 String json = new ObjectMapper().writeValueAsString(payload);
-                kTextWebSocket.broadcast(json);
+                kTextWebSocket.broadcast(json, targetUserId);
             } catch (Exception ex) {
                 // log but don’t fail the entire batch
                 System.err.println("WebSocket error: " + ex.getMessage());

@@ -32,6 +32,13 @@ public class KTextWebSocket extends TextWebSocketHandler {
         System.out.println("Connection closed: " + session.getId());
     }
 
+    public void broadcast(String message, Integer userId) throws Exception {
+        WebSocketSession session = sessions.get(userId);
+        if (session!=null){
+            session.sendMessage(new TextMessage(message));
+        }
+    }
+
     public void broadcast(String message, List<GroupMember> groupMembers) throws Exception {
         for (GroupMember user: groupMembers) {
             WebSocketSession session = sessions.get(user.getUserId());
